@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Threading.Tasks.Dataflow;
 
 namespace Infinity.Toolkit.Mediator;
 
@@ -15,12 +15,6 @@ public record Result(bool Success, string Message);
 public interface ICommandDispatcher
 {
     ValueTask DispatchAsync<TCommand>(TCommand command, CancellationToken cancellationToken = default) where TCommand : ICommand;
-}
-
-public interface ICommandDispatcherStrategy
-{
-    ValueTask DispatchAsync<TCommand>(IEnumerable<ICommandHandler<TCommand>> handlers, TCommand command, CancellationToken cancellationToken = default)
-        where TCommand : ICommand;
 }
 
 public class CommandDispatcher : ICommandDispatcher
@@ -42,32 +36,3 @@ public class CommandDispatcher : ICommandDispatcher
     }
 }
 
-public class ForeachAwaitCommandDispatcherStrategy : ICommandDispatcherStrategy
-{
-    public async ValueTask DispatchAsync<TCommand>(IEnumerable<ICommandHandler<TCommand>> handlers, TCommand command, CancellationToken cancellationToken = default)
-        where TCommand : ICommand
-    {
-        foreach (var handler in handlers)
-        {
-            await handler.HandleAsync(command, cancellationToken);
-        }
-    }
-}
-
-public static class ServiceCollectionExtensions
-{
-    public static IServiceCollection AddMediator(this IServiceCollection services)
-    {
-        services.TryAddScoped<ICommandDispatcher, CommandDispatcher>();
-        services.TryAddScoped<ICommandDispatcherStrategy, ForeachAwaitCommandDispatcherStrategy>();
-        return services;
-    }
-
-    public static IServiceCollection AddCommandHandler<TCommand, TCommandHandler>(this IServiceCollection services)
-        where TCommand : ICommand
-        where TCommandHandler : class, ICommandHandler<TCommand>
-    {
-        services.AddTransient<ICommandHandler<TCommand>, TCommandHandler>();
-        return services;
-    }
-}
