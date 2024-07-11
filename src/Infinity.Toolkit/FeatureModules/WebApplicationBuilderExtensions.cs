@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace Infinity.Toolkit.FeatureModules;
 
-public static class WebApplicationExtensions
+public static class WebApplicationBuilderExtensions
 {
     private const string FeatureModulesConfigKey = "FeatureModules";
 
