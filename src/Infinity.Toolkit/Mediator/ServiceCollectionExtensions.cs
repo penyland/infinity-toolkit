@@ -19,4 +19,14 @@ public static class ServiceCollectionExtensions
         services.AddTransient<ICommandHandler<TCommand>, TCommandHandler>();
         return services;
     }
+
+    public static IServiceCollection AddPipeline<TIn, TOut>(this IServiceCollection services, IPipeline<TIn, TOut> pipeline)
+    {
+        return services.AddTransient<IPipeline<TIn, TOut>>(p => pipeline);
+    }
+
+    public static IServiceCollection AddPipeline<TIn, TOut>(this IServiceCollection services, Func<IServiceProvider, IPipeline<TIn, TOut>> pipelineFactory)
+    {
+        return services.AddTransient<IPipeline<TIn, TOut>>(pipelineFactory);
+    }
 }
