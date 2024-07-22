@@ -12,7 +12,7 @@ public static class WebApplicationExtensions
         var featureModules = app.Services.GetRequiredService<IEnumerable<IFeatureModule>>();
         if (featureModules == null || !featureModules.Any())
         {
-            app.Logger.LogWarning("No feature modules registered.");
+            app.Logger.LogWarning(new EventId(4000, "NoModulesRegistered"), "No feature modules registered.");
             return builder;
         }
 
@@ -22,7 +22,7 @@ public static class WebApplicationExtensions
         // Map all endpoints provided by the feature modules, if any.
         foreach (var module in webFeatureModules)
         {
-            app.Logger.LogDebug("Mapping endpoints for {module}", module.GetType().FullName ?? nameof(module));
+            app.Logger.LogDebug(new EventId(1004, "MappingEndpoints"), "Mapping endpoints for {module}", module.GetType().FullName ?? nameof(module));
             module.MapEndpoints(app);
         }
 

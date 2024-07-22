@@ -34,7 +34,8 @@ public static class ServiceCollectionExtensions
 
     internal static IServiceCollection RegisterFeatureModules(this IServiceCollection services, IConfiguration configuration, IHostEnvironment hostEnvironment, FeatureModuleOptions options, ILoggerFactory? loggerFactory)
     {
-        loggerFactory ??= LoggerFactory.Create(builder => {
+        loggerFactory ??= LoggerFactory.Create(builder =>
+        {
             builder
                 .AddConfiguration(configuration.GetSection("Logging"))
 #if DEBUG
@@ -46,13 +47,12 @@ public static class ServiceCollectionExtensions
 
         try
         {
-            logger?.LogDebug(new EventId(1000,"Scanning"), "Scanning assemblies for feature modules...");
+            logger?.LogDebug(new EventId(1000, "Scanning"), "Scanning assemblies for feature modules...");
 
-            var modules = DiscoverModules(services, options, logger);
+            var discoveredModules = DiscoverModules(options, logger);
+            RegisterModules(discoveredModules, services, configuration, hostEnvironment, logger);
 
-            RegisterModules(modules, services, configuration, hostEnvironment, logger);
-
-            logger?.LogDebug(new EventId(1001, "ScanningComplete"), "Registering feature modules completed.");
+            logger?.LogDebug(new EventId(1003, "ScanningComplete"), "Registering feature modules completed.");
 
             return services;
         }
@@ -67,7 +67,7 @@ public static class ServiceCollectionExtensions
     /// Discover all modules that references IFeatureModule.
     /// </summary>
     /// <returns>A list of all feature modules in the solution.</returns>
-    private static IEnumerable<IFeatureModule> DiscoverModules(IServiceCollection services, FeatureModuleOptions options, ILogger? logger)
+    private static IEnumerable<TypeInfo> DiscoverModules(FeatureModuleOptions options, ILogger? logger)
     {
         var assemblies = new HashSet<Assembly>
         {
@@ -88,21 +88,15 @@ public static class ServiceCollectionExtensions
             }
         }
 
-        var typeInfos = assemblies
+        var typesAssignableTo = assemblies
             .SelectMany(x =>
                 x.DefinedTypes
-                .Where(type => type is { IsAbstract: false, IsInterface: false } && type.IsAssignableTo(typeof(IFeatureModule))));
+                .Where(type => type is { IsAbstract: false, IsInterface: false } &&
+                                      type.IsAssignableTo(typeof(IFeatureModule)) &&
+                                      !options.ExcludedModules.Any(t => t == type.FullName)));
 
-        var serviceDescriptors = typeInfos
-            .Select(type => ServiceDescriptor.Transient(typeof(IFeatureModule), type));
-
-        var modules = typeInfos
-            .Select(Activator.CreateInstance)
-            .Cast<IFeatureModule>();
-
-        services.TryAddEnumerable(serviceDescriptors);
-        logger?.LogInformation("Found {moduleCount} feature modules.", modules.Count());
-        return modules;
+        logger?.LogInformation(new EventId(1001, "ModulesFound"), "Found {moduleCount} feature modules.", typesAssignableTo.Count());
+        return typesAssignableTo;
     }
 
     private static bool IsReferencingCurrentAssembly(Library library)
@@ -113,29 +107,36 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Register all classes implementing IFeatureModule while scanning the project to IServiceCollection.
     /// </summary>
-    /// <param name="modules">List of found feature modules.</param>
+    /// <param name="discoveredModules">List of found feature modules.</param>
     /// <param name="services">The <see cref="IServiceCollection"/>.</param>
     /// <param name="configuration">The <see cref="IConfiguration"/>.</param>
     /// <param name="hostEnvironment">The <see cref="IHostEnvironment"/>.</param>
     /// <param name="logger">The <see cref="ILogger"/>.</param>
     /// <exception cref="InvalidOperationException">Thrown if no modules are found while scanning.</exception>
-    public static void RegisterModules(IEnumerable<IFeatureModule> modules, IServiceCollection services, IConfiguration configuration, IHostEnvironment hostEnvironment, ILogger? logger)
+    private static void RegisterModules(IEnumerable<TypeInfo> discoveredModules, IServiceCollection services, IConfiguration configuration, IHostEnvironment hostEnvironment, ILogger? logger)
     {
-        ArgumentNullException.ThrowIfNull(modules, nameof(modules));
+        ArgumentNullException.ThrowIfNull(discoveredModules, nameof(discoveredModules));
         ArgumentNullException.ThrowIfNull(services, nameof(services));
 
         Dictionary<Type, IFeatureModule> registeredFeatureModules = [];
 
+        var serviceDescriptors = discoveredModules
+            .Select(type => ServiceDescriptor.Transient(typeof(IFeatureModule), type));
+        services.TryAddEnumerable(serviceDescriptors);
+
+        var modules = discoveredModules
+            .Select(Activator.CreateInstance)
+            .Cast<IFeatureModule>();
+
         foreach (var module in modules)
         {
-            logger?.LogDebug("Registering feature module: {module} - v{version}", module.GetType().FullName, module.ModuleInfo?.Version);
+            logger?.LogDebug(new EventId(1002, "RegisteringModules"), "Registering feature module: {module} - v{version}", module.GetType().FullName, module.ModuleInfo?.Version);
             registeredFeatureModules.Add(module.GetType(), module);
             module.RegisterModule(new()
             {
                 Configuration = configuration,
                 Environment = hostEnvironment,
-                Services = services,
-                Logger = logger,
+                Services = services
             });
         }
 

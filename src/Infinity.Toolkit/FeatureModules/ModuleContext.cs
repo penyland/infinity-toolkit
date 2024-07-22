@@ -16,9 +16,4 @@ public sealed record ModuleContext
     /// Gets the configuration.
     /// </summary>
     public required IConfiguration Configuration { get; init; }
-
-    /// <summary>
-    /// Optional Logger that can be used when registering module. 
-    /// </summary>
-    public required ILogger? Logger { get; init; }
 }

@@ -45,8 +45,3 @@ public static class WebApplicationBuilderExtensions
         return builder;
     }
 }
-
-public sealed class FeatureModuleBuilder(WebApplication webApplication)
-{
-    public WebApplication WebApplication { get; } = webApplication;
-}
