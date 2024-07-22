@@ -1,0 +1,6 @@
+@FeatureModulesSample_HostAddress = http://localhost:5204
+
+GET {{FeatureModulesSample_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
