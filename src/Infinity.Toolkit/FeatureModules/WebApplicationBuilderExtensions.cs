@@ -1,11 +1,4 @@
-﻿using Infinity.Toolkit.FeatureModules;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-
-namespace Infinity.Toolkit.FeatureModules;
+﻿namespace Infinity.Toolkit.FeatureModules;
 
 public static class WebApplicationBuilderExtensions
 {
@@ -45,7 +38,6 @@ public static class WebApplicationBuilderExtensions
     {
         return builder.AddFeatureModules(options => { });
     }
-       
 
     internal static WebApplicationBuilder RegisterFeatureModules(this WebApplicationBuilder builder, FeatureModuleOptions options, ILoggerFactory? loggerFactory)
     {

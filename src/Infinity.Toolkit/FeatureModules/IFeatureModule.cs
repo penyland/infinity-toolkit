@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Routing;
 
 namespace Infinity.Toolkit.FeatureModules;
 
@@ -23,5 +23,5 @@ public interface IWebFeatureModule : IFeatureModule
     /// <summary>
     /// Maps all endpoints provided by the module in the DI-container.
     /// </summary>
-    void MapEndpoints(WebApplication builder);
+    void MapEndpoints(IEndpointRouteBuilder builder);
 }

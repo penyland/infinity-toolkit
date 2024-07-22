@@ -1,10 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.DependencyModel;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System.Reflection;
 
 namespace Infinity.Toolkit.FeatureModules;
 
@@ -39,26 +34,31 @@ public static class ServiceCollectionExtensions
 
     internal static IServiceCollection RegisterFeatureModules(this IServiceCollection services, IConfiguration configuration, IHostEnvironment hostEnvironment, FeatureModuleOptions options, ILoggerFactory? loggerFactory)
     {
-        loggerFactory ??= LoggerFactory.Create(builder => builder.AddConsole());
+        loggerFactory ??= LoggerFactory.Create(builder => {
+            builder
+                .AddConfiguration(configuration.GetSection("Logging"))
+#if DEBUG
+                .AddDebug()
+#endif
+                .AddConsole();
+        });
         var logger = loggerFactory.CreateLogger("Infinity.Toolkit.FeatureModules");
 
         try
         {
-            logger?.LogInformation("Scanning assemblies for feature modules...");
+            logger?.LogDebug(new EventId(1000,"Scanning"), "Scanning assemblies for feature modules...");
 
-            var modules = DiscoverModules(options, logger);
+            var modules = DiscoverModules(services, options, logger);
 
-            var featureModulesRegistry = new FeatureModules();
-            featureModulesRegistry.RegisterModules(services, configuration, hostEnvironment, modules, logger);
+            RegisterModules(modules, services, configuration, hostEnvironment, logger);
 
-            services.TryAddSingleton<FeatureModules>(featureModulesRegistry);
+            logger?.LogDebug(new EventId(1001, "ScanningComplete"), "Registering feature modules completed.");
 
-            logger?.LogInformation("Registering feature modules completed.");
             return services;
         }
         catch (Exception ex)
         {
-            logger.LogError("Failed to register feature modules. {ex}", ex.Message);
+            logger.LogError(new EventId(5000, "ScanningFailed"), "Failed to register feature modules. {ex}", ex.Message);
             return services;
         }
     }
@@ -67,9 +67,9 @@ public static class ServiceCollectionExtensions
     /// Discover all modules that references IFeatureModule.
     /// </summary>
     /// <returns>A list of all feature modules in the solution.</returns>
-    private static IEnumerable<IFeatureModule> DiscoverModules(FeatureModuleOptions options, ILogger? logger)
+    private static IEnumerable<IFeatureModule> DiscoverModules(IServiceCollection services, FeatureModuleOptions options, ILogger? logger)
     {
-        var results = new HashSet<Assembly>
+        var assemblies = new HashSet<Assembly>
         {
             typeof(Assembly).Assembly,
         };
@@ -83,18 +83,24 @@ public static class ServiceCollectionExtensions
             {
                 foreach (var assemblyName in assembly.GetDefaultAssemblyNames(context))
                 {
-                    results.Add(Assembly.Load(assemblyName));
+                    assemblies.Add(Assembly.Load(assemblyName));
                 }
             }
         }
 
-        var modules = results
+        var typeInfos = assemblies
             .SelectMany(x =>
-                x.GetTypes()
-                 .Where(p => p.IsClass && p.IsAssignableTo(typeof(IFeatureModule)) && !options.ExcludedModules.Any(t => t == p.Name))
-                 .Select(Activator.CreateInstance)
-                 .Cast<IFeatureModule>());
+                x.DefinedTypes
+                .Where(type => type is { IsAbstract: false, IsInterface: false } && type.IsAssignableTo(typeof(IFeatureModule))));
 
+        var serviceDescriptors = typeInfos
+            .Select(type => ServiceDescriptor.Transient(typeof(IFeatureModule), type));
+
+        var modules = typeInfos
+            .Select(Activator.CreateInstance)
+            .Cast<IFeatureModule>();
+
+        services.TryAddEnumerable(serviceDescriptors);
         logger?.LogInformation("Found {moduleCount} feature modules.", modules.Count());
         return modules;
     }
@@ -103,43 +109,34 @@ public static class ServiceCollectionExtensions
     {
         return library.Dependencies.Any(dependency => dependency.Name.Equals(CurrentAssemblyName));
     }
-}
-
-internal class FeatureModules
-{
-    private readonly Dictionary<Type, IFeatureModule> registeredFeatureModules = [];
 
     /// <summary>
     /// Register all classes implementing IFeatureModule while scanning the project to IServiceCollection.
     /// </summary>
+    /// <param name="modules">List of found feature modules.</param>
     /// <param name="services">The <see cref="IServiceCollection"/>.</param>
     /// <param name="configuration">The <see cref="IConfiguration"/>.</param>
     /// <param name="hostEnvironment">The <see cref="IHostEnvironment"/>.</param>
-    /// <param name="modules">List of found feature modules.</param>
     /// <param name="logger">The <see cref="ILogger"/>.</param>
     /// <exception cref="InvalidOperationException">Thrown if no modules are found while scanning.</exception>
-    public void RegisterModules(IServiceCollection services, IConfiguration configuration, IHostEnvironment hostEnvironment, IEnumerable<IFeatureModule> modules, ILogger? logger)
+    public static void RegisterModules(IEnumerable<IFeatureModule> modules, IServiceCollection services, IConfiguration configuration, IHostEnvironment hostEnvironment, ILogger? logger)
     {
         ArgumentNullException.ThrowIfNull(modules, nameof(modules));
         ArgumentNullException.ThrowIfNull(services, nameof(services));
 
+        Dictionary<Type, IFeatureModule> registeredFeatureModules = [];
+
         foreach (var module in modules)
         {
-            logger?.LogInformation("Registering feature module: {module} - v{version}", module.GetType().FullName, module.ModuleInfo?.Version);
-            if (registeredFeatureModules.ContainsKey(module.GetType()))
-            {
-                continue;
-            }
-
+            logger?.LogDebug("Registering feature module: {module} - v{version}", module.GetType().FullName, module.ModuleInfo?.Version);
             registeredFeatureModules.Add(module.GetType(), module);
             module.RegisterModule(new()
             {
                 Configuration = configuration,
                 Environment = hostEnvironment,
                 Services = services,
+                Logger = logger,
             });
-
-            services.AddSingleton<IFeatureModule>(module);
         }
 
         services.Configure<FeatureModuleOptions>(options =>

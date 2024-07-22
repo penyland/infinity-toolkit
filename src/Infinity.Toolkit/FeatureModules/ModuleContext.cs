@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-
-namespace Infinity.Toolkit.FeatureModules;
+﻿namespace Infinity.Toolkit.FeatureModules;
 
 public sealed record ModuleContext
 {
@@ -20,4 +16,9 @@ public sealed record ModuleContext
     /// Gets the configuration.
     /// </summary>
     public required IConfiguration Configuration { get; init; }
+
+    /// <summary>
+    /// Optional Logger that can be used when registering module. 
+    /// </summary>
+    public required ILogger? Logger { get; init; }
 }

@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace Infinity.Toolkit.FeatureModules;
+﻿namespace Infinity.Toolkit.FeatureModules;
 
 /// <summary>
 /// Enables the possibility to exclude feature modules from loading at startup.

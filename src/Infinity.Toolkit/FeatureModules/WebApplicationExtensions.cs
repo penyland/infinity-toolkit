@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-
-namespace Infinity.Toolkit.FeatureModules;
+﻿namespace Infinity.Toolkit.FeatureModules;
 
 public static class WebApplicationExtensions
 {
@@ -14,7 +9,7 @@ public static class WebApplicationExtensions
     public static FeatureModuleBuilder MapFeatureModules(this WebApplication app)
     {
         var builder = new FeatureModuleBuilder(app);
-        var featureModules = app.Services.GetServices<IFeatureModule>();
+        var featureModules = app.Services.GetRequiredService<IEnumerable<IFeatureModule>>();
         if (featureModules == null || !featureModules.Any())
         {
             app.Logger.LogWarning("No feature modules registered.");
@@ -27,7 +22,7 @@ public static class WebApplicationExtensions
         // Map all endpoints provided by the feature modules, if any.
         foreach (var module in webFeatureModules)
         {
-            app.Logger.LogInformation("Mapping endpoints for {module}", module.GetType().FullName ?? nameof(module));
+            app.Logger.LogDebug("Mapping endpoints for {module}", module.GetType().FullName ?? nameof(module));
             module.MapEndpoints(app);
         }
 
