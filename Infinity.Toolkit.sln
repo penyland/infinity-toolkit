@@ -1,6 +1,5 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
+# 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infinity.Toolkit", "src\Infinity.Toolkit\Infinity.Toolkit.csproj", "{16C56631-28E6-4254-B248-61D0D8F338FB}"
@@ -19,7 +18,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{E93D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FeatureModulesSample", "samples\FeatureModulesSample\FeatureModulesSample.csproj", "{AB123FED-C2DB-43CD-A7FE-EF4B31D3DDD0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FeatureModulesSample.Module1", "samples\FeatureModulesSample.Module1\FeatureModulesSample.Module1.csproj", "{7D6D0DF2-951D-4EFD-B0A9-FC8B8BEFD365}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FeatureModulesSample.Module1", "samples\FeatureModulesSample.Module1\FeatureModulesSample.Module1.csproj", "{7D6D0DF2-951D-4EFD-B0A9-FC8B8BEFD365}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleLoggingFormatterSample", "samples\ConsoleLoggingFormatterSample\ConsoleLoggingFormatterSample.csproj", "{2CD6C936-057F-470E-8845-A91A22BF2CD8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +44,10 @@ Global
 		{7D6D0DF2-951D-4EFD-B0A9-FC8B8BEFD365}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D6D0DF2-951D-4EFD-B0A9-FC8B8BEFD365}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D6D0DF2-951D-4EFD-B0A9-FC8B8BEFD365}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CD6C936-057F-470E-8845-A91A22BF2CD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CD6C936-057F-470E-8845-A91A22BF2CD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CD6C936-057F-470E-8845-A91A22BF2CD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CD6C936-057F-470E-8845-A91A22BF2CD8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -52,6 +57,7 @@ Global
 		{FE3D529E-7955-476B-90F5-A87A71A2E8DD} = {E93DA4F4-345E-4567-BFB8-52FADCB86917}
 		{AB123FED-C2DB-43CD-A7FE-EF4B31D3DDD0} = {E93DA4F4-345E-4567-BFB8-52FADCB86917}
 		{7D6D0DF2-951D-4EFD-B0A9-FC8B8BEFD365} = {E93DA4F4-345E-4567-BFB8-52FADCB86917}
+		{2CD6C936-057F-470E-8845-A91A22BF2CD8} = {E93DA4F4-345E-4567-BFB8-52FADCB86917}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {554AD750-3673-46A0-B2BA-8A2B8A7B4569}
