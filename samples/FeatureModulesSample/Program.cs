@@ -3,7 +3,7 @@ using Infinity.Toolkit.LogFormatter;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Logging.AddCodeThemeConsoleFormatter(_ => { });
+builder.Logging.AddCodeThemeConsoleFormatter();
 builder.AddFeatureModules();
 
 builder.Services.AddEndpointsApiExplorer();

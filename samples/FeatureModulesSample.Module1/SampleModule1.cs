@@ -9,11 +9,11 @@ using System.Runtime.InteropServices;
 
 namespace FeatureModulesSample.Module1;
 
-public class SampleModule1 : IWebFeatureModule
+public class SampleModule1 : WebFeatureModule
 {
-    public IModuleInfo? ModuleInfo { get; } = new FeatureModuleInfo("SampleModule1", "1.0.0");
+    public override IModuleInfo? ModuleInfo { get; } = new FeatureModuleInfo("SampleModule1", "1.0.0");
 
-    public void MapEndpoints(IEndpointRouteBuilder builder)
+    public override void MapEndpoints(IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup("/info")
             .WithOpenApi()
@@ -24,7 +24,7 @@ public class SampleModule1 : IWebFeatureModule
             .WithDisplayName("Get system info");
     }
 
-    public ModuleContext RegisterModule(ModuleContext moduleContext)
+    public override ModuleContext RegisterModule(ModuleContext moduleContext)
     {
         return moduleContext;
     }

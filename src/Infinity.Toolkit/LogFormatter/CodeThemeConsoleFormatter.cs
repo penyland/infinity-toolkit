@@ -6,6 +6,9 @@ namespace Infinity.Toolkit.LogFormatter;
 
 public static class ConsoleLoggerExtensions
 {
+    public static ILoggingBuilder AddCodeThemeConsoleFormatter(this ILoggingBuilder builder) =>
+        builder.AddCodeThemeConsoleFormatter(_ => { });
+
     public static ILoggingBuilder AddCodeThemeConsoleFormatter(
         this ILoggingBuilder builder,
         Action<CustomOptions> configure)

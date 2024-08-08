@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using Infinity.Toolkit.LogFormatter;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.DependencyModel;
 
 namespace Infinity.Toolkit.FeatureModules;
@@ -41,7 +42,7 @@ public static class ServiceCollectionExtensions
 #if DEBUG
                 .AddDebug()
 #endif
-                .AddConsole();
+                .AddConsole(options => options.FormatterName = "CodeThemeConsoleFormatter").AddConsoleFormatter<CodeThemeConsoleFormatter, CustomOptions>();
         });
         var logger = loggerFactory.CreateLogger("Infinity.Toolkit.FeatureModules");
 

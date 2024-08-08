@@ -2,11 +2,11 @@
 
 namespace FeatureModulesSample;
 
-internal class WeatherModule : IWebFeatureModule
+internal class WeatherModule : WebFeatureModule
 {
-    public IModuleInfo? ModuleInfo { get; } = new FeatureModuleInfo("WeatherModule", "1.0.0");
+    public override IModuleInfo? ModuleInfo { get; } = new FeatureModuleInfo("WeatherModule", "1.0.0");
 
-    public void MapEndpoints(IEndpointRouteBuilder builder)
+    public override void MapEndpoints(IEndpointRouteBuilder builder)
     {
 
         var summaries = new[]
@@ -28,11 +28,6 @@ internal class WeatherModule : IWebFeatureModule
         })
         .WithName("GetWeatherForecast")
         .WithOpenApi();
-    }
-
-    public ModuleContext RegisterModule(ModuleContext moduleContext)
-    {
-        return moduleContext;
     }
 }
 
