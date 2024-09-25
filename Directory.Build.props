@@ -12,6 +12,7 @@
     <Authors>Peter Nylander</Authors>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Copyright>Copyright © 2024 Peter Nylander </Copyright>
   </PropertyGroup>
 
   <ItemGroup>

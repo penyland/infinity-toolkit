@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
     <VersionPrefix>1.0.0</VersionPrefix>
     <PackageId>Infinity.Toolkit.FeatureModules</PackageId>
+    <Description>Infinity Toolkit Feature Modules let's you automatically register dependencies and endpoints in modules which simplifies development when you are working in feature slices.</Description>
+    <PackageTags>FeatureModules;VerticalSliceArchitecture;ModularMonoliths;MinimalApis</PackageTags>
   </PropertyGroup>
   
   <ItemGroup>
