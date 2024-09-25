@@ -57,6 +57,11 @@ public class Pipeline<TIn, TOut> : IPipeline<TIn, TOut>
         return this;
     }
 
+    public Pipeline<TIn, TOut> AddStep<TStepIn, TStepOut>(ICommandHandler<TStepIn> handler)
+    {
+
+    }
+
     public Pipeline<TIn, TOut> Build()
     {
         var setResultStep = new ActionBlock<PipelineContext<TOut, TOut>>(context =>

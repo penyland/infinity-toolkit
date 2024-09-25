@@ -25,3 +25,22 @@ internal class ProductCreatedHandler : ICommandHandler<ProductCreated>
         Console.WriteLine($"Pipeline executed: {result.NewName}");
     }
 }
+
+public static class ProductCreatedPipeline
+{
+    internal static IPipeline<ProductCreated, ProductCreatedResult> CreatePipeline(IServiceProvider services) => new Pipeline<ProductCreated, ProductCreatedResult>()
+    .AddStep<ProductCreated, string>(input =>
+    {
+        Console.WriteLine("Step 1");
+        Console.WriteLine($"Product created: {input.Id} - {input.Name}");
+        var result = input.Name + " - Modified";
+        return result;
+    })
+    .AddStep<string, ProductCreatedResult>(input =>
+    {
+        Console.WriteLine("Step 2");
+        Console.WriteLine($"Product modified: {input}");
+        return new ProductCreatedResult(input);
+    })
+    .Build();
+}
