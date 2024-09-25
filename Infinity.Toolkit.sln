@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 17
+# Visual Studio Version 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infinity.Toolkit", "src\Infinity.Toolkit\Infinity.Toolkit.csproj", "{16C56631-28E6-4254-B248-61D0D8F338FB}"
@@ -21,6 +21,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FeatureModulesSample.Module1", "samples\FeatureModulesSample.Module1\FeatureModulesSample.Module1.csproj", "{7D6D0DF2-951D-4EFD-B0A9-FC8B8BEFD365}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleLoggingFormatterSample", "samples\ConsoleLoggingFormatterSample\ConsoleLoggingFormatterSample.csproj", "{2CD6C936-057F-470E-8845-A91A22BF2CD8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infinity.Toolkit.FeatureModules", "src\Infinity.Toolkit.FeatureModules\Infinity.Toolkit.FeatureModules.csproj", "{6BF946B8-B250-48FE-99EA-4A3AF7EDEE2A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infinity.Toolkit.LogFormatter", "src\Infinity.Toolkit.LogFormatter\Infinity.Toolkit.LogFormatter.csproj", "{EDCA43C3-7303-466A-A9F1-954FE33B1920}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +52,14 @@ Global
 		{2CD6C936-057F-470E-8845-A91A22BF2CD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2CD6C936-057F-470E-8845-A91A22BF2CD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2CD6C936-057F-470E-8845-A91A22BF2CD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BF946B8-B250-48FE-99EA-4A3AF7EDEE2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BF946B8-B250-48FE-99EA-4A3AF7EDEE2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BF946B8-B250-48FE-99EA-4A3AF7EDEE2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BF946B8-B250-48FE-99EA-4A3AF7EDEE2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDCA43C3-7303-466A-A9F1-954FE33B1920}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDCA43C3-7303-466A-A9F1-954FE33B1920}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDCA43C3-7303-466A-A9F1-954FE33B1920}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDCA43C3-7303-466A-A9F1-954FE33B1920}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,6 +70,8 @@ Global
 		{AB123FED-C2DB-43CD-A7FE-EF4B31D3DDD0} = {E93DA4F4-345E-4567-BFB8-52FADCB86917}
 		{7D6D0DF2-951D-4EFD-B0A9-FC8B8BEFD365} = {E93DA4F4-345E-4567-BFB8-52FADCB86917}
 		{2CD6C936-057F-470E-8845-A91A22BF2CD8} = {E93DA4F4-345E-4567-BFB8-52FADCB86917}
+		{6BF946B8-B250-48FE-99EA-4A3AF7EDEE2A} = {FE5B1A6C-B3A0-4074-81FD-F799A031102F}
+		{EDCA43C3-7303-466A-A9F1-954FE33B1920} = {FE5B1A6C-B3A0-4074-81FD-F799A031102F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {554AD750-3673-46A0-B2BA-8A2B8A7B4569}

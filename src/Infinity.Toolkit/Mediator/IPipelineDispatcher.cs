@@ -59,7 +59,7 @@ public class Pipeline<TIn, TOut> : IPipeline<TIn, TOut>
 
     public Pipeline<TIn, TOut> AddStep<TStepIn, TStepOut>(ICommandHandler<TStepIn> handler)
     {
-
+        return this;
     }
 
     public Pipeline<TIn, TOut> Build()

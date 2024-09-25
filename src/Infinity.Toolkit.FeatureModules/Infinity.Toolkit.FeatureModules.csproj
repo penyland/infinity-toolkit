@@ -4,10 +4,10 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <VersionPrefix>0.1.0</VersionPrefix>
-    <IsPackable>false</IsPackable>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <PackageId>Infinity.Toolkit.FeatureModules</PackageId>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
@@ -15,6 +15,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Infinity.Toolkit.LogFormatter\Infinity.Toolkit.LogFormatter.csproj" />
   </ItemGroup>
 
 </Project>

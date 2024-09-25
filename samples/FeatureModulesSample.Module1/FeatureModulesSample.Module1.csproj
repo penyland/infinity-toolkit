@@ -4,9 +4,11 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Infinity.Toolkit.FeatureModules\Infinity.Toolkit.FeatureModules.csproj" />
     <ProjectReference Include="..\..\src\Infinity.Toolkit\Infinity.Toolkit.csproj" />
   </ItemGroup>
 
