@@ -9,7 +9,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{563B6603-DC92-4CB0-A89B-9A7747A3A7CC}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		global.json = global.json
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediatorSample", "samples\MediatorSample\MediatorSample.csproj", "{FE3D529E-7955-476B-90F5-A87A71A2E8DD}"
