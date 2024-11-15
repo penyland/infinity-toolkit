@@ -4,8 +4,8 @@
     <TargetFrameworks>net9.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <VersionPrefix>0.1.0</VersionPrefix>
-    <IsPackable>false</IsPackable>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <VersionSuffix>alpha-1</VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,6 +15,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.0" />
+    <PackageReference Include="Scrutor" Version="5.0.2" />
+    <PackageReference Include="System.Memory.Data" Version="9.0.0" />
   </ItemGroup>
 
 </Project>

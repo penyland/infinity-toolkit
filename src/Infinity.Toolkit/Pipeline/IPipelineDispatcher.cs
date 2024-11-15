@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks.Dataflow;
+﻿using Infinity.Toolkit.Mediator;
+using System.Threading.Tasks.Dataflow;
 
-namespace Infinity.Toolkit.Mediator;
+namespace Infinity.Toolkit.Pipeline;
 
 public interface IPipelineDispatcher<TIn, TOut>
 {
@@ -58,6 +59,7 @@ public class Pipeline<TIn, TOut> : IPipeline<TIn, TOut>
     }
 
     public Pipeline<TIn, TOut> AddStep<TStepIn, TStepOut>(ICommandHandler<TStepIn> handler)
+        where TStepIn : class, ICommand
     {
         return this;
     }

@@ -1,4 +1,6 @@
-﻿using Infinity.Toolkit.Mediator;
+﻿using Infinity.Toolkit;
+using Infinity.Toolkit.Mediator;
+using Infinity.Toolkit.Pipeline;
 
 namespace MediatorSample;
 
@@ -15,14 +17,16 @@ internal class ProductCreatedHandler : ICommandHandler<ProductCreated>
         this.pipeline = pipeline;
     }
 
-    public async ValueTask HandleAsync(ProductCreated command, CancellationToken cancellationToken = default)
+    public async Task<Result> HandleAsync(MediatorCommandHandlerContext<ProductCreated> context, CancellationToken cancellationToken = default)
     {
         Console.WriteLine("ProductCreatedHandler:HandleAsync");
-        Console.WriteLine($"Product created: {command.Id} - {command.Name}");
+        Console.WriteLine($"Product created: {context.Command.Id} - {context.Command.Name}");
 
         Console.WriteLine("Executing pipeline");
-        var result = await pipeline.ExecuteAsync(command, cancellationToken);
+        var result = await pipeline.ExecuteAsync(context.Command, cancellationToken);
         Console.WriteLine($"Pipeline executed: {result.NewName}");
+
+        return Result.Success();
     }
 }
 

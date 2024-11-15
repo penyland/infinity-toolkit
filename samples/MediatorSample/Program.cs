@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Infinity.Toolkit.Mediator;
+using Infinity.Toolkit.Pipeline;
 using MediatorSample;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,8 +16,8 @@ services.AddPipeline<ProductCreated, ProductCreatedResult>(services => ProductCr
 
 var serviceProvider = services.BuildServiceProvider();
 
-var commandDispatcher = serviceProvider.GetRequiredService<ICommandDispatcher>();
+var commandDispatcher = serviceProvider.GetRequiredService<ICommandMediator>();
 
-await commandDispatcher.DispatchAsync(new ProductCreated(1, "Product 1"));
+await commandDispatcher.SendAsync(new ProductCreated(1, "Product 1"));
 
 Console.WriteLine("Done");
