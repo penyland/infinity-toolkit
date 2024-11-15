@@ -11,7 +11,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -19,7 +18,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '9.0.x' # Adjust the .NET version as needed
+        dotnet-version: '9.0.x'
 
     - name: Restore dependencies
       run: dotnet restore Infinity.Toolkit.sln
@@ -29,6 +28,23 @@ jobs:
 
     - name: Pack
       run: dotnet pack Infinity.Toolkit.sln --configuration Release --no-build --output ./nupkgs
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: nupkg
+        path: ./nupkgs/*.nupkg
+
+  publish:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: nupkg
+        path: ./nupkgs
 
     - name: Publish to NuGet
       env:
