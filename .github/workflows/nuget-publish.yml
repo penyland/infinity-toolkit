@@ -22,13 +22,13 @@ jobs:
         dotnet-version: '9.0.x' # Adjust the .NET version as needed
 
     - name: Restore dependencies
-      run: dotnet restore src/**/*.csproj
+      run: dotnet restore Infinity.Toolkit.sln
 
     - name: Build
-      run: dotnet build src/**/*.csproj --configuration Release --no-restore
+      run: dotnet build Infinity.Toolkit.sln --configuration Release --no-restore
 
     - name: Pack
-      run: dotnet pack src/**/*.csproj --configuration Release --no-build --output ./nupkgs
+      run: dotnet pack Infinity.Toolkit.sln --configuration Release --no-build --output ./nupkgs
 
     - name: Publish to NuGet
       env:
