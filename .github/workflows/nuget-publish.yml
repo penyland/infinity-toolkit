@@ -1,0 +1,36 @@
+name: Build and Publish to NuGet
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '9.0.x' # Adjust the .NET version as needed
+
+    - name: Restore dependencies
+      run: dotnet restore src/**/*.csproj
+
+    - name: Build
+      run: dotnet build src/**/*.csproj --configuration Release --no-restore
+
+    - name: Pack
+      run: dotnet pack src/**/*.csproj --configuration Release --no-build --output ./nupkgs
+
+    - name: Publish to NuGet
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      run: dotnet nuget push ./nupkgs/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json
