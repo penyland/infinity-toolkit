@@ -15,11 +15,6 @@
     <Copyright>Copyright © 2024 Peter Nylander </Copyright>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Include="..\..\LICENSE" Pack="true" PackagePath=""/>
-    <None Include="..\..\README.md" Pack="true" PackagePath=""/>
-  </ItemGroup>
-
   <PropertyGroup>
     <ContainerRuntimeIdentifier>linux-x64</ContainerRuntimeIdentifier>
     <EnableSdkContainerSupport>false</EnableSdkContainerSupport>

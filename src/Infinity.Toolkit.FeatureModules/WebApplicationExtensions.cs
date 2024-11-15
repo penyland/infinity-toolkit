@@ -43,7 +43,7 @@ public static class WebApplicationExtensions
         // Make sure the assembly of the root component is not included in the additional assemblies.
         options?.Value.AdditionalAssemblies?.RemoveAll(m => m.FullName == typeof(TRootComponent).Assembly.FullName);
 
-        var razorComponentsEndpointConventionBuilder = builder.WebApplication.MapRazorComponents<TRootComponent>().AddAdditionalAssemblies([.. options?.Value.AdditionalAssemblies]);
+        var razorComponentsEndpointConventionBuilder = builder.WebApplication.MapRazorComponents<TRootComponent>().AddAdditionalAssemblies([.. options?.Value.AdditionalAssemblies!]);
 
         return razorComponentsEndpointConventionBuilder;
     }
