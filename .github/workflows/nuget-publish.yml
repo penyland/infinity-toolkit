@@ -1,0 +1,52 @@
+name: Build and Publish to NuGet
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore Infinity.Toolkit.sln
+
+    - name: Build
+      run: dotnet build Infinity.Toolkit.sln --configuration Release --no-restore
+
+    - name: Pack
+      run: dotnet pack Infinity.Toolkit.sln --configuration Release --no-build --output ./nupkgs
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: nupkg
+        path: ./nupkgs/*.nupkg
+
+  publish:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: nupkg
+        path: ./nupkgs
+
+    - name: Publish to NuGet
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      run: dotnet nuget push ./nupkgs/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json

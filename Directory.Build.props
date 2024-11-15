@@ -15,11 +15,6 @@
     <Copyright>Copyright © 2024 Peter Nylander </Copyright>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Include="..\..\LICENSE" Pack="true" PackagePath=""/>
-    <None Include="..\..\README.md" Pack="true" PackagePath=""/>
-  </ItemGroup>
-
   <PropertyGroup>
     <ContainerRuntimeIdentifier>linux-x64</ContainerRuntimeIdentifier>
     <EnableSdkContainerSupport>false</EnableSdkContainerSupport>
@@ -52,13 +47,6 @@
     <PackageProjectUrl>https://github.com/penyland/infinity-tomahawk</PackageProjectUrl>
     <RepositoryUrl>https://github.com/penyland/infinity-tomahawk</RepositoryUrl>
 
-    <!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <DebugType>embedded</DebugType>
-
-    <!-- Optional: Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
