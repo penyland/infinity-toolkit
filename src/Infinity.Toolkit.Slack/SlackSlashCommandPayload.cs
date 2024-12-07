@@ -1,6 +1,6 @@
 ﻿namespace Infinity.Toolkit.Slack;
 
-public record SlackActionPayload
+public record SlackSlashCommandPayload
 {
     public string TeamId { get; set; }
 
@@ -29,11 +29,11 @@ public record SlackActionPayload
 
 public static class SlackActionPayloadExtensions
 {
-    public static SlackActionPayload ToSlackActionPayload(this IFormCollection form, JsonSerializerOptions jsonSerializerOptions)
+    public static SlackSlashCommandPayload ToSlackActionPayload(this IFormCollection form, JsonSerializerOptions jsonSerializerOptions)
     {
         var dictionary = form.ToDictionary(kvp => kvp.Key, kvp => Uri.UnescapeDataString(kvp.Value.ToString()));
         var jsonString = JsonSerializer.Serialize(dictionary);
-        var payload = JsonSerializer.Deserialize<SlackActionPayload>(jsonString, jsonSerializerOptions);
+        var payload = JsonSerializer.Deserialize<SlackSlashCommandPayload>(jsonString, jsonSerializerOptions);
 
         return payload is null ? throw new InvalidOperationException("Failed to deserialize SlackActionPayload.") : payload;
     }
