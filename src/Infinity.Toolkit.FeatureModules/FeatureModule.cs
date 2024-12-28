@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Routing;
-
-namespace Infinity.Toolkit.FeatureModules;
+﻿namespace Infinity.Toolkit.FeatureModules;
 
 public abstract class FeatureModule : IFeatureModule
 {
@@ -11,5 +9,5 @@ public abstract class FeatureModule : IFeatureModule
 
 public abstract class WebFeatureModule : FeatureModule, IWebFeatureModule
 {
-    public virtual void MapEndpoints(IEndpointRouteBuilder builder) { }
+    public abstract void MapEndpoints(WebApplication app);
 }

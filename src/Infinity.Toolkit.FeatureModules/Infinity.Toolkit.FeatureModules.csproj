@@ -4,7 +4,7 @@
     <TargetFrameworks>net9.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <VersionPrefix>1.0.2</VersionPrefix>
+    <VersionPrefix>1.1.0</VersionPrefix>
     <PackageId>Infinity.Toolkit.FeatureModules</PackageId>
     <Description>Infinity Toolkit Feature Modules let's you automatically register dependencies and endpoints in modules which simplifies development when you are working with vertical feature slices.</Description>
     <PackageTags>FeatureModules;VerticalSliceArchitecture;ModularMonoliths;MinimalApis</PackageTags>

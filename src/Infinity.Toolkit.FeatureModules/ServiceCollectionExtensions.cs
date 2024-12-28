@@ -143,7 +143,7 @@ public static class ServiceCollectionExtensions
 
         services.Configure<FeatureModuleOptions>(options =>
         {
-            options.AdditionalAssemblies.AddRange(registeredFeatureModules.Keys.Select(x => x.Assembly).ToArray());
+            options.AdditionalAssemblies.AddRange([.. registeredFeatureModules.Keys.Select(x => x.Assembly)]);
         });
     }
 }

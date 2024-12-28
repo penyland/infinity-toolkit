@@ -23,5 +23,5 @@ public interface IWebFeatureModule : IFeatureModule
     /// <summary>
     /// Maps all endpoints provided by the module in the DI-container.
     /// </summary>
-    void MapEndpoints(IEndpointRouteBuilder builder);
+    void MapEndpoints(WebApplication app);
 }

@@ -10,10 +10,11 @@ public static class WebApplicationBuilderExtensions
     public static WebApplicationBuilder AddFeatureModules(
         this WebApplicationBuilder builder,
         Action<FeatureModuleOptions> configure,
+        string configKey = FeatureModulesConfigKey,
         ILoggerFactory? loggerFactory = null)
     {
         var options = new FeatureModuleOptions();
-        builder.Configuration.GetSection(FeatureModulesConfigKey).Bind(options);
+        builder.Configuration.GetSection(configKey).Bind(options);
         configure(options);
 
         return builder.RegisterFeatureModules(options, loggerFactory);
