@@ -235,7 +235,7 @@ dotnet_diagnostic.SA1625.severity = silent
 csharp_style_prefer_primary_constructors = true:suggestion
 csharp_prefer_static_anonymous_function = true:suggestion
 
-# Rules for Skanetrafikens C# projects
+
 # Description: Code analysis rules for this project.
 
 # Code files
