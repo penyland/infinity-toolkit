@@ -12,6 +12,18 @@ var jsonSerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web
     Converters = { new BlockJsonConverter() }
 };
 
+var slackMessage1 = new SlackMessageBuilder().Build();
+
+var slackMessage2 = new SlackMessageBuilder("channel").Build();
+
+var slackMessage3 = new SlackMessageBuilder(slackMessage1).Build();
+
+var slackMessage4 = new SlackMessageBuilder()
+    .AddChannel("channel")
+    .AddTimestamp("ts")
+    .AddResponseType("responseType")
+    .Build();
+
 var slackMessage = new SlackMessageBuilder()
     .AddBlocks(blocks => blocks
         .AddHeaderBlock("Hello, World!")
