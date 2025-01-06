@@ -1,4 +1,6 @@
-﻿namespace Infinity.Toolkit.Pipeline;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace Infinity.Toolkit.Experimental.Pipeline;
 
 public static class ServiceCollectionExtensions
 {

@@ -1,4 +1,4 @@
-﻿namespace System.Collections.Generic;
+﻿namespace Infinity.Toolkit;
 
 public static partial class IEnumerableExtensions
 {

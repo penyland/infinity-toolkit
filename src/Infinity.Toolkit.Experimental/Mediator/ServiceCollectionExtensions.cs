@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Infinity.Toolkit.Mediator;
+namespace Infinity.Toolkit.Experimental.Mediator;
 
 public static class ServiceCollectionExtensions
 {

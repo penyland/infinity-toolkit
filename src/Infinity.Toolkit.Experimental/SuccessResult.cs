@@ -1,4 +1,4 @@
-﻿namespace Infinity.Toolkit;
+﻿namespace Infinity.Toolkit.Experimental;
 #pragma warning restore SA1302 // Interface names should begin with I
 #pragma warning restore IDE1006 // Naming Styles
 

@@ -1,4 +1,4 @@
-﻿namespace Infinity.Toolkit;
+﻿namespace Infinity.Toolkit.Experimental;
 
 public class ErrorResult : Result, Failure
 {

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Infinity.Toolkit.Mediator;
+namespace Infinity.Toolkit.Experimental.Mediator;
 
 public class MediatorCommandHandlerContext<TCommand> : MediatorHandlerContextBase<TCommand>
     where TCommand : class

@@ -1,4 +1,6 @@
-﻿namespace System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Infinity.Toolkit;
 
 /// <summary>
 /// Specifies that a data field value is required when another property is set to a specified value.

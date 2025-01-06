@@ -1,4 +1,6 @@
-﻿namespace Infinity.Toolkit.Mediator;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace Infinity.Toolkit.Experimental.Mediator;
 
 public class QueryMediator(IServiceProvider serviceProvider) : IQueryMediator
 {

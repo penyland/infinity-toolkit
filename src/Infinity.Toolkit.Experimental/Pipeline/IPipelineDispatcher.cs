@@ -1,7 +1,7 @@
-﻿using Infinity.Toolkit.Mediator;
+﻿using Infinity.Toolkit.Experimental.Mediator;
 using System.Threading.Tasks.Dataflow;
 
-namespace Infinity.Toolkit.Pipeline;
+namespace Infinity.Toolkit.Experimental.Pipeline;
 
 public interface IPipelineDispatcher<TIn, TOut>
 {

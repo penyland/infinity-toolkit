@@ -1,4 +1,7 @@
-﻿namespace Infinity.Toolkit.Mediator;
+﻿using Infinity.Toolkit.Experimental;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Infinity.Toolkit.Experimental.Mediator;
 
 public class CommandMediator(IServiceProvider serviceProvider) : ICommandMediator
 {
