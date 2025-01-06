@@ -6,11 +6,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infinity.Toolkit", "src\Inf
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{FE5B1A6C-B3A0-4074-81FD-F799A031102F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{563B6603-DC92-4CB0-A89B-9A7747A3A7CC}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediatorSample", "samples\MediatorSample\MediatorSample.csproj", "{FE3D529E-7955-476B-90F5-A87A71A2E8DD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{E93DA4F4-345E-4567-BFB8-52FADCB86917}"
@@ -26,6 +21,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infinity.Toolkit.LogFormatter", "src\Infinity.Toolkit.LogFormatter\Infinity.Toolkit.LogFormatter.csproj", "{EDCA43C3-7303-466A-A9F1-954FE33B1920}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infinity.Toolkit.Slack", "src\Infinity.Toolkit.Slack\Infinity.Toolkit.Slack.csproj", "{EDD2321C-4A9E-4678-9B00-43EE86D774FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infinity.Toolkit.Experimental", "src\Infinity.Toolkit.Experimental\Infinity.Toolkit.Experimental.csproj", "{23A73C55-36A2-44F7-B75B-520AFF5C5C46}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,6 +62,10 @@ Global
 		{EDD2321C-4A9E-4678-9B00-43EE86D774FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDD2321C-4A9E-4678-9B00-43EE86D774FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDD2321C-4A9E-4678-9B00-43EE86D774FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23A73C55-36A2-44F7-B75B-520AFF5C5C46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23A73C55-36A2-44F7-B75B-520AFF5C5C46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23A73C55-36A2-44F7-B75B-520AFF5C5C46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23A73C55-36A2-44F7-B75B-520AFF5C5C46}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,6 +79,7 @@ Global
 		{6BF946B8-B250-48FE-99EA-4A3AF7EDEE2A} = {FE5B1A6C-B3A0-4074-81FD-F799A031102F}
 		{EDCA43C3-7303-466A-A9F1-954FE33B1920} = {FE5B1A6C-B3A0-4074-81FD-F799A031102F}
 		{EDD2321C-4A9E-4678-9B00-43EE86D774FE} = {FE5B1A6C-B3A0-4074-81FD-F799A031102F}
+		{23A73C55-36A2-44F7-B75B-520AFF5C5C46} = {FE5B1A6C-B3A0-4074-81FD-F799A031102F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {554AD750-3673-46A0-B2BA-8A2B8A7B4569}

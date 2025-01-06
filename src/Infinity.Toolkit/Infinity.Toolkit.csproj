@@ -4,13 +4,14 @@
     <TargetFrameworks>net9.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <RootNamespace>Infinity.Toolkit</RootNamespace>
     <VersionPrefix>1.0.0</VersionPrefix>
     <VersionSuffix>alpha-1</VersionSuffix>
   </PropertyGroup>
   
   <ItemGroup>
-    <None Include="..\..\LICENSE" Pack="true" PackagePath=""/>
-    <None Include="README.md" Pack="true" PackagePath=""/>
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+    <None Include="README.md" Pack="true" PackagePath="" />
   </ItemGroup>
   
   <ItemGroup>
@@ -20,7 +21,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.0" />
-    <PackageReference Include="Scrutor" Version="5.0.2" />
+    <PackageReference Include="Scrutor" Version="5.1.1" />
     <PackageReference Include="System.Memory.Data" Version="9.0.0" />
   </ItemGroup>
 
