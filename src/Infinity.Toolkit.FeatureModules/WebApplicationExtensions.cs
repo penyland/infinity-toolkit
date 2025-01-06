@@ -3,9 +3,9 @@
 public static class WebApplicationExtensions
 {
     /// <summary>
- /// Maps all endpoints provided by the feature modules.
- /// </summary>
- /// <exception cref="InvalidOperationException">Thrown if no modules are found in the assembly.</exception>
+    /// Maps all endpoints provided by the feature modules.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown if no modules are found in the assembly.</exception>
     public static FeatureModuleBuilder MapFeatureModules(this WebApplication app)
     {
         var builder = new FeatureModuleBuilder(app);

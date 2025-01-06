@@ -51,7 +51,7 @@ internal class WeatherModule : WebFeatureModule
 {
     public override IModuleInfo? ModuleInfo { get; } = new FeatureModuleInfo("WeatherModule", "1.0.0");
 
-    public override void MapEndpoints(IEndpointRouteBuilder builder)
+    public override void MapEndpoints(WebApplication app)
     {
 
         var summaries = new[]
@@ -59,7 +59,7 @@ internal class WeatherModule : WebFeatureModule
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        builder.MapGet("/weatherforecast", () =>
+        app.MapGet("/weatherforecast", () =>
         {
             var forecast =  Enumerable.Range(1, 5).Select(index =>
             new WeatherForecast
@@ -93,7 +93,7 @@ There are two types of feature modules:
 1. FeatureModule
 2. WebFeatureModule
 
-The difference is that the WebFeatureModule has access to the `IEndpointRouteBuilder` which allows you to map endpoints to the application.
+The difference is that the WebFeatureModule has access to `WebApplication` which allows you to map endpoints to the application.
 To create a web feature module, you need to create a class that inherits from `WebFeatureModule` or implements `IWebFeatureModule`. 
 
 # Mediator
@@ -109,3 +109,6 @@ If you have any ideas, suggestions or issues, please create an issue or a pull r
 
 # License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+# Pushing to NuGet
+ dotnet nuget push .\artifacts\Infinity.Toolkit.FeatureModules.1.1.0.nupkg -k API-KEY -s https://api.nuget.org/v3/index.json
