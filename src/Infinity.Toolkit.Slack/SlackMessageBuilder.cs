@@ -1,6 +1,4 @@
-﻿using Infinity.Toolkit.Slack.BlockKit;
-
-namespace Infinity.Toolkit.Slack;
+﻿namespace Infinity.Toolkit.Slack;
 
 public class SlackMessageBuilder
 {
@@ -23,7 +21,7 @@ public class SlackMessageBuilder
 
     public SlackMessageBuilder(SlackMessage slackMessage)
     {
-        SlackMessage = slackMessage with { Blocks = [.. slackMessage.Blocks] };
+        SlackMessage = slackMessage with { Blocks = [.. slackMessage.Blocks ?? []] };
     }
 
     public SlackMessage SlackMessage { get; }

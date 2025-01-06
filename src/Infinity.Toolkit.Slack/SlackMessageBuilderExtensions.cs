@@ -33,6 +33,7 @@ public static class SlackMessageBuilderExtensions
     {
         var blocksBuilder = new BlocksBuilder();
         action(blocksBuilder);
+        builder.SlackMessage.Blocks ??= [];
         builder.SlackMessage.Blocks.AddRange(blocksBuilder.Blocks);
         return builder;
     }

@@ -1,34 +1,35 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using System.Text;
 
 namespace Infinity.Toolkit.Slack;
 
-public class SlackSignatureAuthorizationRequirement : IAuthorizationRequirement { }
+public class SlackSignatureAuthorizationRequirement : IAuthorizationRequirement
+{
+}
 
 public class SlackSignatureAuthorizationHandler(IHttpContextAccessor httpContextAccessor, SlackSignatureValidator slackSignatureValidator) : AuthorizationHandler<SlackSignatureAuthorizationRequirement>
 {
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, SlackSignatureAuthorizationRequirement requirement)
+    private readonly IHttpContextAccessor httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, SlackSignatureAuthorizationRequirement requirement)
     {
         var signature = httpContextAccessor?.HttpContext?.Request.Headers["X-Slack-Signature"].ToString();
 
         if (!string.IsNullOrEmpty(signature))
         {
-            var slackRequestTimestamp = httpContextAccessor?.HttpContext?.Request.Headers["X-Slack-Request-Timestamp"].ToString();
-            var form = httpContextAccessor?.HttpContext?.Request.Form;
-            var body = string.Join("&", form!.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value.ToString())}"));
+            var request = httpContextAccessor?.HttpContext?.Request;
+            request?.EnableBuffering();
 
-            if (!slackSignatureValidator.IsValid(signature, slackRequestTimestamp!, body))
+            using var reader = new StreamReader(request!.Body, Encoding.UTF8, true, 1024, true);
+            var body = await reader.ReadToEndAsync();
+            request.Body.Position = 0;
+
+            var slackRequestTimestamp = httpContextAccessor?.HttpContext?.Request.Headers["X-Slack-Request-Timestamp"].ToString();
+
+            if (slackSignatureValidator.IsValid(signature, slackRequestTimestamp!, body))
             {
-                context.Fail();
-                return Task.CompletedTask;
+                context.Succeed(requirement);
             }
         }
-        else
-        {
-            context.Fail();
-            return Task.CompletedTask;
-        }
-
-        context.Succeed(requirement);
-        return Task.CompletedTask;
     }
 }

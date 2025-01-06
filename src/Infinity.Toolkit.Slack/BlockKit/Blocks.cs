@@ -8,6 +8,8 @@ public interface IBlock
     string Type { get; }
 }
 
+[JsonDerivedType(typeof(ContextBlock))]
+[JsonDerivedType(typeof(DividerBlock))]
 [JsonDerivedType(typeof(TextBlock))]
 [JsonDerivedType(typeof(HeaderBlock))]
 [JsonDerivedType(typeof(SectionBlock))]
@@ -50,6 +52,16 @@ public record SectionBlock : Block
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IList<TextBlock>? Fields { get; set; }
+}
+
+public record ContextBlock : Block
+{
+    public override string Type { get; init; } = BlockTypes.Context;
+
+    // An array of image elements and text objects. Maximum number of items is 10.
+    // https://api.slack.com/reference/block-kit/blocks#context
+    // Limit to text objects for now.
+    public IList<TextBlock> Elements { get; set; }
 }
 
 public record DividerBlock : Block

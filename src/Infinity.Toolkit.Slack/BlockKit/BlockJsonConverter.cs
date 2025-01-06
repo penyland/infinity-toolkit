@@ -24,6 +24,7 @@ public class BlockJsonConverter : JsonConverter<Block>
                     {
                         BlockTypes.Section => JsonSerializer.Deserialize<SectionBlock>(rootElement, options),
                         BlockTypes.Header => JsonSerializer.Deserialize<HeaderBlock>(rootElement, options),
+                        BlockTypes.Context => JsonSerializer.Deserialize<ContextBlock>(rootElement, options),
                         _ => throw new JsonException()
                     };
                 }
