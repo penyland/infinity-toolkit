@@ -1,6 +1,6 @@
-﻿using Infinity.Toolkit;
-using Infinity.Toolkit.Mediator;
-using Infinity.Toolkit.Pipeline;
+﻿using Infinity.Toolkit.Experimental;
+using Infinity.Toolkit.Experimental.Mediator;
+using Infinity.Toolkit.Experimental.Pipeline;
 
 namespace MediatorSample;
 

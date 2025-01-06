@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Infinity.Toolkit.Experimental\Infinity.Toolkit.Experimental.csproj" />
     <ProjectReference Include="..\..\src\Infinity.Toolkit\Infinity.Toolkit.csproj" />
   </ItemGroup>
 

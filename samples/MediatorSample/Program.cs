@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using Infinity.Toolkit.Mediator;
-using Infinity.Toolkit.Pipeline;
+
+using Infinity.Toolkit.Experimental.Mediator;
+using Infinity.Toolkit.Experimental.Pipeline;
 using MediatorSample;
 using Microsoft.Extensions.DependencyInjection;
 

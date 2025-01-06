@@ -13,9 +13,9 @@ public class SampleModule1 : WebFeatureModule
 {
     public override IModuleInfo? ModuleInfo { get; } = new FeatureModuleInfo("SampleModule1", "1.0.0");
 
-    public override void MapEndpoints(IEndpointRouteBuilder builder)
+    public override void MapEndpoints(WebApplication app)
     {
-        var group = builder.MapGroup("/info")
+        var group = app.MapGroup("/info")
             .WithOpenApi()
             .WithTags("Info");
 
