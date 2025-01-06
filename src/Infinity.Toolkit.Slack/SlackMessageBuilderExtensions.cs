@@ -14,9 +14,7 @@ public static class SlackMessageBuilderExtensions
     {
         builder.SlackMessage.Ts = ts;
         return builder;
-    }
-
-    
+    }    
 
     public static SlackMessageBuilder AddResponseType(this SlackMessageBuilder builder, string responseType)
     {
