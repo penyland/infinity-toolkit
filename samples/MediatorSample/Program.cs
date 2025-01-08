@@ -16,23 +16,36 @@ services
 services.AddMediatorHandler<ProductCreated, ProductCreatedHandler>()
         .Decorate<ProductCreatedDecorator>();
 
-services.AddMediatorHandler<ProductCreateQuery, string, ProductCreateQueryHandler>();
+services.AddMediatorHandler<ProductCreatedQuery, string, ProductCreatedQueryHandler>();
+services.DecorateMediatorHandler<ProductCreatedQuery, string, ProductCreatedQueryHandlerDecorator>();
 
 var serviceProvider = services.BuildServiceProvider();
 var mediator = serviceProvider.GetRequiredService<IMediator>();
 
 await mediator.SendAsync(new ProductCreated(1, "Product 1"));
-var result = await mediator.SendAsync<ProductCreateQuery, string>(new ProductCreateQuery());
+var result = await mediator.SendAsync<ProductCreatedQuery, string>(new ProductCreatedQuery());
 
 Console.WriteLine("Done");
 
-record ProductCreateQuery : IQuery;
+record ProductCreatedQuery : IQuery;
 
-class ProductCreateQueryHandler : IMediatorHandler<ProductCreateQuery, string>
+class ProductCreatedQueryHandler : IMediatorHandler<ProductCreatedQuery, string>
 {
-    public Task<Result<string>> HandleAsync(MediatorHandlerContext<ProductCreateQuery> context, CancellationToken cancellationToken = default)
+    public Task<Result<string>> HandleAsync(MediatorHandlerContext<ProductCreatedQuery> context, CancellationToken cancellationToken = default)
     {
+        Console.WriteLine("ProductCreatedQueryHandler:HandleAsync");
         return Task.FromResult(Result.Success("Product 1"));
+    }
+}
+
+class ProductCreatedQueryHandlerDecorator(IMediatorHandler<ProductCreatedQuery, string> inner) : IMediatorHandler<ProductCreatedQuery, string>
+{
+    public async Task<Result<string>> HandleAsync(MediatorHandlerContext<ProductCreatedQuery> context, CancellationToken cancellationToken = default)
+    {
+        Console.WriteLine("ProductCreatedQueryHandlerDecorator:HandleAsync");
+        var result = await inner.HandleAsync(context, cancellationToken);
+        Console.WriteLine("ProductCreatedQueryHandlerDecorator:HandleAsync:Done");
+        return result;
     }
 }
 
