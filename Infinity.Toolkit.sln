@@ -30,6 +30,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infinity.Toolkit.Azure", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infinity.Toolkit.TestUtils", "src\Infinity.Toolkit.TestUtils\Infinity.Toolkit.TestUtils.csproj", "{DE7E0862-0ED5-2819-6DBB-39738980A912}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infinity.Toolkit.Tests", "tests\Infinity.Toolkit.Tests\Infinity.Toolkit.Tests.csproj", "{FE5D6722-33D0-4E3F-B908-B5CE85986938}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,6 +88,10 @@ Global
 		{DE7E0862-0ED5-2819-6DBB-39738980A912}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE7E0862-0ED5-2819-6DBB-39738980A912}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE7E0862-0ED5-2819-6DBB-39738980A912}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE5D6722-33D0-4E3F-B908-B5CE85986938}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE5D6722-33D0-4E3F-B908-B5CE85986938}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE5D6722-33D0-4E3F-B908-B5CE85986938}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE5D6722-33D0-4E3F-B908-B5CE85986938}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -101,6 +109,7 @@ Global
 		{23A73C55-36A2-44F7-B75B-520AFF5C5C46} = {FE5B1A6C-B3A0-4074-81FD-F799A031102F}
 		{71D6D75F-97AF-41CA-A986-7BBAC0F791B5} = {FE5B1A6C-B3A0-4074-81FD-F799A031102F}
 		{DE7E0862-0ED5-2819-6DBB-39738980A912} = {FE5B1A6C-B3A0-4074-81FD-F799A031102F}
+		{FE5D6722-33D0-4E3F-B908-B5CE85986938} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {554AD750-3673-46A0-B2BA-8A2B8A7B4569}
