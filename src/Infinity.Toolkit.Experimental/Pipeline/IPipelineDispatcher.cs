@@ -58,7 +58,7 @@ public class Pipeline<TIn, TOut> : IPipeline<TIn, TOut>
         return this;
     }
 
-    public Pipeline<TIn, TOut> AddStep<TStepIn, TStepOut>(ICommandHandler<TStepIn> handler)
+    public Pipeline<TIn, TOut> AddStep<TStepIn, TStepOut>(IMediatorHandler<TStepIn> handler)
         where TStepIn : class, ICommand
     {
         return this;
