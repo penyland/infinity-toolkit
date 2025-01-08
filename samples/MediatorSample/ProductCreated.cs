@@ -1,50 +1,28 @@
 ﻿using Infinity.Toolkit.Experimental;
 using Infinity.Toolkit.Experimental.Mediator;
-using Infinity.Toolkit.Experimental.Pipeline;
 
 namespace MediatorSample;
 
 internal record ProductCreated(int Id, string Name) : ICommand;
 
-internal record ProductCreatedResult(string NewName);
-
-internal class ProductCreatedHandler : ICommandHandler<ProductCreated>
+internal class ProductCreatedHandler : IMediatorHandler<ProductCreated>
 {
-    private readonly IPipeline<ProductCreated, ProductCreatedResult> pipeline;
-
-    public ProductCreatedHandler(IPipeline<ProductCreated, ProductCreatedResult> pipeline)
-    {
-        this.pipeline = pipeline;
-    }
-
-    public async Task<Result> HandleAsync(MediatorCommandHandlerContext<ProductCreated> context, CancellationToken cancellationToken = default)
+    public Task<Result> HandleAsync(MediatorHandlerContext<ProductCreated> context, CancellationToken cancellationToken = default)
     {
         Console.WriteLine("ProductCreatedHandler:HandleAsync");
-        Console.WriteLine($"Product created: {context.Command.Id} - {context.Command.Name}");
-
-        Console.WriteLine("Executing pipeline");
-        var result = await pipeline.ExecuteAsync(context.Command, cancellationToken);
-        Console.WriteLine($"Pipeline executed: {result.NewName}");
-
-        return Result.Success();
+        Console.WriteLine($"Product created: {context.Request.Id} - {context.Request.Name}");
+        Console.WriteLine("ProductCreatedHandler:HandleAsync:Done");
+        return Task.FromResult(Result.Success());
     }
 }
 
-public static class ProductCreatedPipeline
+internal class ProductCreatedDecorator(IMediatorHandler<ProductCreated> inner) : IMediatorHandler<ProductCreated>
 {
-    internal static IPipeline<ProductCreated, ProductCreatedResult> CreatePipeline(IServiceProvider services) => new Pipeline<ProductCreated, ProductCreatedResult>()
-    .AddStep<ProductCreated, string>(input =>
+    public async Task<Result> HandleAsync(MediatorHandlerContext<ProductCreated> context, CancellationToken cancellationToken = default)
     {
-        Console.WriteLine("Step 1");
-        Console.WriteLine($"Product created: {input.Id} - {input.Name}");
-        var result = input.Name + " - Modified";
+        Console.WriteLine("ProductCreatedDecorator:HandleAsync");
+        var result = await inner.HandleAsync(context, cancellationToken);
+        Console.WriteLine("ProductCreatedDecorator:HandleAsync:Done");
         return result;
-    })
-    .AddStep<string, ProductCreatedResult>(input =>
-    {
-        Console.WriteLine("Step 2");
-        Console.WriteLine($"Product modified: {input}");
-        return new ProductCreatedResult(input);
-    })
-    .Build();
+    }
 }
