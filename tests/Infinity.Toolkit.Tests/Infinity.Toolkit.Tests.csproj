@@ -13,11 +13,14 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="7.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="NSubstitute" Version="5.3.0" />
     <PackageReference Include="xunit.v3" Version="1.0.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Infinity.Toolkit.Messaging\Infinity.Toolkit.Messaging.csproj" />
+    <ProjectReference Include="..\..\src\Infinity.Toolkit.TestUtils\Infinity.Toolkit.TestUtils.csproj" />
     <ProjectReference Include="..\..\src\Infinity.Toolkit\Infinity.Toolkit.csproj" />
   </ItemGroup>
 
