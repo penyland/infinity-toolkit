@@ -14,16 +14,24 @@ internal class ClientDiagnostics(string system, string broker, string? serverAdd
         tags = [.. tags, .. new KeyValuePair<string, object?>[] { new(DiagnosticProperty.MessagingDestinationName, channelName) }];
     }
 
-    // Catch span id and trace id from the current activity. These are needed when resolving message handlers.
-    // If the current activity is null, we need to create a new activity. This can happen when the message is sent from a background service.
-    // If the current activity exists we want to use the id from the current activity. Otherwise we create a new activity.
+    /// <summary>
+    /// Creates a new diagnostic activity scope for the message bus.
+    ///
+    /// Catch span id and trace id from the current activity. These are needed when resolving message handlers.
+    /// If the current activity is null, create a new activity. This can happen when the message is sent from a background service.
+    /// If the current activity exists use the id from the current activity. Otherwise we create a new activity.
+    /// </summary>
+    /// <param name="kind">The kind of activity.</param>
+    /// <param name="operationName">The name of the operation.</param>
+    /// <param name="operationType">The type of operation.</param>
+    /// <param name="properties">Optional properties to add to the activity.</param>
+    /// <returns>An <see cref="Activity"/> instance.</returns>
     internal Activity? CreateDiagnosticActivityScope(ActivityKind kind, string operationName, string operationType, IDictionary<string, object?> properties)
     {
         var activity = Activity.Current;
 
         if (activity is not null)
         {
-            // We have a root span
             var currentActivity = Activity.Current;
             ActivityContext.TryParse(currentActivity?.Id, currentActivity?.TraceStateString, out var activityContext);
             activity = MessageBusActivitySource.StartActivity(operationName, kind, activityContext, tags);
@@ -32,7 +40,6 @@ internal class ClientDiagnostics(string system, string broker, string? serverAdd
         }
         else
         {
-            // Create a new root span if traceparent is empty
             if (!TryExtractRootActivityContext(properties, out var rootActivityContext))
             {
                 activity = MessageBusActivitySource.StartActivity(operationName, kind, rootActivityContext, tags);
@@ -53,6 +60,13 @@ internal class ClientDiagnostics(string system, string broker, string? serverAdd
         return activity;
     }
 
+    /// <summary>
+    /// Creates a new diagnostic activity scope for a message handler.
+    /// </summary>
+    /// <param name="channelName">The name of the channel.</param>
+    /// <param name="messageHandlerType">The type of the message handler.</param>
+    /// <param name="properties">Optional properties to add to the activity.</param>
+    /// <returns>An <see cref="Activity"/> instance.</returns>
     internal Activity? CreateDiagnosticActivityScopeForMessageHandler(string channelName, Type messageHandlerType, IDictionary<string, object?> properties)
     {
         TryExtractRootActivityContext(properties, out var rootActivityContext);

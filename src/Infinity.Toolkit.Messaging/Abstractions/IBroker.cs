@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents a messaging broker with multiple channels.
 /// </summary>
-public interface IMessagingBroker
+public interface IBroker
 {
     bool AutoStartListening { get; }
 

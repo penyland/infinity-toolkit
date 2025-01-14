@@ -8,7 +8,6 @@ namespace Infinity.Toolkit.Messaging.InMemory;
 internal sealed class InMemorySender : IAsyncDisposable
 {
     private readonly ConcurrentDictionary<long, InMemoryMessage> scheduledMessages = new();
-
     private readonly ChannelWriter<InMemoryMessage> writer;
     private readonly SequenceNumberGenerator sequenceNumberGenerator;
     private readonly ILogger logger;

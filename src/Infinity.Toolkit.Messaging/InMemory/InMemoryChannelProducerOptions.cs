@@ -1,8 +1,6 @@
 ﻿namespace Infinity.Toolkit.Messaging.InMemory;
 
-public sealed class InMemoryChannelProducerOptions : ChannelProducerOptions
-{
-}
+public sealed class InMemoryChannelProducerOptions : ChannelProducerOptions { }
 
 internal class ConfigureInMemoryChannelProducerOptions(IOptions<MessageBusOptions> options) : IPostConfigureOptions<InMemoryChannelProducerOptions>
 {

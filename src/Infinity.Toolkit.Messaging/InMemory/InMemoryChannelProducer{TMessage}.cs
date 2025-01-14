@@ -13,12 +13,12 @@ internal sealed class InMemoryChannelProducer<TMessage> : IChannelProducer<TMess
 {
     private readonly InMemoryChannelClientFactory clientFactory;
     private readonly MessageBusOptions messageBusOptions;
-    private readonly MessageBusMetrics messageBusMetrics;
+    private readonly Metrics messageBusMetrics;
     private readonly InMemoryChannelProducerOptions channelProducerOptions;
     private readonly JsonSerializerOptions jsonSerializerOptions;
     private readonly ClientDiagnostics clientDiagnostics;
 
-    public InMemoryChannelProducer(InMemoryChannelClientFactory clientFactory, IOptionsMonitor<InMemoryChannelProducerOptions> options, IOptions<MessageBusOptions> messageBusOptions, MessageBusMetrics messageBusMetrics)
+    public InMemoryChannelProducer(InMemoryChannelClientFactory clientFactory, IOptionsMonitor<InMemoryChannelProducerOptions> options, IOptions<MessageBusOptions> messageBusOptions, Metrics messageBusMetrics)
     {
         this.clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
         this.messageBusOptions = messageBusOptions.Value;

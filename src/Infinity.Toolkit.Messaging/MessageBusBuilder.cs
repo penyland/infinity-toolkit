@@ -5,8 +5,6 @@ namespace Infinity.Toolkit.Messaging;
 public sealed class MessageBusBuilder(IServiceCollection services)
 {
     public IServiceCollection Services { get; } = services ?? throw new ArgumentNullException(nameof(services));
-
-    internal IDictionary<string, ChannelRegistration> ChannelConsumerProducerRegistry { get; } = new Dictionary<string, ChannelRegistration>();
 }
 
 public static partial class MessageBusBuilderExtensions
@@ -95,7 +93,7 @@ public static partial class MessageBusBuilderExtensions
     /// <param name="configureOptions">The action to configure the broker options.</param>
     /// <returns>Returns the MessageBusBuilder used to add the broker.</returns>
     internal static MessageBusBuilder AddBroker<TBroker, TBrokerOptions>(this MessageBusBuilder builder, string brokerType, Action<TBrokerOptions> configureOptions)
-        where TBroker : class, IMessagingBroker
+        where TBroker : class, IBroker
         where TBrokerOptions : MessageBusBrokerOptions
     {
         // Check that the broker type is not already registered
@@ -106,7 +104,7 @@ public static partial class MessageBusBuilderExtensions
         }
 
         builder.Services.Configure(configureOptions);
-        builder.Services.TryAddSingleton<IMessagingBroker, TBroker>();
+        builder.Services.TryAddSingleton<IBroker, TBroker>();
 
         return builder;
     }

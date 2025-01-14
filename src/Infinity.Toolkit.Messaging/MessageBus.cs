@@ -2,15 +2,15 @@ using Infinity.Toolkit.Messaging.Abstractions;
 
 namespace Infinity.Toolkit.Messaging;
 
-internal sealed class MessageBus(IEnumerable<IMessagingBroker> brokers, ILogger<MessageBus> logger) : IMessageBus
+internal sealed class MessageBus(IEnumerable<IBroker> brokers, ILogger<MessageBus> logger) : IMessageBus
 {
-    private readonly IEnumerable<IMessagingBroker> brokers = brokers;
+    private readonly IEnumerable<IBroker> brokers = brokers;
 
     public ILogger<MessageBus> Logger { get; } = logger;
 
     public bool IsProcessing => brokers.Any(x => x.IsProcessing);
 
-    public IEnumerable<IMessagingBroker> Brokers => brokers;
+    public IEnumerable<IBroker> Brokers => brokers;
 
     public async Task InitAsync()
     {
@@ -33,7 +33,7 @@ internal sealed class MessageBus(IEnumerable<IMessagingBroker> brokers, ILogger<
         }
     }
 
-    public Task StartAsync(IMessagingBroker messageBroker, CancellationToken cancellationToken = default)
+    public Task StartAsync(IBroker messageBroker, CancellationToken cancellationToken = default)
     {
         Logger?.StartingMessageBroker(messageBroker.Name);
         ArgumentNullException.ThrowIfNull(messageBroker);
@@ -49,7 +49,7 @@ internal sealed class MessageBus(IEnumerable<IMessagingBroker> brokers, ILogger<
         }
     }
 
-    public Task StopAsync(IMessagingBroker messageBroker, CancellationToken cancellationToken = default)
+    public Task StopAsync(IBroker messageBroker, CancellationToken cancellationToken = default)
     {
         Logger?.StoppingMessageBroker(messageBroker.Name);
         ArgumentNullException.ThrowIfNull(messageBroker);

@@ -2,11 +2,11 @@
 
 namespace Infinity.Toolkit.Messaging.Diagnostics;
 
-internal sealed class MessageBusMetrics
+internal sealed class Metrics
 {
     private readonly Meter meter;
 
-    public MessageBusMetrics(IMeterFactory meterFactory)
+    public Metrics(IMeterFactory meterFactory)
     {
         var options = new MeterOptions(DiagnosticProperty.ActivitySourceName)
         {
@@ -31,7 +31,6 @@ internal sealed class MessageBusMetrics
     // Number of total messages sent
     private Counter<int> MessagingClientPublishedMessages { get; }
 
-    // Histograms (ms)
     // Duration of messaging operation initiated by a producer or consumer client.
     private Histogram<double> MessagingClientOperationDuration { get; }
 

@@ -11,14 +11,14 @@ internal class InMemoryDeferredChannelConsumer<T>(
     IOptionsMonitor<InMemoryDeferredChannelConsumerOptions> deferredChannelConsumerOptions,
     IOptions<MessageBusOptions> messageBusOptions,
     IOptions<InMemoryBusOptions> brokerOptions,
-    MessageBusMetrics messageBusMetrics,
+    Metrics messageBusMetrics,
     ILoggerFactory loggerFactory) : IDeferredChannelConsumer<T>
     where T : class
 {
     private readonly InMemoryChannelClientFactory clientFactory = clientFactory;
     private readonly MessageBusOptions messageBusOptions = messageBusOptions.Value;
     private readonly InMemoryBusOptions brokerOptions = brokerOptions.Value;
-    private readonly MessageBusMetrics messageBusMetrics = messageBusMetrics;
+    private readonly Metrics messageBusMetrics = messageBusMetrics;
     private readonly ILogger<InMemoryDeferredChannelConsumer<T>> logger = loggerFactory.CreateLogger<InMemoryDeferredChannelConsumer<T>>();
     private readonly InMemoryDeferredChannelConsumerOptions options = deferredChannelConsumerOptions.Get(typeof(T).AssemblyQualifiedName) ?? throw new ArgumentException(nameof(InMemoryDeferredChannelConsumerOptions));
 

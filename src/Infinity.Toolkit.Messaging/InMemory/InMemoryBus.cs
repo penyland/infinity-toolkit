@@ -4,13 +4,13 @@ using static Infinity.Toolkit.Messaging.Diagnostics.Errors;
 
 namespace Infinity.Toolkit.Messaging.InMemory;
 
-internal class InMemoryBus : IMessagingBroker
+internal class InMemoryBus : IBroker
 {
     private readonly InMemoryChannelClientFactory inMemoryChannelClient;
     private readonly InMemoryBusOptions inMemoryBusOptions;
     private readonly IOptionsMonitor<InMemoryChannelConsumerOptions> channelConsumerOptions;
     private readonly IServiceProvider serviceProvider;
-    private readonly MessageBusMetrics metrics;
+    private readonly Metrics metrics;
     private readonly MessageBusOptions messageBusOptions;
     private readonly ConcurrentDictionary<int, InMemoryChannelProcessor> processorCache = new();
     private readonly ClientDiagnostics clientDiagnostics;
@@ -21,7 +21,7 @@ internal class InMemoryBus : IMessagingBroker
         IOptions<InMemoryBusOptions> inMemoryBusOptions,
         IOptionsMonitor<InMemoryChannelConsumerOptions> channelConsumerOptions,
         IServiceProvider serviceProvider,
-        MessageBusMetrics metrics,
+        Metrics metrics,
         ILogger<InMemoryBus> logger)
     {
         this.inMemoryChannelClient = inMemoryChannelClient;

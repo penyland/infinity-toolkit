@@ -106,7 +106,7 @@ public class InMemoryBus(ITestOutputHelper testOutputHelper) : TestBase
                 testOutputHelper);
 
             // Act
-            var bus = serviceProvider.GetRequiredService<IMessagingBroker>() as Infinity.Toolkit.Messaging.InMemory.InMemoryBus;
+            var bus = serviceProvider.GetRequiredService<IBroker>() as Infinity.Toolkit.Messaging.InMemory.InMemoryBus;
             var processErrorArgs = new ProcessErrorEventArgs(new Exception(), "Test");
             var act = () => bus!.ProcessErrorAsync(processErrorArgs);
 
@@ -130,7 +130,7 @@ public class InMemoryBus(ITestOutputHelper testOutputHelper) : TestBase
             testOutputHelper);
 
             // Act
-            var inMemoryBroker = serviceProvider.GetRequiredService<IMessagingBroker>() as Infinity.Toolkit.Messaging.InMemory.InMemoryBus;
+            var inMemoryBroker = serviceProvider.GetRequiredService<IBroker>() as Infinity.Toolkit.Messaging.InMemory.InMemoryBus;
             var processErrorArgs = new ProcessErrorEventArgs(new Exception(), "Test");
             var act = () => inMemoryBroker!.ProcessErrorAsync(processErrorArgs);
 
@@ -158,7 +158,7 @@ public class InMemoryBus(ITestOutputHelper testOutputHelper) : TestBase
                 testOutputHelper);
 
             // Act
-            var inMemoryBroker = serviceProvider.GetRequiredService<IMessagingBroker>() as Infinity.Toolkit.Messaging.InMemory.InMemoryBus;
+            var inMemoryBroker = serviceProvider.GetRequiredService<IBroker>() as Infinity.Toolkit.Messaging.InMemory.InMemoryBus;
             var processErrorArgs = new ProcessErrorEventArgs(new Exception(), "Test");
             var act = () => inMemoryBroker!.ProcessErrorAsync(processErrorArgs);
 

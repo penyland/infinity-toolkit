@@ -1,6 +1,4 @@
-﻿using Infinity.Toolkit.Messaging;
-
-namespace Infinity.Toolkit.Tests.Messaging;
+﻿namespace Infinity.Toolkit.Tests.Messaging;
 
 public class MessageBusBuilderTests : TestBase
 {

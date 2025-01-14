@@ -13,35 +13,7 @@ public sealed class InMemoryBusBuilder(MessageBusBuilder messageBusBuilder)
 
 public static class InMemoryBusBuilderExtensions
 {
-    public static InMemoryBusBuilder AddChannelConsumer<TMessage>(this InMemoryBusBuilder builder)
-    {
-        builder.Services.AddOptions<InMemoryChannelConsumerOptions>(typeof(TMessage).AssemblyQualifiedName)
-            .Configure(options =>
-            {
-                options.EventType = typeof(TMessage);
-                options.ChannelName = typeof(TMessage).Name;
-                options.ChannelType = ChannelType.Topic;
-                options.SubscriptionName = typeof(TMessage).Name;
-            })
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        builder.Services.AddOptions<InMemoryBusOptions>()
-            .Configure(options =>
-            {
-                options.ChannelConsumerRegistry.Add(typeof(TMessage).AssemblyQualifiedName ?? typeof(TMessage).Name, new ChannelConsumerRegistration
-                {
-                    BrokerName = builder.BrokerName,
-                    EventType = typeof(TMessage),
-                    Key = typeof(TMessage).AssemblyQualifiedName ?? typeof(TMessage).Name
-                });
-            })
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        builder.Services.ConfigureOptions<ConfigureInMemoryBusChannelOptions>();
-        return builder;
-    }
+    public static InMemoryBusBuilder AddChannelConsumer<TMessage>(this InMemoryBusBuilder builder) => builder.AddChannelConsumer<TMessage>(options => { });
 
     /// <summary>
     /// Adds a channel consumer to the broker.
@@ -56,6 +28,9 @@ public static class InMemoryBusBuilderExtensions
             .Configure(options =>
             {
                 options.EventType = typeof(TMessage);
+                options.ChannelName = typeof(TMessage).Name;
+                options.ChannelType = ChannelType.Topic;
+                options.SubscriptionName = typeof(TMessage).Name;
                 configureChannelOptions(options);
             })
             .ValidateDataAnnotations()
@@ -87,7 +62,7 @@ public static class InMemoryBusBuilderExtensions
     /// <param name="key">The key to identify the channel consumer with.</param>
     /// <param name="configureChannelOptions">A delegate that can be used to configure the channel options.</param>
     /// <returns>An <see cref="InMemoryBusBuilder"/> that can be used to further configure the InMemoryBroker.</returns>
-    public static InMemoryBusBuilder AddChannelConsumer(this InMemoryBusBuilder builder, string key, Action<InMemoryChannelConsumerOptions> configureChannelOptions)
+    public static InMemoryBusBuilder AddChannelConsumer(this InMemoryBusBuilder builder, Action<InMemoryChannelConsumerOptions> configureChannelOptions, string key)
     {
         builder.Services.AddOptions<InMemoryChannelConsumerOptions>(key)
             .Configure(options =>
@@ -116,22 +91,6 @@ public static class InMemoryBusBuilderExtensions
     }
 
     /// <summary>
-    /// Adds a broker of type <typeparamref name="TBroker"/> with options of type <typeparamref name="TBrokerOptions"/> to the InMemoryBrokerBuilder.
-    /// </summary>
-    /// <typeparam name="TBroker">The type of the broker.</typeparam>
-    /// <typeparam name="TBrokerOptions">The type of the broker options.</typeparam>
-    /// <param name="builder">The <see cref="InMemoryBusBuilder"/>.</param>
-    /// <param name="configureOptions">A delegate that can be used to configure the broker options.</param>
-    /// <returns>An <see cref="InMemoryBusBuilder"/> that can be used to further configure the AzureServiceBusBroker.</returns>
-    public static InMemoryBusBuilder AddBroker<TBroker, TBrokerOptions>(this InMemoryBusBuilder builder, Action<TBrokerOptions> configureOptions)
-        where TBroker : class, IMessagingBroker
-        where TBrokerOptions : MessageBusBrokerOptions
-    {
-        builder.MessageBusBuilder.AddBroker<TBroker, TBrokerOptions>(InMemoryBusDefaults.Name, configureOptions);
-        return builder;
-    }
-
-    /// <summary>
     /// Adds a keyed channel producer to the InMemoryBroker.
     /// </summary>
     /// <param name="builder">The <see cref="InMemoryBusBuilder"/>.</param>
@@ -141,16 +100,6 @@ public static class InMemoryBusBuilderExtensions
     public static InMemoryBusBuilder AddChannelProducer(this InMemoryBusBuilder builder, string key, Action<InMemoryChannelProducerOptions> configureChannelOptions)
     {
         ArgumentNullException.ThrowIfNull(key, nameof(key));
-
-        builder.MessageBusBuilder.ChannelConsumerProducerRegistry.Add(
-            key,
-            new ChannelRegistration()
-            {
-                BrokerName = builder.BrokerName,
-                IsConsumer = false,
-                Key = key
-            });
-
         builder.ConfigureChannelProducerOptions(key, configureChannelOptions);
         builder.Services.AddKeyedTransient<IChannelProducer, InMemoryChannelProducer>(key);
         return builder;
@@ -242,6 +191,22 @@ public static class InMemoryBusBuilderExtensions
             .ValidateOnStart();
 
         builder.Services.AddTransient<IDeferredChannelConsumer<TEventType>, InMemoryDeferredChannelConsumer<TEventType>>();
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds a broker of type <typeparamref name="TBroker"/> with options of type <typeparamref name="TBrokerOptions"/> to the InMemoryBrokerBuilder.
+    /// </summary>
+    /// <typeparam name="TBroker">The type of the broker.</typeparam>
+    /// <typeparam name="TBrokerOptions">The type of the broker options.</typeparam>
+    /// <param name="builder">The <see cref="InMemoryBusBuilder"/>.</param>
+    /// <param name="configureOptions">A delegate that can be used to configure the broker options.</param>
+    /// <returns>An <see cref="InMemoryBusBuilder"/> that can be used to further configure the AzureServiceBusBroker.</returns>
+    internal static InMemoryBusBuilder AddBroker<TBroker, TBrokerOptions>(this InMemoryBusBuilder builder, Action<TBrokerOptions> configureOptions)
+        where TBroker : class, IBroker
+        where TBrokerOptions : MessageBusBrokerOptions
+    {
+        builder.MessageBusBuilder.AddBroker<TBroker, TBrokerOptions>(InMemoryBusDefaults.Name, configureOptions);
         return builder;
     }
 

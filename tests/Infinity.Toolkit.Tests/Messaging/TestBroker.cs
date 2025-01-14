@@ -2,7 +2,7 @@
 
 namespace Infinity.Toolkit.Tests.Messaging;
 
-internal class TestBroker : IMessagingBroker
+internal class TestBroker : IBroker
 {
     public int InitAsyncCallCount { get; private set; }
 

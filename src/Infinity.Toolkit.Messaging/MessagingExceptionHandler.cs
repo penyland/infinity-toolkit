@@ -3,10 +3,10 @@ using Infinity.Toolkit.Messaging.Diagnostics;
 
 namespace Infinity.Toolkit.Messaging;
 
-internal class MessagingExceptionHandler(IServiceProvider serviceProvider, MessageBusMetrics messageBusMetrics, ILoggerFactory loggerFactory)
+internal class MessagingExceptionHandler(IServiceProvider serviceProvider, Metrics messageBusMetrics, ILoggerFactory loggerFactory)
 {
     private readonly IServiceProvider serviceProvider = serviceProvider;
-    private readonly MessageBusMetrics messageBusMetrics = messageBusMetrics;
+    private readonly Metrics messageBusMetrics = messageBusMetrics;
     private readonly ILogger<MessagingExceptionHandler> logger = loggerFactory.CreateLogger<MessagingExceptionHandler>();
 
     public async Task HandleExceptionAsync(MessageBusException exception)

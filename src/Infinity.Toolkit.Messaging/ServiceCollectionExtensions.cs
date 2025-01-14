@@ -77,7 +77,7 @@ public static class ServiceCollectionExtensions
         services.ConfigureOptions<ConfigureMessageBusBrokerOptions>();
 
         services.TryAddSingleton<IMessageBus, MessageBus>();
-        services.TryAddSingleton<MessageBusMetrics>();
+        services.TryAddSingleton<Metrics>();
         services.TryAddSingleton<MessagingExceptionHandler>();
 
         services.AddHostedService<MessageBusBackgroundService>();

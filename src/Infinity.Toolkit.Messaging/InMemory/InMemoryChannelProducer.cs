@@ -11,12 +11,12 @@ internal sealed class InMemoryChannelProducer : IChannelProducer
 {
     private readonly InMemoryChannelClientFactory clientFactory;
     private readonly MessageBusOptions messageBusOptions;
-    private readonly MessageBusMetrics messageBusMetrics;
+    private readonly Metrics messageBusMetrics;
     private readonly InMemoryChannelProducerOptions channelProducerOptions;
     private readonly JsonSerializerOptions jsonSerializerOptions;
     private readonly ClientDiagnostics clientDiagnostics;
 
-    public InMemoryChannelProducer([ServiceKey] string serviceKey, InMemoryChannelClientFactory clientFactory, IOptionsMonitor<InMemoryChannelProducerOptions> options, IOptions<MessageBusOptions> messageBusOptions, MessageBusMetrics messageBusMetrics)
+    public InMemoryChannelProducer([ServiceKey] string serviceKey, InMemoryChannelClientFactory clientFactory, IOptionsMonitor<InMemoryChannelProducerOptions> options, IOptions<MessageBusOptions> messageBusOptions, Metrics messageBusMetrics)
     {
         ServiceKey = serviceKey;
         this.clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));

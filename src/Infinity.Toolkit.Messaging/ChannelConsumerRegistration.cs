@@ -9,12 +9,3 @@ internal class ChannelConsumerRegistration
 
     public string Key { get; set; }
 }
-
-internal class ChannelRegistration
-{
-    public string BrokerName { get; set; } = string.Empty;
-
-    public bool IsConsumer { get; init; }
-
-    public string Key { get; set; }
-}

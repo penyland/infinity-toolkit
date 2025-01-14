@@ -28,7 +28,7 @@ public class InMemoryChannelProducerTests : TestBase
             });
 
             var messageBusOptions = Options.Create(new MessageBusOptions());
-            var messageBusMetrics = new MessageBusMetrics(new MockMeterFactory());
+            var messageBusMetrics = new Metrics(new MockMeterFactory());
             var producer = new InMemoryChannelProducer<InMemoryMessage>(clientFactory, channelProducerOptions, messageBusOptions, messageBusMetrics);
 
             var testMessage = new InMemoryMessage("testMessage");

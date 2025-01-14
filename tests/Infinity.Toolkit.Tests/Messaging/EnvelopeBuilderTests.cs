@@ -1,5 +1,4 @@
-﻿using Infinity.Toolkit.Messaging;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace Infinity.Toolkit.Tests.Messaging;
 

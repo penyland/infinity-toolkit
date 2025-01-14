@@ -10,7 +10,7 @@ public interface IMessageBus
     /// <summary>
     /// All registered message brokers on the message bus.
     /// </summary>
-    IEnumerable<IMessagingBroker> Brokers { get; }
+    IEnumerable<IBroker> Brokers { get; }
 
     /// <summary>
     /// Initializes the message bus.
@@ -29,7 +29,7 @@ public interface IMessageBus
     /// </summary>
     /// <param name="messageBroker">A message broker.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    Task StartAsync(IMessagingBroker messageBroker, CancellationToken cancellationToken);
+    Task StartAsync(IBroker messageBroker, CancellationToken cancellationToken);
 
     /// <summary>
     /// Stops the message bus.
@@ -42,5 +42,5 @@ public interface IMessageBus
     /// </summary>
     /// <param name="messageBroker">A message broker.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    Task StopAsync(IMessagingBroker messageBroker, CancellationToken cancellationToken);
+    Task StopAsync(IBroker messageBroker, CancellationToken cancellationToken);
 }
