@@ -19,7 +19,7 @@ public class InMemoryChannelProcessor : TestBase
             await processor.StartProcessingAsync(CancellationToken.None);
 
             // Assert
-            processor.IsProcessing.Should().BeTrue();
+            processor.IsProcessing.ShouldBeTrue();
         }
 
         [Fact]
@@ -34,7 +34,7 @@ public class InMemoryChannelProcessor : TestBase
             var action = () => processor.StartProcessingAsync(CancellationToken.None);
 
             // Assert
-            await action.Should().ThrowAsync<InvalidOperationException>();
+            await action.ShouldThrowAsync<InvalidOperationException>();
         }
 
         [Fact]
@@ -51,9 +51,9 @@ public class InMemoryChannelProcessor : TestBase
             var action2 = () => processor.StartProcessingAsync(CancellationToken.None);
 
             // Assert
-            await action1.Should().NotThrowAsync();
-            await action2.Should().ThrowAsync<InvalidOperationException>();
-            processor.IsProcessing.Should().BeTrue();
+            await action1.ShouldNotThrowAsync();
+            await action2.ShouldThrowAsync<InvalidOperationException>();
+            processor.IsProcessing.ShouldBeTrue();
         }
 
         [Fact]
@@ -72,8 +72,8 @@ public class InMemoryChannelProcessor : TestBase
             var action = () => processor.StartProcessingAsync(cancellationTokenSource.Token);
 
             // Assert
-            await action.Should().ThrowAsync<OperationCanceledException>();
-            processor.IsProcessing.Should().BeFalse();
+            await action.ShouldThrowAsync<OperationCanceledException>();
+            processor.IsProcessing.ShouldBeFalse();
         }
     }
 
@@ -93,7 +93,7 @@ public class InMemoryChannelProcessor : TestBase
             await processor.StopProcessingAsync(CancellationToken.None);
 
             // Assert
-            processor.IsProcessing.Should().BeFalse();
+            processor.IsProcessing.ShouldBeFalse();
         }
 
         [Fact]
@@ -112,7 +112,7 @@ public class InMemoryChannelProcessor : TestBase
             await processor.StopProcessingAsync(cancellationTokenSource.Token);
 
             // Assert
-            processor.IsProcessing.Should().BeFalse();
+            processor.IsProcessing.ShouldBeFalse();
         }
 
         [Fact]
@@ -131,7 +131,7 @@ public class InMemoryChannelProcessor : TestBase
             var action = () => processor.StopProcessingAsync(cancellationTokenSource.Token);
 
             // Assert
-            await action.Should().ThrowAsync<OperationCanceledException>();
+            await action.ShouldThrowAsync<OperationCanceledException>();
         }
     }
 }

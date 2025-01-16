@@ -19,7 +19,7 @@ public class EnvelopeBuilderTests
             var envelope = new EnvelopeBuilder().Build();
 
             // Assert
-            envelope.Should().NotBeNull();
+            envelope.ShouldNotBeNull();
         }
 
         [Fact]
@@ -32,7 +32,7 @@ public class EnvelopeBuilderTests
             var func = () => new EnvelopeBuilder().WithEventType(default!).WithBody(message).Build();
 
             // Assert
-            func.Should().Throw<ArgumentNullException>();
+            func.ShouldThrow<ArgumentNullException>();
         }
 
         [Fact]
@@ -45,13 +45,13 @@ public class EnvelopeBuilderTests
             var envelope = new EnvelopeBuilder().WithBody(message).Build();
 
             // Assert
-            envelope.Body.Should().NotBeNull();
-            envelope.Body.ToObjectFromJson<TestMessage>().Should().BeOfType<TestMessage>();
+            envelope.Body.ShouldNotBeNull();
+            envelope.Body.ToObjectFromJson<TestMessage>().ShouldBeOfType<TestMessage>();
 
             var content = envelope.Body.ToObjectFromJson<TestMessage>()?.Content;
 
-            content.Should().NotBeNull();
-            content.Should().Be("testContent");
+            content.ShouldNotBeNull();
+            content.ShouldBe("testContent");
         }
 
         [Fact]
@@ -62,7 +62,7 @@ public class EnvelopeBuilderTests
             var envelope = new EnvelopeBuilder().Build();
 
             // Assert
-            envelope.ApplicationProperties[CloudEvents.SpecVersion].Should().Be(CloudEvents.CloudEventsSpecVersion);
+            envelope.ApplicationProperties[CloudEvents.SpecVersion].ShouldBe(CloudEvents.CloudEventsSpecVersion);
         }
 
         [Fact]
@@ -80,7 +80,7 @@ public class EnvelopeBuilderTests
             var type = envelope.ApplicationProperties[CloudEvents.Type];
 
             // Assert
-            type.Should().NotBeNull(null);
+            type.ShouldNotBeNull();
         }
 
         [Fact]
@@ -96,8 +96,8 @@ public class EnvelopeBuilderTests
                 .Build();
 
             // Assert
-            envelope.CorrelationId.Should().NotBeNullOrEmpty();
-            envelope.CorrelationId.Should().Be("correlationId");
+            envelope.CorrelationId.ShouldNotBeNullOrEmpty();
+            envelope.CorrelationId.ShouldBe("correlationId");
         }
 
         [Fact]
@@ -112,8 +112,8 @@ public class EnvelopeBuilderTests
                 .Build();
 
             // Assert
-            envelope.MessageId.Should().NotBeNullOrEmpty();
-            Guid.TryParse(envelope.MessageId, out var guid).Should().BeTrue();
+            envelope.MessageId.ShouldNotBeNullOrEmpty();
+            Guid.TryParse(envelope.MessageId, out var guid).ShouldBeTrue();
         }
 
         [Fact]
@@ -129,13 +129,13 @@ public class EnvelopeBuilderTests
                 .Build();
 
             // Assert
-            envelope.ApplicationProperties[CloudEvents.Source].Should().NotBeNull();
+            envelope.ApplicationProperties[CloudEvents.Source].ShouldNotBeNull();
 
             var sourceString = envelope.ApplicationProperties[CloudEvents.Source] as string;
             var source = new Uri(sourceString!);
-            source.Should().NotBeNull();
-            source?.Scheme.Should().Be("test");
-            source?.Host.Should().Be("test");
+            source.ShouldNotBeNull();
+            source?.Scheme.ShouldBe("test");
+            source?.Host.ShouldBe("test");
         }
 
         [Fact]
@@ -154,9 +154,9 @@ public class EnvelopeBuilderTests
             var envelope = new EnvelopeBuilder().WithBody(message).WithHeaders(propertyBag).Build();
 
             // Assert
-            envelope.ApplicationProperties.Should().NotBeNullOrEmpty();
-            envelope.ApplicationProperties.Should().ContainKeys("key1", "key2");
-            envelope.ApplicationProperties.Should().ContainValues("value1", "value2");
+            envelope.ApplicationProperties.ShouldNotBeNull();
+            envelope.ApplicationProperties.ShouldContainKeyAndValue("key1", "value1");
+            envelope.ApplicationProperties.ShouldContainKeyAndValue("key2", "value2");
         }
 
         [Fact]
@@ -169,7 +169,7 @@ public class EnvelopeBuilderTests
             var envelope = new EnvelopeBuilder().WithBody(message).Build();
 
             // Assert
-            envelope.Body.Should().NotBeNull();
+            envelope.Body.ShouldNotBeNull();
             envelope.Body.ToString().Contains("Content");
         }
 
@@ -184,7 +184,7 @@ public class EnvelopeBuilderTests
             var envelope = new EnvelopeBuilder().WithBody(message, jsonSerializerOptions).Build();
 
             // Assert
-            envelope.Body.Should().NotBeNull();
+            envelope.Body.ShouldNotBeNull();
             envelope.Body.ToString().Contains("content");
         }
 
@@ -199,10 +199,10 @@ public class EnvelopeBuilderTests
             var envelope = new EnvelopeBuilder().WithBody(message, jsonSerializerOptions).WithCorrelationId("correlationId").Build();
 
             // Assert
-            envelope.Body.Should().NotBeNull();
+            envelope.Body.ShouldNotBeNull();
             envelope.Body.ToString().Contains("content");
-            envelope.CorrelationId.Should().NotBeNullOrEmpty();
-            envelope.CorrelationId.Should().Be("correlationId");
+            envelope.CorrelationId.ShouldNotBeNullOrEmpty();
+            envelope.CorrelationId.ShouldBe("correlationId");
         }
 
         [Fact]
@@ -219,15 +219,14 @@ public class EnvelopeBuilderTests
             };
 
             // Act
-            //var serviceBusMessage = ServiceBusMessageFactory.Create<TestMessage>(message, Subdomains.Internal, jsonSerializerOptions, propertyBag: propertyBag);
             var envelope = new EnvelopeBuilder().WithBody(message, jsonSerializerOptions).WithHeaders(propertyBag).Build();
 
             // Assert
-            envelope.Body.Should().NotBeNull();
+            envelope.Body.ShouldNotBeNull();
             envelope.Body.ToString().Contains("content");
-            envelope.ApplicationProperties.Should().NotBeNullOrEmpty();
-            envelope.ApplicationProperties.Should().ContainKeys("key1", "key2");
-            envelope.ApplicationProperties.Should().ContainValues("value1", "value2");
+            envelope.ApplicationProperties.ShouldNotBeNull();
+            envelope.ApplicationProperties.ShouldContainKeyAndValue("key1", "value1");
+            envelope.ApplicationProperties.ShouldContainKeyAndValue("key2", "value2");
         }
     }
 }

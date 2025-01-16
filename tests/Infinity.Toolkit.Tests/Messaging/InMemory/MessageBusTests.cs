@@ -1,5 +1,6 @@
 ﻿using Infinity.Toolkit.Messaging.Abstractions;
 using Infinity.Toolkit.Messaging.InMemory;
+using Shouldly;
 
 namespace Infinity.Toolkit.Tests.Messaging.InMemory;
 
@@ -34,7 +35,7 @@ public class MessageBusTests : TestBase
             await messageBus.StartAsync(cancellationToken: CancellationToken.None);
 
             // Assert
-            messageBus.IsProcessing.Should().BeTrue();
+            messageBus.IsProcessing.ShouldBeTrue();
         }
 
         [Fact]
@@ -65,7 +66,7 @@ public class MessageBusTests : TestBase
             await messageBus.StopAsync(CancellationToken.None);
 
             // Assert
-            messageBus.IsProcessing.Should().BeFalse();
+            messageBus.IsProcessing.ShouldBeFalse();
         }
     }
 
@@ -96,10 +97,10 @@ public class MessageBusTests : TestBase
             var messageBus = serviceProvider.GetRequiredService<IMessageBus>();
             await messageBus.InitAsync();
             await messageBus.StartAsync(cancellationToken: CancellationToken.None);
-            var act = () => messageBus.StartAsync(cancellationToken: CancellationToken.None);
+            var task = () => messageBus.StartAsync(cancellationToken: CancellationToken.None);
 
             // Assert
-            await act.Should().NotThrowAsync<InvalidOperationException>();
+            await task.ShouldNotThrowAsync();
         }
     }
 }

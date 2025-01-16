@@ -24,7 +24,7 @@ public class RequiredIfAttributeTests
         var isValid = Validator.TryValidateObject(model, validationContext, validationResults, true);
 
         // Assert
-        isValid.Should().BeTrue();
+        isValid.ShouldBe(true);
     }
 
     [Fact]
@@ -39,7 +39,7 @@ public class RequiredIfAttributeTests
         var isValid = Validator.TryValidateObject(model, validationContext, validationResults, true);
 
         // Assert
-        isValid.Should().BeTrue();
+        isValid.ShouldBe(true);
     }
 
     [Fact]
@@ -54,7 +54,7 @@ public class RequiredIfAttributeTests
         var isValid = Validator.TryValidateObject(model, validationContext, validationResults, true);
 
         // Assert
-        isValid.Should().BeTrue();
+        isValid.ShouldBe(true);
     }
 
     [Fact]
@@ -69,6 +69,6 @@ public class RequiredIfAttributeTests
         var isValid = Validator.TryValidateObject(model, validationContext, validationResults, true);
 
         // Assert
-        isValid.Should().BeFalse();
+        isValid.ShouldBe(false);
     }
 }

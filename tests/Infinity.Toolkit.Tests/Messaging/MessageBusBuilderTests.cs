@@ -13,7 +13,7 @@ public class MessageBusBuilderTests : TestBase
         var result = messageBusBuilder.MapMessageHandler<TestMessage, TestMessageHandler>();
 
         // Assert
-        result.Should().NotBeNull();
+        result.ShouldNotBeNull();
     }
 
     [Fact]
@@ -27,7 +27,7 @@ public class MessageBusBuilderTests : TestBase
         var result = messageBusBuilder.AddBroker<TestBroker, DefaultMessageBrokerOptions>("brokerType", options => { });
 
         // Assert
-        result.Should().NotBeNull();
+        result.ShouldNotBeNull();
     }
 }
 

@@ -37,7 +37,7 @@ public class InMemoryChannelProducerTests : TestBase
             var task = () => producer.SendAsync(testMessage, "Internal", CancellationToken.None);
 
             // Assert
-            await task.Should().NotThrowAsync();
+            await task.ShouldNotThrowAsync();
         }
     }
 }

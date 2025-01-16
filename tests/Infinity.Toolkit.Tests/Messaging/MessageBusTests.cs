@@ -18,7 +18,7 @@ public class MessageBusTests(ITestOutputHelper testOutputHelper) : TestBase
         await messageBus.InitAsync();
 
         // Assert
-        broker.InitAsyncCallCount.Should().Be(1);
+        broker.InitAsyncCallCount.ShouldBe(1);
     }
 
     [Fact]
@@ -34,8 +34,8 @@ public class MessageBusTests(ITestOutputHelper testOutputHelper) : TestBase
         await messageBus.InitAsync();
 
         // Assert
-        broker1.InitAsyncCallCount.Should().Be(1);
-        broker2.InitAsyncCallCount.Should().Be(1);
+        broker1.InitAsyncCallCount.ShouldBe(1);
+        broker2.InitAsyncCallCount.ShouldBe(1);
     }
 
     [Fact]
@@ -51,8 +51,8 @@ public class MessageBusTests(ITestOutputHelper testOutputHelper) : TestBase
         await messageBus.StartAsync(cancellationToken: CancellationToken.None);
 
         // Assert
-        broker1.StartAsyncCallCount.Should().Be(1);
-        broker2.StartAsyncCallCount.Should().Be(0);
+        broker1.StartAsyncCallCount.ShouldBe(1);
+        broker2.StartAsyncCallCount.ShouldBe(0);
     }
 
     [Fact]
@@ -68,8 +68,8 @@ public class MessageBusTests(ITestOutputHelper testOutputHelper) : TestBase
         await messageBus.StartAsync(true, CancellationToken.None);
 
         // Assert
-        broker1.StartAsyncCallCount.Should().Be(1);
-        broker2.StartAsyncCallCount.Should().Be(1);
+        broker1.StartAsyncCallCount.ShouldBe(1);
+        broker2.StartAsyncCallCount.ShouldBe(1);
     }
 
     [Fact]
@@ -85,8 +85,8 @@ public class MessageBusTests(ITestOutputHelper testOutputHelper) : TestBase
         await messageBus.StartAsync(cancellationToken: CancellationToken.None);
 
         // Assert
-        broker1.StartAsyncCallCount.Should().Be(0);
-        broker2.StartAsyncCallCount.Should().Be(0);
+        broker1.StartAsyncCallCount.ShouldBe(0);
+        broker2.StartAsyncCallCount.ShouldBe(0);
     }
 
     [Fact]
@@ -102,8 +102,8 @@ public class MessageBusTests(ITestOutputHelper testOutputHelper) : TestBase
         await messageBus.StartAsync(broker1, CancellationToken.None);
 
         // Assert
-        broker1.StartAsyncCallCount.Should().Be(1);
-        broker2.StartAsyncCallCount.Should().Be(0);
+        broker1.StartAsyncCallCount.ShouldBe(1);
+        broker2.StartAsyncCallCount.ShouldBe(0);
     }
 
     [Fact]
@@ -119,8 +119,8 @@ public class MessageBusTests(ITestOutputHelper testOutputHelper) : TestBase
         await messageBus.StopAsync(cancellationToken: CancellationToken.None);
 
         // Assert
-        broker1.StopAsyncCallCount.Should().Be(1);
-        broker2.StopAsyncCallCount.Should().Be(1);
+        broker1.StopAsyncCallCount.ShouldBe(1);
+        broker2.StopAsyncCallCount.ShouldBe(1);
     }
 
     [Fact]
@@ -136,7 +136,7 @@ public class MessageBusTests(ITestOutputHelper testOutputHelper) : TestBase
         await messageBus.StopAsync(broker1, CancellationToken.None);
 
         // Assert
-        broker1.StopAsyncCallCount.Should().Be(1);
-        broker2.StopAsyncCallCount.Should().Be(0);
+        broker1.StopAsyncCallCount.ShouldBe(1);
+        broker2.StopAsyncCallCount.ShouldBe(0);
     }
 }

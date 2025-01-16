@@ -18,7 +18,7 @@ public class InMemoryChannelReceiverTests : TestBase
             var sequenceNumber = await receiver.DeferMessageAsync(testMessage, cancellationToken: CancellationToken.None);
 
             // Assert
-            sequenceNumber.Should().Be(1);
+            sequenceNumber.ShouldBe(1);
         }
 
         [Fact]
@@ -34,10 +34,10 @@ public class InMemoryChannelReceiverTests : TestBase
             var message = await receiver.ReceiveDeferredMessageAsync(sequenceNumber);
 
             // Assert
-            sequenceNumber.Should().Be(1);
-            message.Should().NotBeNull();
-            message.SequenceNumber.Should().Be(1);
-            message.Body.ToString().Should().Be("testMessage");
+            sequenceNumber.ShouldBe(1);
+            message.ShouldNotBeNull();
+            message.SequenceNumber.ShouldBe(1);
+            message.Body.ToString().ShouldBe("testMessage");
         }
 
         [Fact]
@@ -53,7 +53,7 @@ public class InMemoryChannelReceiverTests : TestBase
             var action2 = () => receiver.DeferMessageAsync(testMessage, cancellationToken: CancellationToken.None);
 
             // Assert
-            await action2.Should().ThrowAsync<InvalidOperationException>();
+            await action2.ShouldThrowAsync<InvalidOperationException>();
         }
 
         [Fact]
@@ -67,8 +67,8 @@ public class InMemoryChannelReceiverTests : TestBase
             var sequenceNumber2 = await receiver.DeferMessageAsync(new InMemoryMessage("testMessage2") { SequenceNumber = 2 }, cancellationToken: CancellationToken.None);
 
             // Assert
-            sequenceNumber1.Should().Be(1);
-            sequenceNumber2.Should().Be(2);
+            sequenceNumber1.ShouldBe(1);
+            sequenceNumber2.ShouldBe(2);
         }
 
         [Fact]
@@ -83,9 +83,9 @@ public class InMemoryChannelReceiverTests : TestBase
             var action = () => receiver.DeferMessageAsync(new InMemoryMessage("testMessage2") { SequenceNumber = 2 }, cancellationToken: CancellationToken.None);
 
             // Assert
-            sequenceNumber1.Should().Be(1);
-            sequenceNumber2.Should().Be(2);
-            await action.Should().ThrowAsync<InvalidOperationException>();
+            sequenceNumber1.ShouldBe(1);
+            sequenceNumber2.ShouldBe(2);
+            await action.ShouldThrowAsync<InvalidOperationException>();
         }
     }
 
@@ -104,9 +104,9 @@ public class InMemoryChannelReceiverTests : TestBase
             var message = await receiver.ReceiveDeferredMessageAsync(sequenceNumber);
 
             // Assert
-            message.Should().NotBeNull();
-            message.SequenceNumber.Should().Be(1);
-            message.Body.ToString().Should().Be("testMessage");
+            message.ShouldNotBeNull();
+            message.SequenceNumber.ShouldBe(1);
+            message.Body.ToString().ShouldBe("testMessage");
         }
 
         [Fact]
@@ -123,7 +123,7 @@ public class InMemoryChannelReceiverTests : TestBase
             var action = () => receiver.ReceiveDeferredMessageAsync(sequenceNumber);
 
             // Assert
-            await action.Should().ThrowAsync<InvalidOperationException>();
+            await action.ShouldThrowAsync<InvalidOperationException>();
         }
     }
 }

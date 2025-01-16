@@ -46,8 +46,8 @@ public class InMemoryBus(ITestOutputHelper testOutputHelper) : TestBase
             () => channelProducer.SendAsync(new TestMessage("testContent"), CancellationToken.None));
 
         // Assert
-        results.Should().NotBeNull();
-        results.IncomingMessageContexts.Should().HaveCount(1);
+        results.ShouldNotBeNull();
+        results.IncomingMessageContexts.ShouldHaveSingleItem();
     }
 
     [Fact]
@@ -87,7 +87,7 @@ public class InMemoryBus(ITestOutputHelper testOutputHelper) : TestBase
 
         // Assert
         var testExceptionHandlerData = serviceProvider.GetRequiredService<TestExceptionHandlerData>();
-        testExceptionHandlerData.Handled.Should().BeTrue();
+        testExceptionHandlerData.Handled.ShouldBeTrue();
     }
 
     public class ProcessErrorAsync(ITestOutputHelper testOutputHelper)
@@ -95,7 +95,7 @@ public class InMemoryBus(ITestOutputHelper testOutputHelper) : TestBase
         private readonly ITestOutputHelper testOutputHelper = testOutputHelper;
 
         [Fact]
-        public void Should_Use_DefaultExceptionHandler()
+        public async Task Should_Use_DefaultExceptionHandlerAsync()
         {
             // Arrange
             var serviceProvider = ConfigureServiceProvider(
@@ -107,15 +107,16 @@ public class InMemoryBus(ITestOutputHelper testOutputHelper) : TestBase
 
             // Act
             var bus = serviceProvider.GetRequiredService<IBroker>() as Infinity.Toolkit.Messaging.InMemory.InMemoryBus;
-            var processErrorArgs = new ProcessErrorEventArgs(new Exception(), "Test");
+            var processErrorArgs = new ProcessErrorEventArgs(new Exception("Test"), "Test");
             var act = () => bus!.ProcessErrorAsync(processErrorArgs);
 
             // Assert
-            act.Should().ThrowAsync<Exception>().WithMessage("Test");
+            var exception = await act.ShouldThrowAsync<Exception>();
+            exception.Message.ShouldBe("Test");
         }
 
         [Fact]
-        public void Should_Call_Registered_ErrorHandler()
+        public async Task Should_Call_Registered_ErrorHandlerAsync()
         {
             // Arrange
             var testExceptionHandler = Substitute.For<TestExceptionHandler>(false);
@@ -131,16 +132,18 @@ public class InMemoryBus(ITestOutputHelper testOutputHelper) : TestBase
 
             // Act
             var inMemoryBroker = serviceProvider.GetRequiredService<IBroker>() as Infinity.Toolkit.Messaging.InMemory.InMemoryBus;
-            var processErrorArgs = new ProcessErrorEventArgs(new Exception(), "Test");
+            var processErrorArgs = new ProcessErrorEventArgs(new Exception("Test"), "Test");
             var act = () => inMemoryBroker!.ProcessErrorAsync(processErrorArgs);
 
             // Assert
-            act.Should().ThrowAsync<Exception>().WithMessage("Test");
-            testExceptionHandler.Received().TryHandleAsync("Test", Arg.Any<Exception>());
+            var exception = await act.ShouldThrowAsync<Exception>();
+            exception.Message.ShouldBe("Test");
+
+            await testExceptionHandler.Received().TryHandleAsync("Test", Arg.Any<Exception>());
         }
 
         [Fact]
-        public void With_Multiple_ExceptionHandler_Should_Be_Called_In_Order()
+        public async Task With_Multiple_ExceptionHandler_Should_Be_Called_In_OrderAsync()
         {
             // Arrange
             var testExceptionHandler1 = Substitute.For<TestExceptionHandler>(false);
@@ -159,13 +162,13 @@ public class InMemoryBus(ITestOutputHelper testOutputHelper) : TestBase
 
             // Act
             var inMemoryBroker = serviceProvider.GetRequiredService<IBroker>() as Infinity.Toolkit.Messaging.InMemory.InMemoryBus;
-            var processErrorArgs = new ProcessErrorEventArgs(new Exception(), "Test");
-            var act = () => inMemoryBroker!.ProcessErrorAsync(processErrorArgs);
+            var processErrorArgs = new ProcessErrorEventArgs(new Exception("Test"), "Test");
+            var task = () => inMemoryBroker!.ProcessErrorAsync(processErrorArgs);
+            await task.Invoke();
 
             // Assert
-            act.Should().ThrowAsync<Exception>().WithMessage("Test");
-            testExceptionHandler1.Received(1).TryHandleAsync("Test", Arg.Any<Exception>());
-            testExceptionHandler2.Received(1).TryHandleAsync("Test", Arg.Any<Exception>());
+            await testExceptionHandler1.Received(1).TryHandleAsync("Test", Arg.Any<Exception>());
+            await testExceptionHandler2.Received(1).TryHandleAsync("Test", Arg.Any<Exception>());
         }
     }
 }
