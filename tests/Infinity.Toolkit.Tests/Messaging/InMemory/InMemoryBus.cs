@@ -17,22 +17,17 @@ public class InMemoryBus(ITestOutputHelper testOutputHelper) : TestBase
         var serviceProvider = ConfigureServiceProvider(
             services =>
             {
-                services.AddInfinityMessaging(bus =>
+                services.AddInfinityMessaging().ConfigureInMemoryBus(builder =>
                 {
-                    bus.ConfigureInMemoryBus(builder =>
-                       {
-                           builder.AddChannelConsumer<TestMessage>(options =>
-                            {
-                                options.ChannelName = "test";
-                                options.SubscriptionName = "test";
-                            })
-                            .AddChannelProducer<TestMessage>(options => { options.ChannelName = "test"; });
-                       });
-
-                    bus.MapMessageHandler<TestMessage, TestMessageHandler>();
-                });
-            },
-            testOutputHelper);
+                    builder.AddChannelConsumer<TestMessage>(options =>
+                    {
+                        options.ChannelName = "test";
+                        options.SubscriptionName = "test";
+                    })
+                    .AddChannelProducer<TestMessage>(options => { options.ChannelName = "test"; });
+                })
+                .MapMessageHandler<TestMessage, TestMessageHandler>();
+            }, testOutputHelper);
 
         ObservedMessageContexts results;
 
@@ -57,25 +52,23 @@ public class InMemoryBus(ITestOutputHelper testOutputHelper) : TestBase
         var serviceProvider = ConfigureServiceProvider(
             services =>
             {
-                services.AddInfinityMessaging(bus =>
+                services.AddInfinityMessaging(configureBusBuilder: builder =>
                 {
-                    bus.AddInMemoryBus(builder =>
+                    builder.ConfigureInMemoryBus(bb =>
                     {
-                        builder.AddChannelConsumer<TestMessage>(options =>
+                        bb.AddChannelConsumer<TestMessage>(options =>
                         {
                             options.ChannelName = "test";
                             options.SubscriptionName = "test";
                         })
-                            .AddChannelProducer<TestMessage>(options => { options.ChannelName = "test"; });
-                    });
-
-                    bus.MapMessageHandler<TestMessage, TestMessageHandler2>();
+                        .AddChannelProducer<TestMessage>(options => { options.ChannelName = "test"; });
+                    })
+                    .MapMessageHandler<TestMessage, TestMessageHandler2>();
                 })
                 .AddExceptionHandler<TestExceptionHandler2>();
 
                 services.AddScoped<TestExceptionHandlerData>();
-            },
-            testOutputHelper);
+            }, testOutputHelper);
 
         // Act
         var messageBus = serviceProvider.GetRequiredService<IMessageBus>();

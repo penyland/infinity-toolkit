@@ -1,5 +1,6 @@
 using Infinity.Toolkit.Messaging.Abstractions;
 using Infinity.Toolkit.Messaging.Diagnostics;
+using Microsoft.Extensions.Hosting;
 
 namespace Infinity.Toolkit.Messaging;
 
@@ -7,58 +8,57 @@ public static class ServiceCollectionExtensions
 {
     private const string ConfigSectionPath = "Infinity:Messaging";
 
-    public static MessageBusBuilder AddInfinityMessaging(this IServiceCollection services)
-    {
-        return services.AddInfinityMessaging(options => { });
-    }
+    /// <summary>
+    /// Adds the messaging bus to the IServiceCollection with default settings.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    public static MessageBusBuilder AddInfinityMessaging(this IServiceCollection services) => services.AddInfinityMessaging(messageBusBuilder => { }, options => { });
 
-    public static MessageBusBuilder AddInfinityMessaging(this IServiceCollection services, Action<MessageBusOptions> configure)
-    {
-        return services.AddInfinityMessaging(builder => { }, configure);
-    }
+    /// <summary>
+    /// Adds the messaging bus to the host with default settings.
+    /// </summary>
+    /// <param name="builder">The host builder to add the message bus.</param>
+    /// <returns>A MessageBusBuilder instance to further configure and build the message bus.</returns>
+    public static MessageBusBuilder AddInfinityMessaging(this IHostApplicationBuilder builder) => builder.Services.AddInfinityMessaging(messageBusBuilder => { }, options => { });
 
     /// <summary>
     /// Adds the messaging bus to the IServiceCollection, and applies configurations specified in a delegate.
     /// </summary>
-    /// <param name="services">The service collection to add the message bus.</param>
-    /// <param name="builder">A delegate to configure the message bus.</param>
-    /// <param name="options">A delegate to configure the message bus options.</param>
+    /// <param name="builder">The host builder to add the message bus.</param>
+    /// <param name="configureSettings">A delegate to configure the message bus options.</param>
     /// <param name="configSectionPath">Optional: The configuration section path to bind to the message bus options.</param>
-    /// <returns>An IMessageBusBuilder instance to build a message bus.</returns>
-    public static MessageBusBuilder AddInfinityMessaging(this IServiceCollection services, Action<MessageBusBuilder> builder, Action<MessageBusOptions> options, string configSectionPath = ConfigSectionPath)
+    /// <returns>An MessageBusBuilder instance to build a message bus.</returns>
+    public static MessageBusBuilder AddInfinityMessaging(this IHostApplicationBuilder builder, Action<MessageBusOptions> configureSettings, string configSectionPath = ConfigSectionPath) => builder.Services.AddInfinityMessaging(configureBus => { }, configureSettings, configSectionPath);
+
+    /// <summary>
+    /// Adds the messaging bus to the IServiceCollection, and applies configurations specified in a delegate.
+    /// </summary>
+    /// <param name="services">The service collection to register the Infinity Messaging bus with.</param>
+    /// <param name="configureBusBuilder">A delegate to configure the message bus builder.</param>
+    /// <returns></returns>
+    public static MessageBusBuilder AddInfinityMessaging(this IServiceCollection services, Action<MessageBusBuilder> configureBusBuilder) => services.AddInfinityMessaging(configureBusBuilder, options => { });
+
+    /// <summary>
+    /// Adds the messaging bus to the IServiceCollection, and applies configurations specified in a delegate.
+    /// </summary>
+    /// <param name="services">The service collection to register the Infinity Messaging bus with.</param>
+    /// <param name="configureSettings">A delegate to configure the message bus options.</param>
+    /// <param name="configSectionPath">Optional: The configuration section path to bind to the message bus options.</param>
+    /// <param name="configureBusBuilder">A delegate to configure the message bus builder.</param>
+    /// <returns>An MessageBusBuilder instance to build a message bus.</returns>
+    public static MessageBusBuilder AddInfinityMessaging(this IServiceCollection services, Action<MessageBusBuilder> configureBusBuilder, Action<MessageBusOptions> configureSettings, string configSectionPath = ConfigSectionPath)
     {
         services.ConfigureDefaults();
 
         services.AddOptions<MessageBusOptions>()
             .BindConfiguration(configSectionPath)
-            .Configure(options)
+            .Configure(configureSettings)
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
         var messageBusBuilder = new MessageBusBuilder(services);
-        builder?.Invoke(messageBusBuilder);
-
-        return messageBusBuilder;
-    }
-
-    /// <summary>
-    /// Adds a message bus to the IServiceCollection, and applies configurations from the specified configuration section.
-    /// </summary>
-    /// <param name="services">The service collection to add the message bus.</param>
-    /// <param name="builder">A delegate to configure the message bus.</param>
-    /// <param name="configSectionPath">The configuration section path to bind to the message bus options.</param>
-    /// <returns>An IMessageBusBuilder instance to build a message bus.</returns>
-    public static MessageBusBuilder AddInfinityMessaging(this IServiceCollection services, Action<MessageBusBuilder>? builder, string configSectionPath = ConfigSectionPath)
-    {
-        services.ConfigureDefaults();
-
-        services.AddOptions<MessageBusOptions>()
-                .BindConfiguration(configSectionPath)
-                .ValidateDataAnnotations()
-                .ValidateOnStart();
-
-        var messageBusBuilder = new MessageBusBuilder(services);
-        builder?.Invoke(messageBusBuilder);
+        configureBusBuilder?.Invoke(messageBusBuilder);
 
         return messageBusBuilder;
     }

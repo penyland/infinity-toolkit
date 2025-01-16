@@ -4,23 +4,22 @@ using Infinity.Toolkit.Messaging.InMemory;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
-    .AddInfinityMessaging()
-        .ConfigureInMemoryBus(builder =>
-        {
-            builder
-                .AddChannelProducer<WeatherForecast>(options => { options.ChannelName = "weatherforecasts"; })
-                .AddChannelConsumer<WeatherForecast>(options =>
-                {
-                    options.ChannelName = "weatherforecasts";
-                    options.SubscriptionName = "weathersubscription";
-                });
+builder.AddInfinityMessaging()
+    .ConfigureInMemoryBus(builder =>
+    {
+        builder
+            .AddChannelProducer<WeatherForecast>(options => { options.ChannelName = "weatherforecasts"; })
+            .AddChannelConsumer<WeatherForecast>(options =>
+            {
+                options.ChannelName = "weatherforecasts";
+                options.SubscriptionName = "weathersubscription";
+            });
 
-            builder
-                .AddChannelProducer<WeatherForecast2>()
-                .AddChannelConsumer<WeatherForecast2>();
-        })
-        .MapMessageHandler<WeatherForecast2, WeatherForecastMessageHandler>();
+        builder
+            .AddChannelProducer<WeatherForecast2>()
+            .AddChannelConsumer<WeatherForecast2>();
+    })
+    .MapMessageHandler<WeatherForecast2, WeatherForecastMessageHandler>();
 
 
 // Add services to the container.
