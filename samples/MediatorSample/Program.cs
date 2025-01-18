@@ -13,8 +13,8 @@ services
     .AddMediator()
     .Decorate<IMediator, LoggingMediator>();
 
-services.AddMediatorHandler<ProductCreated, ProductCreatedHandler>()
-        .Decorate<ProductCreatedDecorator>();
+services.AddMediatorHandler<CreateProduct, CreateProductHandler>()
+        .Decorate<CreateProductDecorator>();
 
 services.AddMediatorHandler<ProductCreatedQuery, string, ProductCreatedQueryHandler>();
 services.DecorateMediatorHandler<ProductCreatedQuery, string, ProductCreatedQueryHandlerDecorator>();
@@ -22,7 +22,7 @@ services.DecorateMediatorHandler<ProductCreatedQuery, string, ProductCreatedQuer
 var serviceProvider = services.BuildServiceProvider();
 var mediator = serviceProvider.GetRequiredService<IMediator>();
 
-await mediator.SendAsync(new ProductCreated(1, "Product 1"));
+await mediator.SendAsync(new CreateProduct(1, "Product 1"));
 var result = await mediator.SendAsync<ProductCreatedQuery, string>(new ProductCreatedQuery());
 
 Console.WriteLine("Done");
