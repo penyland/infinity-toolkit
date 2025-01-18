@@ -1,7 +1,7 @@
 ﻿using Azure.Core;
 using Azure.Identity;
 
-namespace Infinity.Toolkit.Azure;
+namespace Infinity.Toolkit.Azure.Identity;
 
 public static class TokenCredentialHelper
 {
