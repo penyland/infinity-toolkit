@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Infinity.Toolkit.Experimental</RootNamespace>
     <VersionPrefix>1.0.0</VersionPrefix>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   
   <ItemGroup>
