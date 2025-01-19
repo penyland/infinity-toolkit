@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infinity.Toolkit.Messaging"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessagingSample", "samples\MessagingSample\MessagingSample.csproj", "{4B6FB022-1FAF-9DFB-E2EC-63F5D75D8F16}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureSample", "samples\AzureSample\AzureSample.csproj", "{6776967B-942E-4A96-9574-07AE48296FAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -110,6 +112,10 @@ Global
 		{4B6FB022-1FAF-9DFB-E2EC-63F5D75D8F16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B6FB022-1FAF-9DFB-E2EC-63F5D75D8F16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B6FB022-1FAF-9DFB-E2EC-63F5D75D8F16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6776967B-942E-4A96-9574-07AE48296FAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6776967B-942E-4A96-9574-07AE48296FAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6776967B-942E-4A96-9574-07AE48296FAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6776967B-942E-4A96-9574-07AE48296FAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -131,6 +137,7 @@ Global
 		{E6F5AB32-7512-48DD-9266-B86DFB26EB38} = {E93DA4F4-345E-4567-BFB8-52FADCB86917}
 		{DF3C4519-9F07-F61F-7F89-A7FA2EE6A345} = {FE5B1A6C-B3A0-4074-81FD-F799A031102F}
 		{4B6FB022-1FAF-9DFB-E2EC-63F5D75D8F16} = {E93DA4F4-345E-4567-BFB8-52FADCB86917}
+		{6776967B-942E-4A96-9574-07AE48296FAA} = {E93DA4F4-345E-4567-BFB8-52FADCB86917}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {554AD750-3673-46A0-B2BA-8A2B8A7B4569}
