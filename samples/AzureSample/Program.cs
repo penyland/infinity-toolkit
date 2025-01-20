@@ -1,6 +1,9 @@
 using Azure.Identity;
 using Infinity.Toolkit.Azure.Configuration;
+using Infinity.Toolkit.OpenApi;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,8 @@ builder.ConfigureAzureAppConfiguration(configureSettings: options =>
     refreshOptions.Register("Sentinel", false);
 });
 
+builder.Services.AddAzureAdOAuth2OpenApiSecuritySchemeDefinition();
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -23,6 +28,18 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference(options =>
+    {
+        var settings = app.Services.GetRequiredService<IOptions<AzureAdSettings>>();
+        options.Authentication = new()
+        {
+            OAuth2 = new()
+            {
+                ClientId = settings.Value.ClientId,
+                Scopes = [$"{settings.Value.AppIdentifier}/{settings.Value.Scopes}"]
+            }
+        };
+    });
 }
 
 app.UseHttpsRedirection();

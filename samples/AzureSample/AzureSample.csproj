@@ -9,10 +9,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Infinity.Toolkit.Azure\Infinity.Toolkit.Azure.csproj" />
+    <ProjectReference Include="..\..\src\Infinity.Toolkit.OpenApi\Infinity.Toolkit.OpenApi.csproj" />
   </ItemGroup>
 
 </Project>
