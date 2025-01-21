@@ -7,7 +7,7 @@ using Microsoft.OpenApi.Models;
 
 namespace Infinity.Toolkit.OpenApi;
 
-public class AzureAdSettings
+public class OAuth2Settings
 {
     internal const string DefaultConfigSectionName = "AzureAd";
 
@@ -28,10 +28,10 @@ public class AzureAdSettings
 
 public static class AzureAdOAuth2SecuritySchemeDefinitionDocumentTransformerExtensions
 {
-    public static void AddAzureAdOAuth2OpenApiSecuritySchemeDefinition(this IServiceCollection services, Action<AzureAdSettings>? configureSettings = null, string configSectionPath = AzureAdSettings.DefaultConfigSectionName)
+    public static void AddOAuth2OpenApiSecuritySchemeDefinition(this IServiceCollection services, Action<OAuth2Settings>? configureSettings = null, string configSectionPath = OAuth2Settings.DefaultConfigSectionName)
     {
-        services.AddOptions<AzureAdSettings>()
-            .BindConfiguration(AzureAdSettings.DefaultConfigSectionName)
+        services.AddOptions<OAuth2Settings>()
+            .BindConfiguration(configSectionPath)
             .Configure(configureSettings ?? (_ => { }))
             .PostConfigure(settings =>
             {
@@ -43,12 +43,12 @@ public static class AzureAdOAuth2SecuritySchemeDefinitionDocumentTransformerExte
 
         services.AddOpenApi(options =>
         {
-            options.AddDocumentTransformer<AzureAdOAuth2SecuritySchemeDefinitionDocumentTransformer>();
+            options.AddDocumentTransformer<OAuth2SecuritySchemeDefinitionDocumentTransformer>();
         });
     }
 }
 
-public sealed class AzureAdOAuth2SecuritySchemeDefinitionDocumentTransformer(IOptions<AzureAdSettings> options) : IOpenApiDocumentTransformer
+public sealed class OAuth2SecuritySchemeDefinitionDocumentTransformer(IOptions<OAuth2Settings> options) : IOpenApiDocumentTransformer
 {
     public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
@@ -67,7 +67,7 @@ public sealed class AzureAdOAuth2SecuritySchemeDefinitionDocumentTransformer(IOp
                 {
                     AuthorizationUrl = options.Value.AuthorizationUrl,
                     TokenUrl = options.Value.TokenUrl,
-                    Scopes = options.Value.Scopes.Split(" ").ToDictionary(x => $"{options.Value.AppIdentifier}/{x}", x => x),
+                    Scopes = options.Value.Scopes.Split(" ").ToDictionary(x => x, x => x),
                     Extensions = new Dictionary<string, IOpenApiExtension>
                     {
                         ["x-usePkce"] = new OpenApiString("SHA-256")
