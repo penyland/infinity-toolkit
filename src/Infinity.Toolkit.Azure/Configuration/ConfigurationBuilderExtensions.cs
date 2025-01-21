@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Data.Common;
 using System.Text.Json.Serialization;
@@ -83,24 +84,23 @@ public class AzureAppConfigSettings
 
 public static class ConfigurationBuilderExtensions
 {
-    private const string ConfigSectionPath = "Infinity:Azure:AppConfig";
+    private const string DefaultConfigSectionName = "Infinity:Azure:AppConfig";
 
     public static IHostApplicationBuilder ConfigureAzureAppConfiguration(this IHostApplicationBuilder builder)
-        => builder.ConfigureAzureAppConfiguration(ConfigSectionPath, null, null);
+        => builder.ConfigureAzureAppConfiguration(DefaultConfigSectionName, null, null);
 
     public static IHostApplicationBuilder ConfigureAzureAppConfiguration(this IHostApplicationBuilder app, Action<AzureAppConfigSettings>? configure = null, Action<AzureAppConfigurationRefreshOptions>? refreshOptions = null)
-        => app.ConfigureAzureAppConfiguration(ConfigSectionPath, configure, refreshOptions);
+        => app.ConfigureAzureAppConfiguration(DefaultConfigSectionName, configure, refreshOptions);
 
-    public static IHostApplicationBuilder ConfigureAzureAppConfiguration(this IHostApplicationBuilder builder, string configSectionPath = ConfigSectionPath, Action<AzureAppConfigSettings>? configureSettings = null, Action<AzureAppConfigurationRefreshOptions>? refreshOptions = null)
+    public static IHostApplicationBuilder ConfigureAzureAppConfiguration(this IHostApplicationBuilder builder, string configSectionName = DefaultConfigSectionName, Action<AzureAppConfigSettings>? configureSettings = null, Action<AzureAppConfigurationRefreshOptions>? refreshOptions = null)
     {
         ArgumentNullException.ThrowIfNull(builder, nameof(builder));
-
         var settings = new AzureAppConfigSettings()
         {
             ApplicationName = builder.Environment.ApplicationName
         };
 
-        builder.Configuration.GetSection(configSectionPath).Bind(settings);
+        builder.Configuration.GetSection(configSectionName).Bind(settings);
         configureSettings?.Invoke(settings);
 
         builder.Configuration.AddAzureAppConfiguration(options =>
@@ -120,7 +120,7 @@ public static class ConfigurationBuilderExtensions
                 {
                     throw new InvalidOperationException($"""
                         The 'Endpoint' key in
-                        '{configSectionPath}') isn't a valid URI.
+                        '{configSectionName}') isn't a valid URI.
                         """);
                 }
             }
