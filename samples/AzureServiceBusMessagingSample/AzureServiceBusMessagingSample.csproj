@@ -1,21 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>d8aec6bd-a2d3-47c2-9830-27044fcaef87</UserSecretsId>
     <IsPackable>false</IsPackable>
+    <UserSecretsId>ef983789-cc4b-4e60-abc6-28e9fca59008</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1" />
-    <PackageReference Include="Scalar.AspNetCore" Version="2.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Infinity.Toolkit.Azure\Infinity.Toolkit.Azure.csproj" />
-    <ProjectReference Include="..\..\src\Infinity.Toolkit.OpenApi\Infinity.Toolkit.OpenApi.csproj" />
+    <ProjectReference Include="..\..\src\Infinity.Toolkit.Messaging.AzureServiceBus\Infinity.Toolkit.Messaging.AzureServiceBus.csproj" />
+    <ProjectReference Include="..\..\src\Infinity.Toolkit.Messaging\Infinity.Toolkit.Messaging.csproj" />
   </ItemGroup>
 
 </Project>
