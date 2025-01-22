@@ -15,11 +15,13 @@ public class MessageBusBrokerOptions
     /// <summary>
     /// Gets or sets the global <see cref="JsonSerializerOptions"/> to use when deserializing the message body. If not set on a channel, this will be used.
     /// </summary>
+    [JsonIgnore]
     public JsonSerializerOptions? JsonSerializerOptions { get; set; }
 
     /// <summary>
     /// Gets the channel consumer registry.
     /// </summary>
+    [JsonIgnore]
     internal Dictionary<string, ChannelConsumerRegistration> ChannelConsumerRegistry { get; } = [];
 }
 

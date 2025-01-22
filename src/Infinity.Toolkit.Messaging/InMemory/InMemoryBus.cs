@@ -49,7 +49,7 @@ internal class InMemoryBus : IBroker
         var channelConsumerRegistry = inMemoryBusOptions.ChannelConsumerRegistry.Where(t => t.Value.BrokerName == Name);
         foreach (var (eventType, registration) in channelConsumerRegistry)
         {
-            var options = channelConsumerOptions.Get(registration.Key);
+            var options = channelConsumerOptions.Get((string?)registration.Key);
             if (options is not null)
             {
                 if (!string.IsNullOrEmpty(options.EventTypeName))

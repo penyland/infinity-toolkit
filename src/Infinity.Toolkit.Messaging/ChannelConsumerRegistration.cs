@@ -7,5 +7,5 @@ internal class ChannelConsumerRegistration
 
     public Type EventType { get; set; }
 
-    public string Key { get; set; }
+    public object? Key { get; set; }
 }

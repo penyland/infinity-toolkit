@@ -94,14 +94,14 @@ public static class InMemoryBusBuilderExtensions
     /// Adds a keyed channel producer to the InMemoryBroker.
     /// </summary>
     /// <param name="builder">The <see cref="InMemoryBusBuilder"/>.</param>
-    /// <param name="key">The key to identify the channel producer.</param>
+    /// <param name="serviceKey">The key to identify the channel producer.</param>
     /// <param name="configureChannelOptions">A delegate that can be used to configure the channel options.</param>
     /// <returns>An <see cref="InMemoryBusBuilder"/> that can be used to further configure the InMemoryBroker.</returns>
-    public static InMemoryBusBuilder AddChannelProducer(this InMemoryBusBuilder builder, string key, Action<InMemoryChannelProducerOptions> configureChannelOptions)
+    public static InMemoryBusBuilder AddChannelProducer(this InMemoryBusBuilder builder, string serviceKey, Action<InMemoryChannelProducerOptions> configureChannelOptions)
     {
-        ArgumentNullException.ThrowIfNull(key, nameof(key));
-        builder.ConfigureChannelProducerOptions(key, configureChannelOptions);
-        builder.Services.AddKeyedTransient<IChannelProducer, InMemoryChannelProducer>(key);
+        ArgumentNullException.ThrowIfNull(serviceKey, nameof(serviceKey));
+        builder.ConfigureChannelProducerOptions(serviceKey, configureChannelOptions);
+        builder.Services.AddKeyedTransient<IChannelProducer, InMemoryChannelProducer>(serviceKey);
         return builder;
     }
 
@@ -228,15 +228,15 @@ public static class InMemoryBusBuilderExtensions
         return builder;
     }
 
-    private static InMemoryBusBuilder ConfigureChannelProducerOptions(this InMemoryBusBuilder builder, string key, Action<InMemoryChannelProducerOptions> configureChannelProducerOptions)
+    private static InMemoryBusBuilder ConfigureChannelProducerOptions(this InMemoryBusBuilder builder, string serviceKey, Action<InMemoryChannelProducerOptions> configureChannelProducerOptions)
     {
         builder.Services.ConfigureOptions<ConfigureInMemoryChannelProducerOptions>();
 
-        builder.Services.AddOptions<InMemoryChannelProducerOptions>(key)
+        builder.Services.AddOptions<InMemoryChannelProducerOptions>(serviceKey)
             .Configure(options =>
             {
-                options.Key = key;
-                options.Name = $"{key}ChannelProducer";
+                options.Key = serviceKey;
+                options.Name = $"{serviceKey}ChannelProducer";
                 configureChannelProducerOptions(options);
             })
             .ValidateDataAnnotations()

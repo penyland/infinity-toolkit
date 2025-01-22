@@ -2,22 +2,23 @@
 
 public static class MessageBusBuilderExtensions
 {
-    private const string ConfigSectionPath = "Infinity:Messaging:InMemoryBus";
+    private const string DefaultConfigSectionName = "Infinity:Messaging:InMemoryBus";
 
-    public static MessageBusBuilder AddInMemoryBus(this MessageBusBuilder messageBusBuilder, Action<InMemoryBusBuilder>? builder) => messageBusBuilder.ConfigureInMemoryBus(builder);
+    public static MessageBusBuilder AddInMemoryBus(this MessageBusBuilder messageBusBuilder, Action<InMemoryBusBuilder>? builder)
+        => messageBusBuilder.ConfigureInMemoryBus(builder);
 
-    public static MessageBusBuilder ConfigureInMemoryBus(this MessageBusBuilder messageBusBuilder) => messageBusBuilder.ConfigureInMemoryBus((builder) => { });
+    public static MessageBusBuilder ConfigureInMemoryBus(this MessageBusBuilder messageBusBuilder)
+        => messageBusBuilder.ConfigureInMemoryBus((builder) => { });
 
     public static MessageBusBuilder ConfigureInMemoryBus(this MessageBusBuilder messageBusBuilder, Action<InMemoryBusBuilder>? builder)
     {
         var brokerBuilder = new InMemoryBusBuilder(messageBusBuilder);
         brokerBuilder.ConfigureInMemoryBusDefaults((o) => { });
         builder?.Invoke(brokerBuilder);
-
         return messageBusBuilder;
     }
 
-    public static MessageBusBuilder ConfigureInMemoryBus(this MessageBusBuilder messageBusBuilder, Action<InMemoryBusBuilder> builder, InMemoryBusOptions options, string configSectionPath = ConfigSectionPath)
+    public static MessageBusBuilder ConfigureInMemoryBus(this MessageBusBuilder messageBusBuilder, Action<InMemoryBusBuilder> builder, InMemoryBusOptions options, string configSectionPath = DefaultConfigSectionName)
     {
         var brokerBuilder = new InMemoryBusBuilder(messageBusBuilder);
         brokerBuilder.ConfigureInMemoryBusDefaults((o) => { o = options; }, configSectionPath);
@@ -25,7 +26,7 @@ public static class MessageBusBuilderExtensions
         return messageBusBuilder;
     }
 
-    public static MessageBusBuilder ConfigureInMemoryBus(this MessageBusBuilder messageBusBuilder, Action<InMemoryBusBuilder> builder, Action<InMemoryBusOptions> options, string configSectionPath = ConfigSectionPath)
+    public static MessageBusBuilder ConfigureInMemoryBus(this MessageBusBuilder messageBusBuilder, Action<InMemoryBusBuilder> builder, Action<InMemoryBusOptions> options, string configSectionPath = DefaultConfigSectionName)
     {
         var brokerBuilder = new InMemoryBusBuilder(messageBusBuilder);
         brokerBuilder.ConfigureInMemoryBusDefaults(options, configSectionPath);
@@ -40,13 +41,13 @@ public static class MessageBusBuilderExtensions
     /// <param name="options">An optional delegate to configure the broker options.</param>
     /// <param name="configSectionPath">The configuration section path to bind to the broker options.</param>
     /// <returns>An InMemoryBrokerBuilder that can be used to further configure the broker.</returns>
-    public static InMemoryBusBuilder AddInMemoryBus(this MessageBusBuilder builder, Action<InMemoryBusOptions> options, string configSectionPath = ConfigSectionPath)
+    public static InMemoryBusBuilder AddInMemoryBus(this MessageBusBuilder builder, Action<InMemoryBusOptions> options, string configSectionPath = DefaultConfigSectionName)
     {
         var brokerBuilder = new InMemoryBusBuilder(builder);
         return brokerBuilder.ConfigureInMemoryBusDefaults(options, configSectionPath);
     }
 
-    private static InMemoryBusBuilder ConfigureInMemoryBusDefaults(this InMemoryBusBuilder builder, Action<InMemoryBusOptions> options, string configSectionPath = ConfigSectionPath)
+    private static InMemoryBusBuilder ConfigureInMemoryBusDefaults(this InMemoryBusBuilder builder, Action<InMemoryBusOptions> options, string configSectionPath = DefaultConfigSectionName)
     {
         builder.Services.AddOptions<InMemoryBusOptions>()
                       .BindConfiguration(configSectionPath)
