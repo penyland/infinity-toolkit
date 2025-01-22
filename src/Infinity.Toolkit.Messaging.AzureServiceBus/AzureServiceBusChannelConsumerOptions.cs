@@ -1,7 +1,7 @@
 ﻿namespace Infinity.Toolkit.Messaging.AzureServiceBus;
 
 /// <summary>
-/// Represents the options for a Azure Service Bus broker channel consumer.
+/// Represents the options for a Azure Service Bus channel consumer.
 /// </summary>
 public sealed class AzureServiceBusChannelConsumerOptions : ChannelConsumerOptions
 {
@@ -11,7 +11,7 @@ public sealed class AzureServiceBusChannelConsumerOptions : ChannelConsumerOptio
     public ServiceBusProcessorOptions ServiceBusProcessorOptions { get; set; } = new();
 }
 
-internal class ConfigureAzureServiceBusBrokerChannelOptions(IOptions<MessageBusOptions> options) : IPostConfigureOptions<AzureServiceBusChannelConsumerOptions>
+internal class ConfigureAzureServiceBusChannelOptions(IOptions<MessageBusOptions> options) : IPostConfigureOptions<AzureServiceBusChannelConsumerOptions>
 {
     private readonly MessageBusOptions messageBusOptions = options.Value;
 

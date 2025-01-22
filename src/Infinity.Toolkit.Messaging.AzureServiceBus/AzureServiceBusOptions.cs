@@ -4,7 +4,7 @@ using Azure.Identity;
 namespace Infinity.Toolkit.Messaging.AzureServiceBus;
 
 /// <summary>
-/// Represents the options for the Azure Service Bus broker.
+/// Represents the options for the Azure Service Bus.
 /// </summary>
 public sealed class AzureServiceBusOptions : MessageBusBrokerOptions
 {

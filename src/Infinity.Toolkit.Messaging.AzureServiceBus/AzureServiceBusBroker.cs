@@ -123,26 +123,9 @@ internal class AzureServiceBusBroker : IBroker
     {
         MethodInfo? onProcessMessageAsync = default;
 
-        if (!options.RequireCloudEventsTypeProperty)
+        if (options.RequireCloudEventsTypeProperty)
         {
-            // Check if message type is registered in the registry
-            // If the RequireCloudEventsTypeProperty is false, we can't use the CloudEventsType property to determine the message type.
-            // The CloudEventsType property is only available if the message has been produced by the Infinity.Toolkit.Messaging library.
-            // If the message has been produced by another library, the CloudEventsType property will not be available and we have to use the EventType property defined in the channel options.
-
-            // But what do we do if the EventType property is not defined in the channel options and we still want to process the message?
-            // Then we can't use the EventType property to resolve any message handlers.
-            // We have to try to process the message without a message type using an untyped message handler.
-            // If we can't find any untyped message handlers, we have to log an error and skip the message.
-            // The user must explicitly add an untyped message handler to the message bus to be able to process messages without a message type.
-            // This means that the user must add a message handler that implements IMessageHandler<IMessageHandlerContext> to the message bus and handle deserialization and processing of the message manually.
-
-            // If the EventType property is defined in the channel options, we can use it to resolve the message type and process the message.
-            onProcessMessageAsync = CreateOnProcessMessageAsync(options.EventType);
-        }
-        else
-        {
-            if (options.RequireCloudEventsTypeProperty && args.Message.ApplicationProperties.TryGetValue(CloudEvents.Type, out var property) && property is string cloudEventsType)
+            if (args.Message.ApplicationProperties.TryGetValue(CloudEvents.Type, out var property) && property is string cloudEventsType)
             {
                 try
                 {
@@ -155,14 +138,12 @@ internal class AzureServiceBusBroker : IBroker
                         throw new InvalidOperationException(CloudEventsTypeNotFound);
                     }
 
-                    // Check if message type is registered in the registry
                     if (!brokerOptions.ChannelConsumerRegistry.TryGetValue(options.EventType.AssemblyQualifiedName ?? string.Empty, out var messageTypeRegistration))
                     {
                         Logger?.EventTypeNotRegistered(eventType);
                         throw new InvalidOperationException($"{EventTypeWasNotRegistered} {CloudEvents.Type}");
                     }
 
-                    // Create generic method for processing message.
                     onProcessMessageAsync = CreateOnProcessMessageAsync(messageTypeRegistration.EventType);
                 }
                 catch (Exception ex)
@@ -175,6 +156,10 @@ internal class AzureServiceBusBroker : IBroker
                 messageBusMetrics.RecordMessageConsumed(Name, args.EntityPath, errortype: Reasons.EventTypeWasNotRegistered);
                 Logger?.MissingCloudEventsTypeProperty(args.Message.MessageId, args.EntityPath);
             }
+        }
+        else
+        {
+            onProcessMessageAsync = CreateOnProcessMessageAsync(options.EventType);
         }
 
         if (onProcessMessageAsync is not null)
@@ -249,7 +234,6 @@ internal class AzureServiceBusBroker : IBroker
             ?? messageBusOptions.JsonSerializerOptions
             ?? new JsonSerializerOptions();
 
-        // If we can't deserialize the message just skip deserialization and log an error. Then invoke the message handlers with a null message and just pass the raw message body.
         TMessage? message = default;
         if (options.AutoDeserializeMessages && args.Message.Body is not null)
         {
@@ -259,7 +243,6 @@ internal class AzureServiceBusBroker : IBroker
             }
             catch (JsonException)
             {
-                // Log error and continue processing the message
                 Logger?.CouldNotDeserializeToType(typeof(TMessage).AssemblyQualifiedName ?? typeof(TMessage).Name);
             }
         }

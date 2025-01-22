@@ -120,7 +120,7 @@ internal class InMemoryBus : IBroker
 
         if (options.RequireCloudEventsTypeProperty)
         {
-            if (options.RequireCloudEventsTypeProperty && args.Message.ApplicationProperties.TryGetValue(CloudEvents.Type, out var property) && property is string cloudEventsType)
+            if (args.Message.ApplicationProperties.TryGetValue(CloudEvents.Type, out var property) && property is string cloudEventsType)
             {
                 try
                 {

@@ -11,15 +11,15 @@ public sealed class AzureServiceBusBuilder(MessageBusBuilder messageBusBuilder)
     public string BrokerName => AzureServiceBusDefaults.Name;
 }
 
-public static class AzureServiceBusBrokerBuilderExtensions
+public static class AzureServiceBusBuilderExtensions
 {
     /// <summary>
-    /// Adds a channel consumer to the broker.
+    /// Adds a channel consumer to the message bus.
     /// </summary>
     /// <typeparam name="TMessage">The type of the message.</typeparam>
     /// <param name="builder">The <see cref="AzureServiceBusBuilder"/>.</param>
     /// <param name="configureChannelOptions">A delegate that can be used to configure the channel options.</param>
-    /// <returns>An <see cref="AzureServiceBusBuilder"/> that can be used to further configure the AzureServiceBusBrokerBuilder.</returns>
+    /// <returns>An <see cref="AzureServiceBusBuilder"/> that can be used to further configure the AzureServiceBusBuilder.</returns>
     public static AzureServiceBusBuilder AddChannelConsumer<TMessage>(this AzureServiceBusBuilder builder, Action<AzureServiceBusChannelConsumerOptions> configureChannelOptions)
     {
         builder.Services.AddOptions<AzureServiceBusChannelConsumerOptions>(typeof(TMessage).AssemblyQualifiedName)
@@ -44,19 +44,19 @@ public static class AzureServiceBusBrokerBuilderExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        builder.Services.ConfigureOptions<ConfigureAzureServiceBusBrokerChannelOptions>();
+        builder.Services.ConfigureOptions<ConfigureAzureServiceBusChannelOptions>();
 
         return builder;
     }
 
     /// <summary>
-    /// Adds a keyed channel consumer to the AzureServiceBusBroker.
+    /// Adds a keyed channel consumer to the message bus.
     /// Only one producer per key is allowed.
     /// </summary>
     /// <param name="builder">The <see cref="AzureServiceBusBuilder"/>.</param>
     /// <param name="serviceKey">The key to identify the channel consumer with.</param>
     /// <param name="configureChannelOptions">A delegate that can be used to configure the channel options.</param>
-    /// <returns>An <see cref="AzureServiceBusBuilder"/> that can be used to further configure the AzureServiceBusBroker.</returns>
+    /// <returns>An <see cref="AzureServiceBusBuilder"/> that can be used to further configure the AzureServiceBusBuilder.</returns>
     public static AzureServiceBusBuilder AddChannelConsumer(this AzureServiceBusBuilder builder, string serviceKey, Action<AzureServiceBusChannelConsumerOptions> configureChannelOptions)
     {
         builder.Services.AddOptions<AzureServiceBusChannelConsumerOptions>(serviceKey)
@@ -80,35 +80,35 @@ public static class AzureServiceBusBrokerBuilderExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        builder.Services.ConfigureOptions<ConfigureAzureServiceBusBrokerChannelOptions>();
+        builder.Services.ConfigureOptions<ConfigureAzureServiceBusChannelOptions>();
 
         return builder;
     }
 
     /// <summary>
-    /// Adds a broker of type <typeparamref name="TBroker"/> with options of type <typeparamref name="TBrokerOptions"/> to the AzureServiceBusBrokerBuilder.
+    /// Adds a bus of type <typeparamref name="TBus"/> with options of type <typeparamref name="TOptions"/> to the AzureServiceBusBuilder.
     /// </summary>
-    /// <typeparam name="TBroker">The type of the broker.</typeparam>
-    /// <typeparam name="TBrokerOptions">The type of the broker options.</typeparam>
+    /// <typeparam name="TBus">The type of the bus.</typeparam>
+    /// <typeparam name="TOptions">The type of the bus options.</typeparam>
     /// <param name="builder">The <see cref="AzureServiceBusBuilder"/>.</param>
-    /// <param name="configureOptions">A delegate that can be used to configure the broker options.</param>
-    /// <returns>An <see cref="AzureServiceBusBuilder"/> that can be used to further configure the AzureServiceBusBroker.</returns>
-    public static AzureServiceBusBuilder AddBroker<TBroker, TBrokerOptions>(this AzureServiceBusBuilder builder, Action<TBrokerOptions> configureOptions)
-        where TBroker : class, IBroker
-        where TBrokerOptions : MessageBusBrokerOptions
+    /// <param name="configureOptions">A delegate that can be used to configure the options.</param>
+    /// <returns>An <see cref="AzureServiceBusBuilder"/> that can be used to further configure the AzureServiceBusBuilder.</returns>
+    public static AzureServiceBusBuilder AddBroker<TBus, TOptions>(this AzureServiceBusBuilder builder, Action<TOptions> configureOptions)
+        where TBus : class, IBroker
+        where TOptions : MessageBusBrokerOptions
     {
-        builder.MessageBusBuilder.AddBroker<TBroker, TBrokerOptions>(AzureServiceBusDefaults.Name, configureOptions);
+        builder.MessageBusBuilder.AddBroker<TBus, TOptions>(AzureServiceBusDefaults.Name, configureOptions);
         return builder;
     }
 
     /// <summary>
-    /// Adds a keyed channel producer to the AzureServiceBusBrokerBuilder.
+    /// Adds a keyed channel producer to the AzureServiceBusBuilder.
     /// Only one producer per key is allowed.
     /// </summary>
     /// <param name="builder">The <see cref="AzureServiceBusBuilder"/>.</param>
     /// <param name="serviceKey">The key to identify the channel producer options.</param>
     /// <param name="configureChannelOptions">A delegate that can be used to configure the channel options.</param>
-    /// <returns>An <see cref="AzureServiceBusBuilder"/> that can be used to further configure the AzureServiceBusBrokerBuilder.</returns>
+    /// <returns>An <see cref="AzureServiceBusBuilder"/> that can be used to further configure the AzureServiceBusBuilder.</returns>
     public static AzureServiceBusBuilder AddChannelProducer(this AzureServiceBusBuilder builder, string serviceKey, Action<AzureServiceBusChannelProducerOptions> configureChannelOptions)
     {
         ArgumentNullException.ThrowIfNull(serviceKey, nameof(serviceKey));
@@ -118,12 +118,12 @@ public static class AzureServiceBusBrokerBuilderExtensions
     }
 
     /// <summary>
-    /// Adds a transient default channel producer that can produce messages of the type <typeparamref name="TEventType"/> to the Azure Service Bus broker.
+    /// Adds a transient default channel producer that can produce messages of the type <typeparamref name="TEventType"/> on Azure Service Bus.
     /// </summary>
     /// <typeparam name="TEventType">The type of the message.</typeparam>
     /// <param name="builder">The <see cref="AzureServiceBusBuilder"/>.</param>
     /// <param name="configureChannelOptions">A delegate that can be used to configure the channel options.</param>
-    /// <returns>An <see cref="AzureServiceBusBuilder"/> that can be used to further configure the Azure Service Bus broker.</returns>
+    /// <returns>An <see cref="AzureServiceBusBuilder"/> that can be used to further configure the Azure Service Bus.</returns>
     public static AzureServiceBusBuilder AddChannelProducer<TEventType>(this AzureServiceBusBuilder builder, Action<AzureServiceBusChannelProducerOptions> configureChannelOptions)
         where TEventType : class
     {
@@ -133,13 +133,13 @@ public static class AzureServiceBusBrokerBuilderExtensions
     }
 
     /// <summary>
-    /// Adds a transient channel producer of the type <typeparamref name="TImplementation"/> that can produce messages of the type <typeparamref name="TEventType"/> to the Azure Service Bus broker.
+    /// Adds a transient channel producer of the type <typeparamref name="TImplementation"/> that can produce messages of the type <typeparamref name="TEventType"/> to the Azure Service Bus.
     /// </summary>
     /// <typeparam name="TEventType">The type of the event.</typeparam>
     /// <typeparam name="TImplementation">A type that implements <see cref="IChannelProducer{TEventType}"/>.</typeparam>
     /// <param name="builder">The <see cref="AzureServiceBusBuilder"/>.</param>
     /// <param name="configureChannelOptions">A delegate that can be used to configure the channel options.</param>
-    /// <returns>An <see cref="AzureServiceBusBuilder"/> that can be used to further configure the Azure Service Bus broker.</returns>
+    /// <returns>An <see cref="AzureServiceBusBuilder"/> that can be used to further configure the Azure Service Bus.</returns>
     public static AzureServiceBusBuilder AddChannelProducer<TEventType, TImplementation>(this AzureServiceBusBuilder builder, Action<AzureServiceBusChannelProducerOptions> configureChannelOptions)
         where TEventType : class
         where TImplementation : class
@@ -149,14 +149,14 @@ public static class AzureServiceBusBrokerBuilderExtensions
     }
 
     /// <summary>
-    /// Adds a transient channel producer of the type <typeparamref name="TService"/> with an implementation type <typeparamref name="TImplementation"/> that can produce messages of the type <typeparamref name="TEventType"/> to the Azure Service Bus broker.
+    /// Adds a transient channel producer of the type <typeparamref name="TService"/> with an implementation type <typeparamref name="TImplementation"/> that can produce messages of the type <typeparamref name="TEventType"/> to the Azure Service Bus.
     /// </summary>
     /// <typeparam name="TEventType">The type of the event.</typeparam>
     /// <typeparam name="TService">The type of the service to add.</typeparam>
     /// <typeparam name="TImplementation">The type of the implementation to use.</typeparam>
     /// <param name="builder">The <see cref="AzureServiceBusBuilder"/>.</param>
     /// <param name="configureChannelOptions">A delegate that can be used to configure the channel options.</param>
-    /// <returns>An <see cref="AzureServiceBusBuilder"/> that can be used to further configure the Azure Service Bus broker.</returns>
+    /// <returns>An <see cref="AzureServiceBusBuilder"/> that can be used to further configure the Azure Service Bus.</returns>
     public static AzureServiceBusBuilder AddChannelProducer<TEventType, TService, TImplementation>(this AzureServiceBusBuilder builder, Action<AzureServiceBusChannelProducerOptions> configureChannelOptions)
         where TEventType : class
         where TService : class
@@ -167,11 +167,11 @@ public static class AzureServiceBusBrokerBuilderExtensions
     }
 
     /// <summary>
-    /// Adds a transient deferred channel consumer that can consume deferred messages of the type <typeparamref name="TEventType"/> from the Azure Service Bus broker.
+    /// Adds a transient deferred channel consumer that can consume deferred messages of the type <typeparamref name="TEventType"/> from the Azure Service Bus.
     /// </summary>
     /// <typeparam name="TEventType">The type of the message.</typeparam>
     /// <param name="configureChannelOptions">A delegate that can be used to configure the channel options.</param>
-    /// <returns>An <see cref="AzureServiceBusBuilder"/> that can be used to further configure the Azure Service Bus broker.</returns>
+    /// <returns>An <see cref="AzureServiceBusBuilder"/> that can be used to further configure the Azure Service Bus.</returns>
     public static AzureServiceBusBuilder AddDeferredChannelConsumer<TEventType>(this AzureServiceBusBuilder builder, Action<AzureServiceBusDeferredChannelConsumerOptions> configureChannelOptions)
         where TEventType : class
     {
@@ -187,7 +187,6 @@ public static class AzureServiceBusBrokerBuilderExtensions
         return builder;
     }
 
-    // Configures the channel producer options for the specified type.
     private static AzureServiceBusBuilder ConfigureChannelProducerOptions(this AzureServiceBusBuilder builder, Type eventType, Action<AzureServiceBusChannelProducerOptions> configureChannelProducerOptions)
     {
         builder.Services.ConfigureOptions<ConfigureAzureServiceBusBrokerChannelProducerOptions>();
@@ -206,7 +205,6 @@ public static class AzureServiceBusBrokerBuilderExtensions
         return builder;
     }
 
-    // Configures the channel producer options for the specified key.
     private static AzureServiceBusBuilder ConfigureChannelProducerOptions(this AzureServiceBusBuilder builder, string serviceKey, Action<AzureServiceBusChannelProducerOptions> configureChannelProducerOptions)
     {
         builder.Services.ConfigureOptions<ConfigureAzureServiceBusBrokerChannelProducerOptions>();
