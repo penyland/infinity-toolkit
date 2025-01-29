@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Infinity.Toolkit.Messaging\Infinity.Toolkit.Messaging.csproj" />
-    <ProjectReference Include="..\..\src\Infinity.Toolkit.TestUtils\Infinity.Toolkit.TestUtils.csproj" />
     <ProjectReference Include="..\..\src\Infinity.Toolkit\Infinity.Toolkit.csproj" />
   </ItemGroup>
 
