@@ -7,6 +7,13 @@ on:
     branches: [main]
   release:
     types: [created]
+  workflow_dispatch:
+    inputs:
+      publish_to_nuget:
+        description: "Publish to NuGet?"
+        required: true
+        type: boolean
+        default: false
 
 jobs:
   build-and-test:
@@ -33,7 +40,7 @@ jobs:
 
   publish-nuget:
     needs: build-and-test
-    if: github.event_name == 'release'
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.publish_to_nuget == 'true')
     runs-on: ubuntu-latest
 
     steps:
