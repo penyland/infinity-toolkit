@@ -2,51 +2,51 @@ name: Build and Publish to NuGet
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
+  release:
+    types: [created]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: '9.0.x'
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
 
-    - name: Restore dependencies
-      run: dotnet restore Infinity.Toolkit.sln
+      - name: Restore dependencies
+        run: dotnet restore
 
-    - name: Build
-      run: dotnet build Infinity.Toolkit.sln --configuration Release --no-restore
+      - name: Build
+        run: dotnet build Infinity.Toolkit.sln --configuration Release --no-restore
 
-    - name: Pack
-      run: dotnet pack Infinity.Toolkit.sln --configuration Release --no-build --output ./nupkgs
+      - name: Test
+        run: dotnet test Infinity.Toolkit.sln --no-build --verbosity normal
 
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: nupkg
-        path: ./nupkgs/*.nupkg
+      - name: Pack
+        run: dotnet pack Infinity.Toolkit.sln --configuration Release --no-build --output ./nupkgs
 
-  publish:
-    needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  publish-nuget:
+    needs: build-and-test
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
-    steps:
-    - name: Download artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: nupkg
-        path: ./nupkgs
 
-    - name: Publish to NuGet
-      env:
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-      run: dotnet nuget push ./nupkgs/*.nupkg --api-key $NUGET_API_KEY --skip-duplicate --source https://api.nuget.org/v3/index.json
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Publish to NuGet
+        run: |
+          for f in ./nupkgs/*.nupkg
+          do
+            dotnet nuget push $f --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nupkg.org/v3/index.json --skip-duplicate
+          done
