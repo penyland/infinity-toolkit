@@ -14,7 +14,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Copyright © 2025 Peter Nylander </Copyright>
   </PropertyGroup>
-
+    
   <PropertyGroup>
     <ContainerRuntimeIdentifier>linux-x64</ContainerRuntimeIdentifier>
     <EnableSdkContainerSupport>false</EnableSdkContainerSupport>
@@ -31,6 +31,11 @@
     <IsPackable Condition="$(ProjectName.Contains('Sample'))">false</IsPackable>
     <IsPackable Condition="$(ProjectName.Contains('Test'))">false</IsPackable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Condition=" '$(MSBuildProjectDirectory)' != '' AND $(MSBuildProjectDirectory.IndexOf('sample')) == -1 AND $(MSBuildProjectDirectory.IndexOf('tests')) == -1 " Include="..\..\LICENSE" Pack="true" PackagePath="" />
+    <None Condition=" '$(MSBuildProjectDirectory)' != '' AND $(MSBuildProjectDirectory.IndexOf('sample')) == -1 AND $(MSBuildProjectDirectory.IndexOf('tests')) == -1 " Include="..\..\README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>CODE_ANALYSIS</DefineConstants>
