@@ -6,7 +6,6 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Infinity.Toolkit</RootNamespace>
     <VersionPrefix>1.0.0</VersionPrefix>
-    <VersionSuffix>alpha-2</VersionSuffix>
   </PropertyGroup>
   
   <ItemGroup>
