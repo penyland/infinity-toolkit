@@ -8,6 +8,10 @@
     <Description>Azure Service Bus Integration for Infinity.Toolkit.Messaging.</Description>
     <RootNamespace>Infinity.Toolkit.Messaging.AzureServiceBus</RootNamespace>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <None Include="..\Infinity.Toolkit.Messaging\README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="Infinity.Toolkit.Tests" />

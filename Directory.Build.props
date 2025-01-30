@@ -34,7 +34,6 @@
 
   <ItemGroup>
     <None Condition=" '$(MSBuildProjectDirectory)' != '' AND $(MSBuildProjectDirectory.IndexOf('sample')) == -1 AND $(MSBuildProjectDirectory.IndexOf('tests')) == -1 " Include="..\..\LICENSE" Pack="true" PackagePath="" />
-    <None Condition=" '$(MSBuildProjectDirectory)' != '' AND $(MSBuildProjectDirectory.IndexOf('sample')) == -1 AND $(MSBuildProjectDirectory.IndexOf('tests')) == -1 " Include="..\..\README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
