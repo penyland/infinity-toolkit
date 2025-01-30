@@ -20,12 +20,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
-      
+
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
         with:
@@ -43,6 +43,14 @@ jobs:
       - name: Pack
         run: dotnet pack --configuration Release --no-build --output ./nupkgs
 
+      - name: Publish
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          if-no-files-found: error
+          retention-days: 7
+          path: ./nupkgs/*.nupkg
+
   publish-nuget:
     needs: build-and-test
     if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.publish_to_nuget == 'true')
@@ -50,6 +58,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: nuget-packages
+          path: ./nupkgs
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
