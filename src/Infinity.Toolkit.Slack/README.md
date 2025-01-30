@@ -1,6 +1,3 @@
-# Infinity.Toolkit
-Infinity Toolkit is a collection of useful utilities simplifying development of modular monoliths and applications using vertical slice architecture.
-
 # Infinity.Toolkit.Slack
 The Slack toolkit is a collection of utilities for working with Slack messages and requests. It includes a simple and easy to use API for creating Slack messages, a Block Kit builder for creating rich slack messages, a Slack message builder for creating simple slack messages, a Slack signature validator for validating incoming slack requests, a Slack authorization requirement for validating incoming slack requests, and an http message handler to use when sending messages to Slack.
 

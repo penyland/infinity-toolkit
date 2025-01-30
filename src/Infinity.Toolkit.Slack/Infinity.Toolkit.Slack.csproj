@@ -9,7 +9,11 @@
     <Description>Useful tools for creating Slack messages using block kit as well as helpers for authenticating and verifying requests from Slack.</Description>
     <PackageTags>Slack;Toolkit;</PackageTags>
   </PropertyGroup>
-
+  
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+  
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>

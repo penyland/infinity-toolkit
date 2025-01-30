@@ -1,5 +1,5 @@
-# Infinity.Toolkit
-Infinity Toolkit is a collection of useful utilities simplifying development of modular monoliths and applications using vertical slice architecture.
+# Infinity.Toolkit.LogFormatter
+The LogFormatter toolkit is a collection of utilities for formatting log messages. It includes a logging formatter with a Visual Studio Code inspired theme and Serilog like formatting.
 
 ## Features
 - [Logging formatter](#logging-formatter) - logging formatter with a Visual Studio Code inspired theme and Serilog like formatting
