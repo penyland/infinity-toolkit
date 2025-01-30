@@ -60,5 +60,5 @@ jobs:
         run: |
           for f in ./nupkgs/*.nupkg
           do
-            dotnet nuget push $f --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nupkg.org/v3/index.json --skip-duplicate
+            dotnet nuget push $f --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
           done
