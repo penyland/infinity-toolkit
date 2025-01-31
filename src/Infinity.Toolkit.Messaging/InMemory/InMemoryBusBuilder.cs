@@ -105,6 +105,13 @@ public static class InMemoryBusBuilderExtensions
         return builder;
     }
 
+    public static InMemoryBusBuilder AddChannelProducer(this InMemoryBusBuilder builder, Action<InMemoryChannelProducerOptions> configureChannelOptions)
+    {
+        builder.ConfigureChannelProducerOptions("generic", configureChannelOptions);
+        builder.Services.AddKeyedTransient<IChannelProducer, InMemoryChannelProducer>("generic");
+        return builder;
+    }
+
     /// <summary>
     /// Adds a transient default channel producer that can produce messages of the type <typeparamref name="TEventType"/> to the InMemoryBroker.
     /// The channel producer is configured to send messages to a topic channel with the same name as the type of the message.

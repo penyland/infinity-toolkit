@@ -1,6 +1,15 @@
-@MessagingSample_HostAddress = http://localhost:5209
+@MessagingSample_HostAddress = https://localhost:7141
 
 GET {{MessagingSample_HostAddress}}/weatherforecast/
 Accept: application/json
+
+###
+
+POST {{MessagingSample_HostAddress}}/generic
+Content-Type: application/json
+
+{
+  //IChannelProducer
+}
 
 ###
