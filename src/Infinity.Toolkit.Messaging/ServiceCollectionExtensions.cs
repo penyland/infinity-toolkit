@@ -1,5 +1,6 @@
 using Infinity.Toolkit.Messaging.Abstractions;
 using Infinity.Toolkit.Messaging.Diagnostics;
+using Infinity.Toolkit.Messaging.InMemory;
 using Microsoft.Extensions.Hosting;
 
 namespace Infinity.Toolkit.Messaging;
@@ -58,6 +59,10 @@ public static class ServiceCollectionExtensions
             .ValidateOnStart();
 
         var messageBusBuilder = new MessageBusBuilder(services);
+
+        // Include InMemoryBus by default
+        messageBusBuilder.ConfigureInMemoryBus();
+
         configureBusBuilder?.Invoke(messageBusBuilder);
 
         return messageBusBuilder;
