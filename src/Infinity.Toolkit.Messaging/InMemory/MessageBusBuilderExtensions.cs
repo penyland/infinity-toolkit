@@ -63,6 +63,10 @@ public static class MessageBusBuilderExtensions
             options.DisplayName = InMemoryBusDefaults.Name;
         });
 
+        // Add a default generic channel producer.
+        builder.AddChannelProducer("inmemorydefaultchannel", options => { options.ChannelName = "inmemorydefaultchannel"; });
+        builder.AddChannelConsumer("inmemorydefaultchannel", options => { options.ChannelName = "inmemorydefaultchannel"; });
+
         return builder;
     }
 }

@@ -42,5 +42,5 @@ public abstract class ChannelOptions
     /// <summary>
     /// Gets or sets the type of the event.
     /// </summary>
-    internal Type EventType { get; set; } = default!;
+    internal Type EventType { get; set; }
 }
