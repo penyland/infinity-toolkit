@@ -8,12 +8,20 @@ builder.AddInfinityMessaging()
     .ConfigureInMemoryBus(builder =>
     {
         builder
+            .AddChannelProducer()
+            .AddChannelProducer("generic", options => { options.ChannelName = "generic"; })
             .AddChannelProducer<WeatherForecast>(options => { options.ChannelName = "weatherforecasts"; })
             .AddChannelConsumer<WeatherForecast>(options =>
             {
                 options.ChannelName = "weatherforecasts";
                 options.SubscriptionName = "weathersubscription";
-            });
+            })
+            .AddChannelConsumer(options =>
+            {
+                options.ChannelName = "generic";
+                options.SubscriptionName = "genericsubscription";
+            }, "generic")
+            .AddChannelConsumer();
 
         builder
             .AddChannelProducer<WeatherForecast2>()
@@ -58,6 +66,12 @@ app.MapGet("/weatherforecast", () =>
 app.MapPost("/weatherforecast", async (IChannelProducer<WeatherForecast2> channelProducer) =>
 {
     await channelProducer.SendAsync(new WeatherForecast2(DateOnly.FromDateTime(DateTime.Now), 20, "Sunny"), CancellationToken.None);
+    return Results.Accepted();
+});
+
+app.MapPost("/generic", async ([FromKeyedServices("generic")] IChannelProducer channelProducer) =>
+{
+    await channelProducer.SendAsync(new { Message = "Hello, World!" }, CancellationToken.None);
     return Results.Accepted();
 });
 
