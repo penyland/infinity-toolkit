@@ -8,20 +8,12 @@ builder.AddInfinityMessaging()
     .ConfigureInMemoryBus(builder =>
     {
         builder
-            .AddChannelProducer()
-            .AddChannelProducer("generic", options => { options.ChannelName = "generic"; })
             .AddChannelProducer<WeatherForecast>(options => { options.ChannelName = "weatherforecasts"; })
             .AddChannelConsumer<WeatherForecast>(options =>
             {
                 options.ChannelName = "weatherforecasts";
                 options.SubscriptionName = "weathersubscription";
-            })
-            .AddChannelConsumer(options =>
-            {
-                options.ChannelName = "generic";
-                options.SubscriptionName = "genericsubscription";
-            }, "generic")
-            .AddChannelConsumer();
+            });
 
         builder
             .AddChannelProducer<WeatherForecast2>()

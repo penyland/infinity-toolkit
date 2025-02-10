@@ -52,8 +52,6 @@ internal sealed class InMemoryChannelProcessor : IAsyncDisposable
             releaseSemaphore = true;
             if (ActiveProcessorTask is null)
             {
-                Logger.StartProcessingChannelStart(ChannelName);
-
                 if (ProcessMessageAsync is null)
                 {
                     throw new InvalidOperationException(LogMessages.ProcessMessageAsyncNotSet);
@@ -137,8 +135,6 @@ internal sealed class InMemoryChannelProcessor : IAsyncDisposable
             {
                 processingStartStopSemaphore.Release();
             }
-
-            Logger?.StopProcessingChannelStopped(ChannelName);
         }
     }
 
