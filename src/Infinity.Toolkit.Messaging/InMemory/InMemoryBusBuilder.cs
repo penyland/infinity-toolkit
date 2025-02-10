@@ -116,7 +116,8 @@ public static class InMemoryBusBuilderExtensions
         builder.Services.AddOptions<InMemoryBusOptions>()
             .Configure(options =>
             {
-                options.ChannelConsumerRegistry.Add(serviceKey, new ChannelConsumerRegistration
+                Console.WriteLine($"Adding channel consumer for {serviceKey} with EvenType {type} on {builder.BrokerName}");
+                options.ChannelConsumerRegistry.TryAdd(serviceKey, new ChannelConsumerRegistration
                 {
                     BrokerName = builder.BrokerName,
                     EventType = type,
