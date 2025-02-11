@@ -64,8 +64,8 @@ public static class MessageBusBuilderExtensions
         });
 
         // Add a default generic channel producer.
-        builder.AddChannelProducer("inmemorydefaultchannel", options => { options.ChannelName = "inmemorydefaultchannel"; });
-        builder.AddChannelConsumer("inmemorydefaultchannel", options => { options.ChannelName = "inmemorydefaultchannel"; });
+        //builder.AddChannelProducer("inmemorydefaultchannel", options => { options.ChannelName = "inmemorydefaultchannel"; });
+        //builder.AddChannelConsumer("inmemorydefaultchannel", options => { options.ChannelName = "inmemorydefaultchannel"; });
 
         return builder;
     }

@@ -118,28 +118,26 @@ internal class InMemoryBus : IBroker
     {
         MethodInfo? onProcessMessageAsync = default;
 
-        if (options.RequireCloudEventsTypeProperty)
+        if (options.IsDefault)
         {
+            // Try to figure out the type of the message
+            // The type of the message is always found in the ApplicationProperties in the CloudEvents.Type property if any.
             if (args.Message.ApplicationProperties.TryGetValue(CloudEvents.Type, out var property) && property is string cloudEventsType)
             {
                 try
                 {
-                    Logger?.ProcessingMessage(args.Message.MessageId, args.ChannelName, cloudEventsType);
-                    var eventType = cloudEventsType?[(cloudEventsType.LastIndexOf('.') + 1)..] ?? string.Empty;
-
-                    if (!eventType.Equals(options.EventTypeName))
+                    if (inMemoryBusOptions.ChannelConsumerRegistry.TryGetValue(cloudEventsType, out var messageTypeRegistration))
                     {
-                        Logger?.CloudEventsTypeMismatch(options.EventTypeName ?? string.Empty, eventType);
-                        throw new InvalidOperationException(CloudEventsTypeNotFound);
+                        onProcessMessageAsync = CreateOnProcessMessageAsync(messageTypeRegistration.EventType);
+                    }
+                    else
+                    {
+                        // Could not find the type of the message in the registry
+                        // This means that the message type was not registered
+                        // That's not a problem then we'll just handle the message as a raw message
+                        onProcessMessageAsync = CreateOnProcessMessageAsync();
                     }
 
-                    if (!inMemoryBusOptions.ChannelConsumerRegistry.TryGetValue(options.EventType.AssemblyQualifiedName ?? string.Empty, out var messageTypeRegistration))
-                    {
-                        Logger?.EventTypeNotRegistered(eventType);
-                        throw new InvalidOperationException($"{EventTypeWasNotRegistered} {CloudEvents.Type}");
-                    }
-
-                    onProcessMessageAsync = CreateOnProcessMessageAsync(messageTypeRegistration.EventType);
                 }
                 catch (Exception ex)
                 {
@@ -154,7 +152,44 @@ internal class InMemoryBus : IBroker
         }
         else
         {
-            onProcessMessageAsync = CreateOnProcessMessageAsync(options.EventType);
+            if (options.RequireCloudEventsTypeProperty)
+            {
+                if (args.Message.ApplicationProperties.TryGetValue(CloudEvents.Type, out var property) && property is string cloudEventsType)
+                {
+                    try
+                    {
+                        Logger?.ProcessingMessage(args.Message.MessageId, args.ChannelName, cloudEventsType);
+                        var eventType = cloudEventsType?[(cloudEventsType.LastIndexOf('.') + 1)..] ?? string.Empty;
+
+                        if (!eventType.Equals(options.EventTypeName))
+                        {
+                            Logger?.CloudEventsTypeMismatch(options.EventTypeName ?? string.Empty, eventType);
+                            throw new InvalidOperationException(CloudEventsTypeNotFound);
+                        }
+
+                        if (!inMemoryBusOptions.ChannelConsumerRegistry.TryGetValue(options.EventType.AssemblyQualifiedName ?? string.Empty, out var messageTypeRegistration))
+                        {
+                            Logger?.EventTypeNotRegistered(eventType);
+                            throw new InvalidOperationException($"{EventTypeWasNotRegistered} {CloudEvents.Type}");
+                        }
+
+                        onProcessMessageAsync = CreateOnProcessMessageAsync(messageTypeRegistration.EventType);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new MessageBusException(Name, args.ChannelName, Reasons.EventTypeWasNotRegistered, ex);
+                    }
+                }
+                else
+                {
+                    metrics.RecordMessageConsumed(Name, args.ChannelName, errortype: Reasons.EventTypeWasNotRegistered);
+                    Logger?.MissingCloudEventsTypeProperty(args.Message.MessageId, args.ChannelName);
+                }
+            }
+            else
+            {
+                onProcessMessageAsync = CreateOnProcessMessageAsync(options.EventType);
+            }
         }
 
         if (onProcessMessageAsync is not null)
@@ -163,7 +198,9 @@ internal class InMemoryBus : IBroker
             scope?.AddTag(DiagnosticProperty.MessagingMessageId, args.Message.MessageId);
             scope?.AddTag(DiagnosticProperty.MessagingDestinationName, args.ChannelName);
 
-            return (Task)onProcessMessageAsync?.Invoke(this, [args, options])!;
+            var task = (Task)onProcessMessageAsync?.Invoke(this, [args, options])!;
+            return task;
+
         }
         else
         {
@@ -273,7 +310,7 @@ internal class InMemoryBus : IBroker
         metrics.RecordMessageConsumed<TMessage>(Name, args.ChannelName);
     }
 
-    private MethodInfo CreateOnProcessMessageAsync(Type messageType)
+    private MethodInfo CreateOnProcessMessageAsync(Type? messageType = default)
     {
         var onProcessMessageAsync = messageType != default
             ? GetType().GetMethod(nameof(OnProcessMessageAsync), BindingFlags.Instance | BindingFlags.NonPublic)?.MakeGenericMethod(messageType)

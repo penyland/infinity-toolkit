@@ -43,4 +43,6 @@ public abstract class ChannelOptions
     /// Gets or sets the type of the event.
     /// </summary>
     internal Type EventType { get; set; }
+
+    internal bool IsDefault { get; set; } = false;
 }
