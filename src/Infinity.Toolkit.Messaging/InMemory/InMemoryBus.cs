@@ -116,80 +116,47 @@ internal class InMemoryBus : IBroker
 
     internal Task ProcessMessageAsync(ProcessMessageEventArgs args, InMemoryChannelConsumerOptions options)
     {
-        MethodInfo? onProcessMessageAsync = default;
+        Console.WriteLine($"Processing message with id: {args.Message.MessageId} on channel: {args.ChannelName}");
+        MethodInfo? onProcessMessageAsync;
 
-        if (options.IsDefault)
+        // Messages sent by Infinity.Toolkit.Messaging will always have the Constants.EventTypeName property set which is the type of the message.
+        if (args.Message.ApplicationProperties.TryGetValue(Constants.EventTypeName, out var property) && property is string eventType)
         {
-            // Try to figure out the type of the message
-            // The type of the message is always found in the ApplicationProperties in the CloudEvents.Type property if any.
-            if (args.Message.ApplicationProperties.TryGetValue(CloudEvents.Type, out var property) && property is string cloudEventsType)
+            // The message has the Constants.EventTypeName property set, this means that the message is a message sent by Infinity.Toolkit.Messaging.
+            Console.WriteLine($"Event type found for message with id: {args.Message.MessageId} on channel: {args.ChannelName}");
+            Console.WriteLine($"Event type: {eventType}");
+            try
             {
-                try
+                // Get the type of the message from the registry
+                if (inMemoryBusOptions.ChannelConsumerRegistry.TryGetValue(eventType, out var messageTypeRegistration))
                 {
-                    if (inMemoryBusOptions.ChannelConsumerRegistry.TryGetValue(cloudEventsType, out var messageTypeRegistration))
-                    {
-                        onProcessMessageAsync = CreateOnProcessMessageAsync(messageTypeRegistration.EventType);
-                    }
-                    else
-                    {
-                        // Could not find the type of the message in the registry
-                        // This means that the message type was not registered
-                        // That's not a problem then we'll just handle the message as a raw message
-                        onProcessMessageAsync = CreateOnProcessMessageAsync();
-                    }
+                    Console.WriteLine($"Event typ found in registry: {messageTypeRegistration.EventType}");
+                    onProcessMessageAsync = CreateOnProcessMessageAsync(messageTypeRegistration.EventType);
+                }
+                else
+                {
+                    // Could not find the type of the message in the registry
+                    // This means that the message type was not registered
+                    // That's not a problem then we'll just handle the message as a raw message
+                    Console.WriteLine($"Event type NOT found in registry: {eventType}");
+                    onProcessMessageAsync = CreateOnProcessMessageAsync();
+                }
 
-                }
-                catch (Exception ex)
-                {
-                    throw new MessageBusException(Name, args.ChannelName, Reasons.EventTypeWasNotRegistered, ex);
-                }
             }
-            else
+            catch (Exception ex)
             {
-                metrics.RecordMessageConsumed(Name, args.ChannelName, errortype: Reasons.EventTypeWasNotRegistered);
-                Logger?.MissingCloudEventsTypeProperty(args.Message.MessageId, args.ChannelName);
+                throw new MessageBusException(Name, args.ChannelName, Reasons.EventTypeWasNotRegistered, ex);
             }
         }
         else
         {
-            if (options.RequireCloudEventsTypeProperty)
-            {
-                if (args.Message.ApplicationProperties.TryGetValue(CloudEvents.Type, out var property) && property is string cloudEventsType)
-                {
-                    try
-                    {
-                        Logger?.ProcessingMessage(args.Message.MessageId, args.ChannelName, cloudEventsType);
-                        var eventType = cloudEventsType?[(cloudEventsType.LastIndexOf('.') + 1)..] ?? string.Empty;
-
-                        if (!eventType.Equals(options.EventTypeName))
-                        {
-                            Logger?.CloudEventsTypeMismatch(options.EventTypeName ?? string.Empty, eventType);
-                            throw new InvalidOperationException(CloudEventsTypeNotFound);
-                        }
-
-                        if (!inMemoryBusOptions.ChannelConsumerRegistry.TryGetValue(options.EventType.AssemblyQualifiedName ?? string.Empty, out var messageTypeRegistration))
-                        {
-                            Logger?.EventTypeNotRegistered(eventType);
-                            throw new InvalidOperationException($"{EventTypeWasNotRegistered} {CloudEvents.Type}");
-                        }
-
-                        onProcessMessageAsync = CreateOnProcessMessageAsync(messageTypeRegistration.EventType);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new MessageBusException(Name, args.ChannelName, Reasons.EventTypeWasNotRegistered, ex);
-                    }
-                }
-                else
-                {
-                    metrics.RecordMessageConsumed(Name, args.ChannelName, errortype: Reasons.EventTypeWasNotRegistered);
-                    Logger?.MissingCloudEventsTypeProperty(args.Message.MessageId, args.ChannelName);
-                }
-            }
-            else
-            {
-                onProcessMessageAsync = CreateOnProcessMessageAsync(options.EventType);
-            }
+            // The message does not have the Constants.EventTypeName property set, this means that the message is not a message sent by Infinity.Toolkit.Messaging.
+            // TODO: Try resolve the message type from the CloudEvents.Type property
+            Console.WriteLine($"No event type found for message with id: {args.Message.MessageId} on channel: {args.ChannelName}");
+            // We'll handle the message as a raw message
+            onProcessMessageAsync = CreateOnProcessMessageAsync();
+            //metrics.RecordMessageConsumed(Name, args.ChannelName, errortype: Reasons.EventTypeWasNotRegistered);
+            Logger?.MissingCloudEventsTypeProperty(args.Message.MessageId, args.ChannelName);
         }
 
         if (onProcessMessageAsync is not null)
@@ -198,8 +165,7 @@ internal class InMemoryBus : IBroker
             scope?.AddTag(DiagnosticProperty.MessagingMessageId, args.Message.MessageId);
             scope?.AddTag(DiagnosticProperty.MessagingDestinationName, args.ChannelName);
 
-            var task = (Task)onProcessMessageAsync?.Invoke(this, [args, options])!;
-            return task;
+            return (Task)onProcessMessageAsync?.Invoke(this, [args, options])!;
 
         }
         else
@@ -238,13 +204,13 @@ internal class InMemoryBus : IBroker
             activity?.AddEvent(new ActivityEvent(DiagnosticProperty.MessagingConsumerInvokingHandler));
             var messageHandlerExecutionTime = ValueStopwatch.StartNew();
             await messageHandler.Handle(messageHandlerContext, args.CancellationToken);
-            metrics.RecordMessageHandlerElapsedTime<Envelope>(messageHandlerExecutionTime.GetElapsedTime().TotalMilliseconds, Name, args.ChannelName, messageHandler.GetType().Name);
+            metrics.RecordMessageHandlerElapsedTime(messageHandlerExecutionTime.GetElapsedTime().TotalMilliseconds, Name, args.ChannelName, messageHandler.GetType().Name);
 
             activity?.AddEvent(new ActivityEvent(DiagnosticProperty.MessagingConsumerInvokedHandler));
         }
 
-        metrics.RecordMessagingProcessDuration<Envelope>(processDuration.GetElapsedTime().TotalMilliseconds, Name, args.ChannelName);
-        metrics.RecordMessagingClientOperationDuration<Envelope>(startTime.GetElapsedTime().TotalMilliseconds, Name, args.ChannelName);
+        metrics.RecordMessagingProcessDuration(processDuration.GetElapsedTime().TotalMilliseconds, Name, args.ChannelName);
+        metrics.RecordMessagingClientOperationDuration(startTime.GetElapsedTime().TotalMilliseconds, Name, args.ChannelName);
         metrics.RecordMessageConsumed(Name, args.ChannelName);
     }
 
@@ -307,7 +273,7 @@ internal class InMemoryBus : IBroker
 
         metrics.RecordMessagingProcessDuration<TMessage>(processDuration.GetElapsedTime().TotalMilliseconds, Name, args.ChannelName);
         metrics.RecordMessagingClientOperationDuration<TMessage>(startTime.GetElapsedTime().TotalMilliseconds, Name, args.ChannelName);
-        metrics.RecordMessageConsumed<TMessage>(Name, args.ChannelName);
+        metrics.RecordMessageConsumed(Name, args.ChannelName, messageType: typeof(TMessage).Name);
     }
 
     private MethodInfo CreateOnProcessMessageAsync(Type? messageType = default)

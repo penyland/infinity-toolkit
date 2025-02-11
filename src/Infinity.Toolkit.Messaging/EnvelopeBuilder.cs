@@ -50,7 +50,7 @@ public sealed class EnvelopeBuilder
     public EnvelopeBuilder WithEventType(string eventType)
     {
         ArgumentNullException.ThrowIfNull(eventType);
-        envelope.ApplicationProperties[CloudEvents.Type] = eventType;
+        envelope.ApplicationProperties[Constants.EventTypeName] = eventType;
         return this;
     }
 
@@ -89,7 +89,7 @@ public static partial class EnvelopeBuilderExtensions
         builder.WithEventType($"{eventTypePrefix}.{eventType}");
 
     public static EnvelopeBuilder WithEventType<T>(this EnvelopeBuilder builder) =>
-        builder.WithEventType(typeof(T).Name.ToLowerInvariant());
+        builder.WithEventType(typeof(T).AssemblyQualifiedName ?? typeof(T).Name.ToLowerInvariant());
 
     public static EnvelopeBuilder WithEventType<T>(this EnvelopeBuilder builder, string eventTypePrefix) =>
         builder.WithEventType($"{eventTypePrefix}.{typeof(T).Name}");

@@ -1,6 +1,6 @@
 ﻿namespace Infinity.Toolkit.Messaging;
 
-[DebuggerDisplay("BrokerName = {BrokerName}, EventType = {EventType.FullName,nq}")]
+[DebuggerDisplay("BrokerName = {BrokerName}, EventType = {EventType.FullName,nq}, Key = {Key}")]
 internal class ChannelConsumerRegistration
 {
     public string BrokerName { get; set; } = string.Empty;

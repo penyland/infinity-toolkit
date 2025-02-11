@@ -24,36 +24,7 @@ public static class InMemoryBusBuilderExtensions
     /// <returns>An <see cref="InMemoryBusBuilder"/> that can be used to further configure the InMemoryBroker.</returns>
     public static InMemoryBusBuilder AddChannelConsumer<TMessage>(this InMemoryBusBuilder builder, Action<InMemoryChannelConsumerOptions> configureChannelOptions)
     {
-        builder.ConfigureChannelConsumer(typeof(TMessage).Name, typeof(TMessage), configureChannelOptions);
-
-        //builder.Services.AddOptions<InMemoryChannelConsumerOptions>(typeof(TMessage).AssemblyQualifiedName)
-        //    .Configure(options =>
-        //    {
-        //        options.EventType = typeof(TMessage);
-        //        options.ChannelName = typeof(TMessage).Name;
-        //        options.ChannelType = ChannelType.Topic;
-        //        options.SubscriptionName = typeof(TMessage).Name;
-        //        configureChannelOptions(options);
-        //    })
-        //    .ValidateDataAnnotations()
-        //    .ValidateOnStart();
-
-        //builder.Services.AddOptions<InMemoryBusOptions>()
-        //    .Configure(options =>
-        //    {
-        //        options.ChannelConsumerRegistry.Add(typeof(TMessage).AssemblyQualifiedName ?? typeof(TMessage).Name, new ChannelConsumerRegistration
-        //        {
-        //            BrokerName = builder.BrokerName,
-        //            EventType = typeof(TMessage),
-        //            Key = typeof(TMessage).AssemblyQualifiedName ?? typeof(TMessage).Name
-        //        });
-        //    })
-        //    .ValidateDataAnnotations()
-        //    .ValidateOnStart();
-
-        //builder.Services.ConfigureOptions<ConfigureInMemoryBusChannelOptions>();
-
-        return builder;
+        return builder.ConfigureChannelConsumer(typeof(TMessage).AssemblyQualifiedName ?? typeof(TMessage).Name, typeof(TMessage), configureChannelOptions);
     }
 
     /// <summary>
@@ -64,42 +35,12 @@ public static class InMemoryBusBuilderExtensions
     /// <param name="serviceKey">The key to identify the channel consumer with.</param>
     /// <param name="configureChannelOptions">A delegate that can be used to configure the channel options.</param>
     /// <returns>An <see cref="InMemoryBusBuilder"/> that can be used to further configure the InMemoryBroker.</returns>
-    public static InMemoryBusBuilder AddChannelConsumer(this InMemoryBusBuilder builder, string serviceKey, Action<InMemoryChannelConsumerOptions> configureChannelOptions)
+    public static InMemoryBusBuilder AddChannelConsumer(this InMemoryBusBuilder builder, string serviceKey, Action<InMemoryChannelConsumerOptions>? configureChannelOptions)
     {
         return builder.ConfigureChannelConsumer(serviceKey, typeof(object), configureChannelOptions);
-
-        //builder.Services.AddOptions<InMemoryChannelConsumerOptions>(serviceKey)
-        //    .Configure(options =>
-        //    {
-        //        configureChannelOptions(options);
-
-
-        //        options.RequireCloudEventsTypeProperty = false;
-        //        options.ChannelName = serviceKey;
-        //        options.ChannelType = ChannelType.Topic;
-        //        options.SubscriptionName = serviceKey;
-        //    })
-        //    .ValidateDataAnnotations()
-        //    .ValidateOnStart();
-
-        //builder.Services.AddOptions<InMemoryBusOptions>()
-        //    .Configure(options =>
-        //    {
-        //        options.ChannelConsumerRegistry.Add(serviceKey, new ChannelConsumerRegistration
-        //        {
-        //            BrokerName = builder.BrokerName,
-        //            Key = serviceKey,
-        //        });
-        //    })
-        //    .ValidateDataAnnotations()
-        //    .ValidateOnStart();
-
-        //builder.Services.ConfigureOptions<ConfigureInMemoryBusChannelOptions>();
-
-        //return builder;
     }
 
-    private static InMemoryBusBuilder ConfigureChannelConsumer(this InMemoryBusBuilder builder, string serviceKey, Type type, Action<InMemoryChannelConsumerOptions> configureChannelOptions)
+    private static InMemoryBusBuilder ConfigureChannelConsumer(this InMemoryBusBuilder builder, string serviceKey, Type type, Action<InMemoryChannelConsumerOptions>? configureChannelOptions)
     {
         builder.Services.AddOptions<InMemoryChannelConsumerOptions>(serviceKey)
             .Configure(options =>
@@ -108,7 +49,7 @@ public static class InMemoryBusBuilderExtensions
                 options.ChannelType = ChannelType.Topic;
                 options.EventType = type;
                 options.SubscriptionName = serviceKey;
-                configureChannelOptions(options);
+                configureChannelOptions?.Invoke(options);
             })
             .ValidateDataAnnotations()
             .ValidateOnStart();
@@ -117,8 +58,7 @@ public static class InMemoryBusBuilderExtensions
             .Configure(options =>
             {
                 Console.WriteLine($"Adding channel consumer for {serviceKey} with EventType {type} on {builder.BrokerName}");
-                //options.ChannelConsumerRegistry.TryAdd(serviceKey, new ChannelConsumerRegistration
-                options.ChannelConsumerRegistry.TryAdd(type.AssemblyQualifiedName ?? type.Name, new ChannelConsumerRegistration
+                options.ChannelConsumerRegistry.TryAdd(serviceKey, new ChannelConsumerRegistration
                 {
                     BrokerName = builder.BrokerName,
                     EventType = type,
@@ -332,7 +272,6 @@ public static class InMemoryBusBuilderExtensions
                 options.EventType = type;
                 options.SubscriptionName = serviceKey;
                 options.RequireCloudEventsTypeProperty = false;
-                options.IsDefault = true;
                 configureChannelOptions?.Invoke(options);
             })
             .ValidateDataAnnotations()
