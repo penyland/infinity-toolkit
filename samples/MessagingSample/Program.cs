@@ -23,8 +23,8 @@ builder.AddInfinityMessaging()
             options.SubscriptionName = "genericsubscription";
         });
 
-        builder.AddDefaultChannelProducer();
-        builder.AddDefaultChannelConsumer();
+        //builder.AddDefaultChannelProducer();
+        //builder.AddDefaultChannelConsumer();
     })
     .MapMessageHandler<WeatherForecast, WeatherForecastMessageHandler>()
     .MapMessageHandler<DefaultMessageHandler>();
@@ -75,13 +75,13 @@ app.MapPost("/generic", async ([FromKeyedServices("generic")] IChannelProducer c
     return Results.Accepted();
 });
 
-app.MapPost("/default", async (IChannelProducer2 channelProducer) =>
+app.MapPost("/default", async (IDefaultChannelProducer channelProducer) =>
 {
     await channelProducer.SendAsync<WeatherForecast>(new WeatherForecast(DateOnly.FromDateTime(DateTime.Now), 20, "Cloudy"));
     return Results.Accepted();
 });
 
-app.MapPost("/default2", async (IChannelProducer2 channelProducer) =>
+app.MapPost("/default2", async (IDefaultChannelProducer channelProducer) =>
 {
     await channelProducer.SendAsync((object)(new { Message = "Hello, World!" }));
     //await channelProducer.SendAsync(new WeatherForecast(DateOnly.FromDateTime(DateTime.Now), 20, "Rainy"));
