@@ -38,7 +38,7 @@ internal sealed class InMemoryChannelProducer : IChannelProducer
                 .WithBody(payload, jsonSerializerOptions)
                 .WithMessageId(id ?? Guid.NewGuid().ToString())
                 .WithContentType(contentType)
-                .WithEventType(channelProducerOptions.EventTypeName ?? channelProducerOptions.EventTypeName ?? channelProducerOptions.Key)
+                .WithEventType(channelProducerOptions.EventTypeName ?? string.Empty)
                 .WithCorrelationId(correlationId)
                 .WithHeaders(headers)
                 .WithSource(channelProducerOptions.Source)
