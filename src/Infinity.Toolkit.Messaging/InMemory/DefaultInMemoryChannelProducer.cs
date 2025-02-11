@@ -1,7 +1,7 @@
 ﻿namespace Infinity.Toolkit.Messaging.InMemory;
 
 
-public interface IChannelProducer2
+public interface IDefaultChannelProducer
 {
     Task SendAsync(object message);
 
@@ -10,7 +10,7 @@ public interface IChannelProducer2
     Task SendEnvelopeAsync(Envelope envelope, CancellationToken cancellationToken);
 }
 
-internal class InMemoryChannelProducer2(InMemoryChannelClientFactory clientFactory, IOptionsMonitor<InMemoryChannelProducerOptions> channelProducerOptions) : IChannelProducer2
+internal class DefaultInMemoryChannelProducer(InMemoryChannelClientFactory clientFactory, IOptionsMonitor<InMemoryChannelProducerOptions> channelProducerOptions) : IDefaultChannelProducer
 {
     private readonly JsonSerializerOptions jsonSerializerOptions = new();
 
