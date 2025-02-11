@@ -17,8 +17,8 @@ public static partial class MessageBusBuilderExtensions
     /// <typeparam name="TMessage">The type of the message.</typeparam>
     /// <typeparam name="TMessageHandler">The type of the message handler.</typeparam>
     /// <param name="configure">An optional lambda used for configuring the message handler.</param>
-    /// <returns>A <see cref="MessageHandlerBuilder"/> that can be used to configure the handler.</returns>
-    public static MessageHandlerBuilder MapMessageHandler<TMessage, TMessageHandler>(this MessageBusBuilder builder, Func<IServiceProvider, TMessageHandler>? configure = null)
+    /// <returns>A <see cref="MessageBusBuilder"/> that can be used to configure the handler.</returns>
+    public static MessageBusBuilder MapMessageHandler<TMessage, TMessageHandler>(this MessageBusBuilder builder, Func<IServiceProvider, TMessageHandler>? configure = null)
         where TMessage : class
         where TMessageHandler : class, IMessageHandler<TMessage>
     {
@@ -49,6 +49,28 @@ public static partial class MessageBusBuilderExtensions
                 .AddTransient(genericType, typeof(TMessageHandler));
         }
 
+        //return new MessageHandlerBuilder(builder.Services);
+        return builder;
+    }
+
+    public static MessageHandlerBuilder MapMessageHandler<TMessageHandler>(this MessageBusBuilder builder, Func<IServiceProvider, TMessageHandler>? configure = null)
+    where TMessageHandler : class, IMessageHandler
+    {
+        // Check if the message handler type is already registered
+        if (builder.Services.Any(x => x.ServiceType == typeof(TMessageHandler)))
+        {
+            throw new InvalidOperationException($"The message handler {typeof(TMessageHandler).Name} is already registered.");
+        }
+
+        if (configure is not null)
+        {
+            builder.Services.AddTransient<IMessageHandler, TMessageHandler>(configure);
+        }
+        else
+        {
+            builder.Services.AddTransient<IMessageHandler, TMessageHandler>();
+        }
+
         return new MessageHandlerBuilder(builder.Services);
     }
 
@@ -59,7 +81,7 @@ public static partial class MessageBusBuilderExtensions
     /// they're added.
     /// </summary>
     /// <typeparam name="TErrorHandler">The type of the exception handler implementation.</typeparam>
-    /// <returns>A <see cref="MessageHandlerBuilder"/> that can be used to configure the handler.</returns>
+    /// <returns>A <see cref="MessageBusBuilder"/> that can be used to configure the handler.</returns>
     public static MessageBusBuilder AddExceptionHandler<TErrorHandler>(this MessageBusBuilder builder)
         where TErrorHandler : class, IMessagingExceptionHandler
     {
@@ -75,7 +97,7 @@ public static partial class MessageBusBuilderExtensions
     /// </summary>
     /// <typeparam name="TErrorHandler">The type of the exception handler implementation.</typeparam>
     /// <param name="implementationInstance">The instance of the service.</param>
-    /// <returns>A <see cref="MessageHandlerBuilder"/> that can be used to configure the handler.</returns>
+    /// <returns>A <see cref="MessageBusBuilder"/> that can be used to configure the handler.</returns>
     public static MessageBusBuilder AddExceptionHandler<TErrorHandler>(this MessageBusBuilder builder, TErrorHandler implementationInstance)
         where TErrorHandler : class, IMessagingExceptionHandler
     {

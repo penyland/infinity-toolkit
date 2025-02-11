@@ -86,7 +86,8 @@ internal sealed class InMemoryChannelProducer<TMessage> : IChannelProducer<TMess
                 .WithMessageId(id ?? Guid.NewGuid().ToString())
                 .WithContentType(contentType)
                 .WithCorrelationId(correlationId)
-                .WithEventType(messageBusOptions.EventTypeIdentifierPrefix, eventType ?? channelProducerOptions.EventTypeName ?? typeof(TMessage).Name)
+                //.WithEventType(messageBusOptions.EventTypeIdentifierPrefix, eventType ?? channelProducerOptions.EventTypeName ?? typeof(TMessage).Name)
+                .WithEventType(eventType ?? channelProducerOptions.EventTypeName ?? typeof(TMessage).Name)
                 .WithSource(channelProducerOptions.Source)
                 .WithHeaders(headers)
                 .Build();

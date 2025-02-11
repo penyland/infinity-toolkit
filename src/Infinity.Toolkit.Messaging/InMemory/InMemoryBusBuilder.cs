@@ -116,8 +116,9 @@ public static class InMemoryBusBuilderExtensions
         builder.Services.AddOptions<InMemoryBusOptions>()
             .Configure(options =>
             {
-                Console.WriteLine($"Adding channel consumer for {serviceKey} with EvenType {type} on {builder.BrokerName}");
-                options.ChannelConsumerRegistry.TryAdd(serviceKey, new ChannelConsumerRegistration
+                Console.WriteLine($"Adding channel consumer for {serviceKey} with EventType {type} on {builder.BrokerName}");
+                //options.ChannelConsumerRegistry.TryAdd(serviceKey, new ChannelConsumerRegistration
+                options.ChannelConsumerRegistry.TryAdd(type.AssemblyQualifiedName ?? type.Name, new ChannelConsumerRegistration
                 {
                     BrokerName = builder.BrokerName,
                     EventType = type,
@@ -283,6 +284,75 @@ public static class InMemoryBusBuilderExtensions
             })
             .ValidateDataAnnotations()
             .ValidateOnStart();
+
+        return builder;
+    }
+
+
+
+    public static InMemoryBusBuilder AddDefaultChannelProducer(this InMemoryBusBuilder builder, string serviceKey = "default", Action<InMemoryChannelProducerOptions>? configureChannelOptions = null)
+    {
+        ArgumentNullException.ThrowIfNull(serviceKey, nameof(serviceKey));
+        builder.ConfigureDefaultChannelProducerOptions(serviceKey, configureChannelOptions);
+        builder.Services.AddTransient<IChannelProducer2, InMemoryChannelProducer2>();
+        return builder;
+    }
+
+    private static InMemoryBusBuilder ConfigureDefaultChannelProducerOptions(this InMemoryBusBuilder builder, string serviceKey, Action<InMemoryChannelProducerOptions>? configureChannelProducerOptions)
+    {
+        builder.Services.ConfigureOptions<ConfigureInMemoryChannelProducerOptions>();
+
+        builder.Services.AddOptions<InMemoryChannelProducerOptions>(serviceKey)
+            .Configure(options =>
+            {
+                options.Key = serviceKey;
+                options.Name = $"{serviceKey}ChannelProducer";
+                options.ChannelType = ChannelType.Topic;
+                options.ChannelName = serviceKey;
+                configureChannelProducerOptions?.Invoke(options);
+            })
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        return builder;
+    }
+
+    public static InMemoryBusBuilder AddDefaultChannelConsumer(this InMemoryBusBuilder builder, string serviceKey = "default", Action<InMemoryChannelConsumerOptions>? configureChannelOptions = default)
+    {
+        return builder.ConfigureDefaultChannelConsumer(serviceKey, typeof(object), configureChannelOptions);
+    }
+
+    private static InMemoryBusBuilder ConfigureDefaultChannelConsumer(this InMemoryBusBuilder builder, string serviceKey, Type type, Action<InMemoryChannelConsumerOptions>? configureChannelOptions)
+    {
+        builder.Services.AddOptions<InMemoryChannelConsumerOptions>(serviceKey)
+            .Configure(options =>
+            {
+                options.ChannelName = serviceKey;
+                options.ChannelType = ChannelType.Topic;
+                options.EventType = type;
+                options.SubscriptionName = serviceKey;
+                options.RequireCloudEventsTypeProperty = false;
+                options.IsDefault = true;
+                configureChannelOptions?.Invoke(options);
+            })
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        Console.WriteLine($"Adding channel consumer for {serviceKey} with EventType {type} on {builder.BrokerName}");
+        builder.Services.AddOptions<InMemoryBusOptions>()
+            .Configure(options =>
+            {
+                options.ChannelConsumerRegistry.TryAdd(serviceKey, new ChannelConsumerRegistration
+                {
+                    BrokerName = builder.BrokerName,
+                    EventType = type,
+                    Key = serviceKey
+                });
+            })
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        builder.Services.ConfigureOptions<ConfigureInMemoryBusChannelOptions>();
 
         return builder;
     }

@@ -1,9 +1,4 @@
-﻿using System.Net.Mime;
-using System.Reflection.PortableExecutable;
-using System.Text.Json;
-using System.Threading;
-
-namespace Infinity.Toolkit.Messaging.InMemory;
+﻿namespace Infinity.Toolkit.Messaging.InMemory;
 
 
 public interface IChannelProducer2
@@ -15,13 +10,23 @@ public interface IChannelProducer2
     Task SendEnvelopeAsync(Envelope envelope, CancellationToken cancellationToken);
 }
 
-internal class InMemoryChannelProducer2 : IChannelProducer2
+internal class InMemoryChannelProducer2(InMemoryChannelClientFactory clientFactory, IOptionsMonitor<InMemoryChannelProducerOptions> channelProducerOptions) : IChannelProducer2
 {
     private readonly JsonSerializerOptions jsonSerializerOptions = new();
 
     public Task SendAsync(object message)
     {
-        throw new NotImplementedException();
+        var envelope = new EnvelopeBuilder()
+                .WithBody(message, jsonSerializerOptions)
+                .WithMessageId(Guid.NewGuid().ToString())
+                //.WithContentType(contentType)
+                //.WithCorrelationId(correlationId)
+                //.WithEventType(typeof(T).Name)
+                //.WithSource(channelProducerOptions.Source)
+                //.WithHeaders(headers)
+                .Build();
+
+        return SendEnvelopeAsync(envelope, CancellationToken.None);
     }
 
     public Task SendAsync<T>(T payload)
@@ -31,7 +36,7 @@ internal class InMemoryChannelProducer2 : IChannelProducer2
                 .WithMessageId(Guid.NewGuid().ToString())
                 //.WithContentType(contentType)
                 //.WithCorrelationId(correlationId)
-                .WithEventType(typeof(T).Name)
+                .WithEventType(typeof(T).AssemblyQualifiedName ?? typeof(T).Name)
                 //.WithSource(channelProducerOptions.Source)
                 //.WithHeaders(headers)
                 .Build();
@@ -41,6 +46,9 @@ internal class InMemoryChannelProducer2 : IChannelProducer2
 
     public Task SendEnvelopeAsync(Envelope envelope, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var options = channelProducerOptions.Get("default");
+        var sender = clientFactory.GetSender(options.ChannelName);
+        var inMemoryMessage = envelope.ToInMemoryMessage();
+        return sender.SendAsync(inMemoryMessage, cancellationToken);
     }
 }
