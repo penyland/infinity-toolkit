@@ -116,6 +116,7 @@ internal class InMemoryBus : IBroker
 
     internal Task ProcessMessageAsync(ProcessMessageEventArgs args, InMemoryChannelConsumerOptions options)
     {
+        Console.WriteLine();
         Console.WriteLine($"Processing message with id: {args.Message.MessageId} on channel: {args.ChannelName}");
         MethodInfo? onProcessMessageAsync;
 
@@ -130,7 +131,7 @@ internal class InMemoryBus : IBroker
                 // Get the type of the message from the registry
                 if (inMemoryBusOptions.ChannelConsumerRegistry.TryGetValue(eventType, out var messageTypeRegistration))
                 {
-                    Console.WriteLine($"Event typ found in registry: {messageTypeRegistration.EventType}");
+                    Console.WriteLine($"Event type found in registry: {messageTypeRegistration.EventType}");
                     onProcessMessageAsync = CreateOnProcessMessageAsync(messageTypeRegistration.EventType);
                 }
                 else
@@ -198,7 +199,7 @@ internal class InMemoryBus : IBroker
             using var activity = clientDiagnostics.CreateDiagnosticActivityScopeForMessageHandler(args.ChannelName, messageHandler.GetType(), args.Message.ApplicationProperties.ToDictionary());
 
             activity?.SetTag(DiagnosticProperty.MessagingMessageId, args.Message.MessageId);
-            activity?.SetTag(DiagnosticProperty.MessageBusMessageType, DiagnosticProperty.MessageTypeRaw);
+            activity?.SetTag(DiagnosticProperty.MessageBusMessageType, DiagnosticProperty.MessageTypeUndefined);
             activity?.SetTag(DiagnosticProperty.MessageBusMessageHandler, messageHandler.GetType().FullName);
 
             activity?.AddEvent(new ActivityEvent(DiagnosticProperty.MessagingConsumerInvokingHandler));
@@ -262,6 +263,7 @@ internal class InMemoryBus : IBroker
 
             activity?.SetTag(DiagnosticProperty.MessagingMessageId, args.Message.MessageId);
             activity?.SetTag(DiagnosticProperty.MessageBusMessageType, typeof(TMessage).FullName ?? string.Empty);
+            activity?.SetTag(DiagnosticProperty.MessageBusMessageHandler, messageHandler.GetType().FullName);
 
             activity?.AddEvent(new ActivityEvent(DiagnosticProperty.MessagingConsumerInvokingHandler));
             var messageHandlerExecutionTime = ValueStopwatch.StartNew();
