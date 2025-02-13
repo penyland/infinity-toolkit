@@ -68,7 +68,7 @@ internal sealed class InMemoryChannelProducer : IChannelProducer
 
             scope?.SetTag(DiagnosticProperty.MessagingDestinationName, channelProducerOptions.ChannelName);
             scope?.SetTag(DiagnosticProperty.MessagingMessageId, envelope.MessageId);
-            scope?.SetTag(DiagnosticProperty.MessageBusMessageType, DiagnosticProperty.MessageTypeRaw);
+            scope?.SetTag(DiagnosticProperty.MessageBusMessageType, DiagnosticProperty.MessageTypeUndefined);
             messageBusMetrics?.RecordMessagePublished(InMemoryBusDefaults.System, channelProducerOptions.ChannelName);
 
             return sender.SendAsync(envelope.ToInMemoryMessage(), cancellationToken);

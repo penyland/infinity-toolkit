@@ -201,7 +201,7 @@ internal class AzureServiceBusBroker : IBroker
             using var activity = clientDiagnostics.CreateDiagnosticActivityScopeForMessageHandler(args.EntityPath, messageHandler.GetType(), args.Message.ApplicationProperties.ToDictionary());
 
             activity?.SetTag(DiagnosticProperty.MessagingMessageId, args.Message.MessageId);
-            activity?.SetTag(DiagnosticProperty.MessageBusMessageType, DiagnosticProperty.MessageTypeRaw);
+            activity?.SetTag(DiagnosticProperty.MessageBusMessageType, DiagnosticProperty.MessageTypeUndefined);
             activity?.SetTag(DiagnosticProperty.MessageBusMessageHandler, messageHandler.GetType().FullName);
 
             activity?.AddEvent(new ActivityEvent(DiagnosticProperty.MessagingConsumerInvokingHandler));

@@ -195,7 +195,7 @@ public static class AzureServiceBusBuilderExtensions
             .Configure(options =>
             {
                 options.EventType = eventType;
-                options.Key = eventType.AssemblyQualifiedName ?? eventType.Name;
+                options.ServiceKey = eventType.AssemblyQualifiedName ?? eventType.Name;
                 options.Name = $"{eventType.Name}ChannelProducer";
                 configureChannelProducerOptions(options);
             })
@@ -212,7 +212,7 @@ public static class AzureServiceBusBuilderExtensions
         builder.Services.AddOptions<AzureServiceBusChannelProducerOptions>(serviceKey)
             .Configure(options =>
             {
-                options.Key = serviceKey;
+                options.ServiceKey = serviceKey;
                 options.Name = $"{serviceKey}ChannelProducer";
                 configureChannelProducerOptions(options);
             })

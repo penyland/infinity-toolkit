@@ -35,7 +35,7 @@ internal sealed class AzureServiceBusChannelProducer : IChannelProducer
                 .WithMessageId(id ?? Guid.NewGuid().ToString())
                 .WithContentType(contentType)
                 .WithCorrelationId(correlationId)
-                .WithEventType(messageBusOptions.EventTypeIdentifierPrefix, channelProducerOptions.EventTypeName ?? channelProducerOptions.Key)
+                .WithEventType(messageBusOptions.EventTypeIdentifierPrefix, channelProducerOptions.EventTypeName ?? channelProducerOptions.ServiceKey)
                 .WithSource(channelProducerOptions.Source)
                 .WithHeaders(headers)
                 .Build();
@@ -64,7 +64,7 @@ internal sealed class AzureServiceBusChannelProducer : IChannelProducer
 
             scope?.SetTag(DiagnosticProperty.MessagingDestinationName, channelProducerOptions.ChannelName);
             scope?.SetTag(DiagnosticProperty.MessagingMessageId, envelope.MessageId);
-            scope?.SetTag(DiagnosticProperty.MessageBusMessageType, DiagnosticProperty.MessageTypeRaw);
+            scope?.SetTag(DiagnosticProperty.MessageBusMessageType, DiagnosticProperty.MessageTypeUndefined);
             messageBusMetrics?.RecordMessagePublished(AzureServiceBusDefaults.System, channelProducerOptions.ChannelName);
 
             return sender.SendMessageAsync(envelope.ToServiceBusMessage(), cancellationToken);

@@ -16,15 +16,12 @@ builder.AddInfinityMessaging()
                 options.SubscriptionName = "weathersubscription";
             });
 
-        builder.AddChannelProducer("generic", options => { options.ChannelName = "generic"; });
-        builder.AddChannelConsumer("generic", options =>
+        builder.AddKeyedChannelProducer("generic", options => { options.ChannelName = "generic"; });
+        builder.AddKeyedChannelConsumer("generic", options =>
         {
             options.ChannelName = "generic";
             options.SubscriptionName = "genericsubscription";
         });
-
-        //builder.AddDefaultChannelProducer();
-        //builder.AddDefaultChannelConsumer();
     })
     .MapMessageHandler<WeatherForecast, WeatherForecastMessageHandler>()
     .MapMessageHandler<DefaultMessageHandler>();
