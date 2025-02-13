@@ -53,7 +53,7 @@ public static partial class MessageBusBuilderExtensions
         return builder;
     }
 
-    public static MessageHandlerBuilder MapMessageHandler<TMessageHandler>(this MessageBusBuilder builder, Func<IServiceProvider, TMessageHandler>? configure = null)
+    public static MessageBusBuilder MapMessageHandler<TMessageHandler>(this MessageBusBuilder builder, Func<IServiceProvider, TMessageHandler>? configure = null)
     where TMessageHandler : class, IMessageHandler
     {
         // Check if the message handler type is already registered
@@ -71,7 +71,8 @@ public static partial class MessageBusBuilderExtensions
             builder.Services.AddTransient<IMessageHandler, TMessageHandler>();
         }
 
-        return new MessageHandlerBuilder(builder.Services);
+        //return new MessageHandlerBuilder(builder.Services);
+        return builder;
     }
 
     /// <summary>
