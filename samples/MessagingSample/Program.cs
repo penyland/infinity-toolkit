@@ -78,7 +78,7 @@ app.MapPost("/default", async (IDefaultChannelProducer channelProducer) =>
     return Results.Accepted();
 });
 
-app.MapPost("/default2", async (IDefaultChannelProducer channelProducer) =>
+app.MapPost("/default2", async ([FromServices] IDefaultChannelProducer channelProducer) =>
 {
     await channelProducer.SendAsync((object)(new { Message = "Hello, World!" }));
     //await channelProducer.SendAsync(new WeatherForecast(DateOnly.FromDateTime(DateTime.Now), 20, "Rainy"));

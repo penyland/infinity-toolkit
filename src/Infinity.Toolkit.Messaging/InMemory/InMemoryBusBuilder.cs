@@ -227,7 +227,11 @@ public static class InMemoryBusBuilderExtensions
 
     internal static InMemoryBusBuilder AddDefaultChannelProducer(this InMemoryBusBuilder builder, string serviceKey = "default", Action<InMemoryChannelProducerOptions>? configureChannelOptions = null)
     {
-        return builder.AddChannelProducer<IDefaultChannelProducer, DefaultInMemoryChannelProducer>(serviceKey, configureChannelOptions);
+        ArgumentNullException.ThrowIfNull(serviceKey, nameof(serviceKey));
+        builder.ConfigureChannelProducerOptions(serviceKey, configureChannelOptions);
+        builder.Services.AddTransient<IDefaultChannelProducer, DefaultInMemoryChannelProducer>();
+        return builder;
+        //return builder.AddChannelProducer<IDefaultChannelProducer, DefaultInMemoryChannelProducer>(serviceKey, configureChannelOptions);
     }
 
     internal static InMemoryBusBuilder AddChannelProducer<TService, TImplementation>(this InMemoryBusBuilder builder, string serviceKey, Action<InMemoryChannelProducerOptions>? configureChannelOptions = null)
@@ -236,7 +240,7 @@ public static class InMemoryBusBuilderExtensions
     {
         ArgumentNullException.ThrowIfNull(serviceKey, nameof(serviceKey));
         builder.ConfigureChannelProducerOptions(serviceKey, configureChannelOptions);
-        builder.Services.AddTransient<TService, TImplementation>();
+        builder.Services.AddKeyedTransient<TService, TImplementation>(serviceKey);
         return builder;
     }
 
