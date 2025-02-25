@@ -12,7 +12,7 @@ public static class MessageBusBuilderExtensions
 
     public static MessageBusBuilder ConfigureInMemoryBus(this MessageBusBuilder messageBusBuilder, Action<InMemoryBusBuilder>? builder)
     {
-        return messageBusBuilder.ConfigureInMemoryBus((b) => { }, (o) => { });
+        return messageBusBuilder.ConfigureInMemoryBus(builder, (o) => { });
     }
 
     public static MessageBusBuilder ConfigureInMemoryBus(this MessageBusBuilder messageBusBuilder, Action<InMemoryBusBuilder> builder, InMemoryBusOptions options, string configSectionPath = DefaultConfigSectionName)
@@ -20,7 +20,7 @@ public static class MessageBusBuilderExtensions
         return messageBusBuilder.ConfigureInMemoryBus(builder, (o) => { o = options; }, configSectionPath);
     }
 
-    public static MessageBusBuilder ConfigureInMemoryBus(this MessageBusBuilder messageBusBuilder, Action<InMemoryBusBuilder> builder, Action<InMemoryBusOptions> options, string configSectionPath = DefaultConfigSectionName)
+    public static MessageBusBuilder ConfigureInMemoryBus(this MessageBusBuilder messageBusBuilder, Action<InMemoryBusBuilder>? builder, Action<InMemoryBusOptions> options, string configSectionPath = DefaultConfigSectionName)
     {
         var brokerBuilder = new InMemoryBusBuilder(messageBusBuilder);
         brokerBuilder.ConfigureInMemoryBusDefaults(options, configSectionPath);
