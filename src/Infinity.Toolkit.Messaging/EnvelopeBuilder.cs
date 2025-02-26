@@ -49,8 +49,10 @@ public sealed class EnvelopeBuilder
 
     public EnvelopeBuilder WithEventType(string eventType)
     {
-        ArgumentNullException.ThrowIfNull(eventType);
-        envelope.ApplicationProperties[Constants.EventTypeName] = eventType;
+        if (!string.IsNullOrEmpty(eventType))
+        {
+            envelope.ApplicationProperties[Constants.EventTypeName] = eventType;
+        }
         return this;
     }
 

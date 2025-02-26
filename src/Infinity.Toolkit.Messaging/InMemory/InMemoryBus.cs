@@ -116,22 +116,19 @@ internal class InMemoryBus : IBroker
 
     internal Task ProcessMessageAsync(ProcessMessageEventArgs args, InMemoryChannelConsumerOptions options)
     {
-        Console.WriteLine();
-        Console.WriteLine($"Processing message with id: {args.Message.MessageId} on channel: {args.ChannelName}");
+        Logger?.ProcessingMessage(args.Message.MessageId, args.ChannelName);
         MethodInfo? onProcessMessageAsync;
 
         // Messages sent by Infinity.Toolkit.Messaging will always have the Constants.EventTypeName property set which is the type of the message.
         if (args.Message.ApplicationProperties.TryGetValue(Constants.EventTypeName, out var property) && property is string eventType)
         {
             // The message has the Constants.EventTypeName property set, this means that the message is a message sent by Infinity.Toolkit.Messaging.
-            Console.WriteLine($"Event type found for message with id: {args.Message.MessageId} on channel: {args.ChannelName}");
-            Console.WriteLine($"Event type: {eventType}");
             try
             {
                 // Get the type of the message from the registry
                 if (inMemoryBusOptions.ChannelConsumerRegistry.TryGetValue(eventType, out var messageTypeRegistration))
                 {
-                    Console.WriteLine($"Event type found in registry: {messageTypeRegistration.EventType}");
+                    Logger?.EventTypeFound(eventType);
                     onProcessMessageAsync = CreateOnProcessMessageAsync(messageTypeRegistration.EventType);
                 }
                 else
@@ -139,7 +136,7 @@ internal class InMemoryBus : IBroker
                     // Could not find the type of the message in the registry
                     // This means that the message type was not registered
                     // That's not a problem then we'll just handle the message as a raw message
-                    Console.WriteLine($"Event type NOT found in registry: {eventType}");
+                    Logger?.EventTypeNotFound(eventType);
                     onProcessMessageAsync = CreateOnProcessMessageAsync();
                 }
 
@@ -153,11 +150,9 @@ internal class InMemoryBus : IBroker
         {
             // The message does not have the Constants.EventTypeName property set, this means that the message is not a message sent by Infinity.Toolkit.Messaging.
             // TODO: Try resolve the message type from the CloudEvents.Type property
-            Console.WriteLine($"No event type found for message with id: {args.Message.MessageId} on channel: {args.ChannelName}");
-            // We'll handle the message as a raw message
             onProcessMessageAsync = CreateOnProcessMessageAsync();
             //metrics.RecordMessageConsumed(Name, args.ChannelName, errortype: Reasons.EventTypeWasNotRegistered);
-            Logger?.MissingCloudEventsTypeProperty(args.Message.MessageId, args.ChannelName);
+            Logger?.NoEventTypeFoundForMessage(args.Message.MessageId, args.ChannelName);
         }
 
         if (onProcessMessageAsync is not null)
@@ -194,6 +189,7 @@ internal class InMemoryBus : IBroker
 
         var messageHandlers = serviceProvider.GetServices<IMessageHandler>();
         var processDuration = ValueStopwatch.StartNew();
+        // Parallell.ForEachAsync(messageHandlers, stoppingToken, async (messageHandler, token) => { });
         foreach (var messageHandler in messageHandlers)
         {
             using var activity = clientDiagnostics.CreateDiagnosticActivityScopeForMessageHandler(args.ChannelName, messageHandler.GetType(), args.Message.ApplicationProperties.ToDictionary());
