@@ -22,8 +22,10 @@ internal static class LogMessages
 
     // Information
     public const string InitializingBus = "Initializing bus: {brokerName}";
-    public const string InitializingChannelWithEventType = "Initializing channel: {channelName} with eventType: {eventType}";
-    public const string InitializingChannel = "Initializing channel: {channelName}.";
+    public const string InitializingChannelConsumerWithEventType = "Initializing channel consumer: {channelName} with eventType: {eventType}";
+    public const string InitializingChannelConsumer = "Initializing channel consumer: {channelName}.";
+    public const string InitializingChannelProducerWithEventType = "Initializing channel producer: {channelName} with eventType: {eventType}";
+    public const string InitializingChannelProducer = "Initializing channel producer: {channelName}.";
     public const string MessageBusDelayedStart = "Message bus delayed start for {delay}s";
     public const string MessageBusAutomaticStartDisabled = "Message bus automatic start disabled. Call StartAsync() to start listening for messages.";
 

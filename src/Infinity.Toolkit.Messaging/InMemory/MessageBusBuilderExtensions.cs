@@ -45,8 +45,8 @@ public static class MessageBusBuilderExtensions
         });
 
         // Add a default generic channel producer.
-        builder.AddDefaultChannelProducer();
-        builder.AddDefaultChannelConsumer();
+        //builder.AddDefaultChannelProducer();
+        //builder.AddDefaultChannelConsumer();
 
         return builder;
     }

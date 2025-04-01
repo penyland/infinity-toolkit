@@ -23,6 +23,17 @@ public class MessageBusBrokerOptions
     /// </summary>
     [JsonIgnore]
     internal Dictionary<string, ChannelConsumerRegistration> ChannelConsumerRegistry { get; } = [];
+
+    internal Dictionary<string, ChannelProducerRegistration> ChannelProducerRegistry { get; } = [];
+}
+
+internal class ChannelProducerRegistration
+{
+    public string BrokerName { get; set; } = string.Empty;
+
+    public Type? EventType { get; set; }
+
+    public object? Key { get; set; }
 }
 
 internal class ConfigureMessageBusBrokerOptions : IPostConfigureOptions<MessageBusBrokerOptions>

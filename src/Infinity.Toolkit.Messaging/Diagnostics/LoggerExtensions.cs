@@ -79,11 +79,11 @@ internal static partial class LoggerExtensions
     [LoggerMessage(EventId = 209, Level = LogLevel.Information, Message = LogMessages.InitializingBus)]
     public static partial void InitializingBus(this ILogger logger, string brokerName);
 
-    [LoggerMessage(EventId = 210, Level = LogLevel.Information, Message = LogMessages.InitializingChannelWithEventType)]
-    public static partial void InitializingChannelWithEventType(this ILogger logger, string channelName, string eventType);
+    [LoggerMessage(EventId = 210, Level = LogLevel.Information, Message = LogMessages.InitializingChannelConsumerWithEventType)]
+    public static partial void InitializingChannelConsumerWithEventType(this ILogger logger, string channelName, string eventType);
 
-    [LoggerMessage(EventId = 211, Level = LogLevel.Information, Message = LogMessages.InitializingChannel)]
-    public static partial void InitializingChannel(this ILogger logger, string channelName);
+    [LoggerMessage(EventId = 211, Level = LogLevel.Information, Message = LogMessages.InitializingChannelConsumer)]
+    public static partial void InitializingChannelConsumer(this ILogger logger, string channelName);
 
     [LoggerMessage(EventId = 212, Level = LogLevel.Information, Message = LogMessages.StartProcessingChannelStarted)]
     public static partial void StartProcessingChannelStarted(this ILogger logger, string channel);
@@ -99,6 +99,12 @@ internal static partial class LoggerExtensions
 
     [LoggerMessage(EventId = 216, Level = LogLevel.Information, Message = LogMessages.DeferredMessage)]
     public static partial void DeferredMessage(this ILogger logger, long sequenceNumber, string channel);
+
+    [LoggerMessage(EventId = 217, Level = LogLevel.Information, Message = LogMessages.InitializingChannelProducerWithEventType)]
+    public static partial void InitializingChannelProducerWithEventType(this ILogger logger, string channelName, string eventType);
+
+    [LoggerMessage(EventId = 218, Level = LogLevel.Information, Message = LogMessages.InitializingChannelProducer)]
+    public static partial void InitializingChannelProducer(this ILogger logger, string channelName);
 
     // LogLevel.Warning
     [LoggerMessage(EventId = 300, Level = LogLevel.Warning, Message = LogMessages.StopProcessingCancellationWarning)]

@@ -9,6 +9,7 @@ internal class InMemoryBus : IBroker
     private readonly InMemoryChannelClientFactory inMemoryChannelClient;
     private readonly InMemoryBusOptions inMemoryBusOptions;
     private readonly IOptionsMonitor<InMemoryChannelConsumerOptions> channelConsumerOptions;
+    private readonly IOptionsMonitor<InMemoryChannelProducerOptions> channelProducerOptions;
     private readonly IServiceProvider serviceProvider;
     private readonly Metrics metrics;
     private readonly MessageBusOptions messageBusOptions;
@@ -20,6 +21,7 @@ internal class InMemoryBus : IBroker
         IOptions<MessageBusOptions> messageBusOptions,
         IOptions<InMemoryBusOptions> inMemoryBusOptions,
         IOptionsMonitor<InMemoryChannelConsumerOptions> channelConsumerOptions,
+        IOptionsMonitor<InMemoryChannelProducerOptions> channelProducerOptions,
         IServiceProvider serviceProvider,
         Metrics metrics,
         ILogger<InMemoryBus> logger)
@@ -28,6 +30,7 @@ internal class InMemoryBus : IBroker
         this.messageBusOptions = messageBusOptions.Value;
         this.inMemoryBusOptions = inMemoryBusOptions.Value;
         this.channelConsumerOptions = channelConsumerOptions;
+        this.channelProducerOptions = channelProducerOptions;
         this.serviceProvider = serviceProvider;
         this.metrics = metrics;
         Logger = logger;
@@ -54,11 +57,11 @@ internal class InMemoryBus : IBroker
             {
                 if (!string.IsNullOrEmpty(options.EventTypeName))
                 {
-                    Logger?.InitializingChannelWithEventType(options.ChannelName, options.EventTypeName!);
+                    Logger?.InitializingChannelConsumerWithEventType(options.ChannelName, options.EventTypeName!);
                 }
                 else
                 {
-                    Logger?.InitializingChannel(options.ChannelName);
+                    Logger?.InitializingChannelConsumer(options.ChannelName);
                 }
 
                 var processor = GetChannelProcessor(options);
@@ -75,6 +78,28 @@ internal class InMemoryBus : IBroker
             {
                 Logger?.ChannelOptionsNotFound(eventType);
                 throw new InvalidOperationException($"{ChannelOptionsNotFound} {eventType}");
+            }
+        }
+
+        // Initialize any channel producers if needed.
+        foreach (var channelProducerRegistration in inMemoryBusOptions.ChannelProducerRegistry)
+        {
+            var options = channelProducerOptions.Get(channelProducerRegistration.Key);
+            if (options is not null)
+            {
+                if (!string.IsNullOrEmpty(options.EventTypeName))
+                {
+                    Logger?.InitializingChannelProducerWithEventType(options.ChannelName, options.EventTypeName!);
+                }
+                else
+                {
+                    Logger?.InitializingChannelProducer(options.ChannelName);
+                }
+            }
+            else
+            {
+                Logger?.ChannelOptionsNotFound(channelProducerRegistration.Key);
+                throw new InvalidOperationException($"{ChannelOptionsNotFound} {channelProducerRegistration.Key}");
             }
         }
 
