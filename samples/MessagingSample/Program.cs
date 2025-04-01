@@ -1,9 +1,11 @@
+using Infinity.Toolkit.LogFormatter;
 using Infinity.Toolkit.Messaging;
 using Infinity.Toolkit.Messaging.Abstractions;
 using Infinity.Toolkit.Messaging.InMemory;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.AddCodeThemeConsoleFormatter();
 
 builder.AddInfinityMessaging()
     .ConfigureInMemoryBus(builder =>
@@ -22,6 +24,9 @@ builder.AddInfinityMessaging()
             options.ChannelName = "generic";
             options.SubscriptionName = "genericsubscription";
         });
+
+        builder.AddKeyedChannelProducer<WeatherForecast>("key1");
+        builder.AddDefaultChannelProducer();
     })
     .MapMessageHandler<WeatherForecast, WeatherForecastMessageHandler>()
     .MapMessageHandler<DefaultMessageHandler>();
@@ -60,28 +65,41 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast");
 
-app.MapPost("/weatherforecast", async ([FromServices]IChannelProducer<WeatherForecast> channelProducer) =>
+app.MapPost("/1", async ([FromServices] IChannelProducer<WeatherForecast> channelProducer) =>
 {
     await channelProducer.SendAsync(new WeatherForecast(DateOnly.FromDateTime(DateTime.Now), 20, "Sunny"), CancellationToken.None);
     return Results.Accepted();
 });
 
-app.MapPost("/generic", async ([FromKeyedServices("generic")] IChannelProducer channelProducer) =>
+// Message received by DefaultMessageHandler
+app.MapPost("/2", async ([FromKeyedServices("generic")] IChannelProducer channelProducer) =>
 {
     await channelProducer.SendAsync(new { Message = "Hello, World!" }, CancellationToken.None);
     return Results.Accepted();
 });
 
-app.MapPost("/default", async (IDefaultChannelProducer channelProducer) =>
+app.MapPost("/3", async ([FromKeyedServices("key1")] IChannelProducer<WeatherForecast> channelProducer) =>
+{
+    await channelProducer.SendAsync(new WeatherForecast(DateOnly.FromDateTime(DateTime.Now), 20, "Cloudy"), CancellationToken.None);
+    return Results.Accepted();
+});
+
+app.MapPost("/4", async ([FromServices] IChannelProducer channelProducer) =>
+{
+    await channelProducer.SendAsync(new WeatherForecast(DateOnly.FromDateTime(DateTime.Now), 20, "Cloudy"), CancellationToken.None);
+    return Results.Accepted();
+});
+
+app.MapPost("/5", async (IDefaultChannelProducer channelProducer) =>
 {
     await channelProducer.SendAsync<WeatherForecast>(new WeatherForecast(DateOnly.FromDateTime(DateTime.Now), 20, "Cloudy"));
     return Results.Accepted();
 });
 
-app.MapPost("/default2", async ([FromServices] IDefaultChannelProducer channelProducer) =>
+app.MapPost("/6", async ([FromServices] IDefaultChannelProducer channelProducer) =>
 {
-    await channelProducer.SendAsync((object)(new { Message = "Hello, World!" }));
-    //await channelProducer.SendAsync(new WeatherForecast(DateOnly.FromDateTime(DateTime.Now), 20, "Rainy"));
+    //await channelProducer.SendAsync((object)(new { Message = "Hello, World!" }));
+    await channelProducer.SendAsync(new WeatherForecast(DateOnly.FromDateTime(DateTime.Now), 20, "Rainy"));
     return Results.Accepted();
 });
 
