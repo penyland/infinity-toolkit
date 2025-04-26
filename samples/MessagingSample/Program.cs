@@ -16,17 +16,24 @@ builder.AddInfinityMessaging()
             {
                 options.ChannelName = "weatherforecasts";
                 options.SubscriptionName = "weathersubscription";
+            })
+            .AddKeyedChannelConsumer<WeatherForecast>("weatherforecast2", options =>
+            {
+                options.ChannelName = "weatherforecasts";
+                options.SubscriptionName = "genericsubscription";
+                options.Predicate = x => x.CorrelationId == "1";
             });
 
-        builder.AddKeyedChannelProducer("generic", options => { options.ChannelName = "generic"; });
-        builder.AddKeyedChannelConsumer("generic", options =>
-        {
-            options.ChannelName = "generic";
-            options.SubscriptionName = "genericsubscription";
-        });
+        builder
+            .AddKeyedChannelProducer("generic", options => { options.ChannelName = "generic"; })
+            .AddKeyedChannelConsumer("generic", options =>
+            {
+                options.ChannelName = "generic";
+                options.SubscriptionName = "genericsubscription";
+            });
 
-        builder.AddKeyedChannelProducer<WeatherForecast>("key1");
-        builder.AddDefaultChannelProducer();
+        //builder.AddKeyedChannelProducer<WeatherForecast>("key1");
+        //builder.AddDefaultChannelProducer();
     })
     .MapMessageHandler<WeatherForecast, WeatherForecastMessageHandler>()
     .MapMessageHandler<DefaultMessageHandler>();
@@ -65,22 +72,30 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast");
 
+// This will invoke channel consumers listening on the channel "weatherforecasts" with subscription "weathersubscription" that don't have a predicate set.
 app.MapPost("/1", async ([FromServices] IChannelProducer<WeatherForecast> channelProducer) =>
 {
     await channelProducer.SendAsync(new WeatherForecast(DateOnly.FromDateTime(DateTime.Now), 20, "Sunny"), CancellationToken.None);
     return Results.Accepted();
 });
 
-// Message received by DefaultMessageHandler
-app.MapPost("/2", async ([FromKeyedServices("generic")] IChannelProducer channelProducer) =>
+// This will invoke channel consumers listening on the channel "weatherforecasts" with subscription "weathersubscription" that have a predicate set and the predicate is true.
+app.MapPost("/2", async ([FromServices] IChannelProducer<WeatherForecast> channelProducer) =>
 {
-    await channelProducer.SendAsync(new { Message = "Hello, World!" }, CancellationToken.None);
+    await channelProducer.SendAsync(new WeatherForecast(DateOnly.FromDateTime(DateTime.Now), 20, "Cloudy"), CancellationToken.None, correlationId: "1");
     return Results.Accepted();
 });
 
-app.MapPost("/3", async ([FromKeyedServices("key1")] IChannelProducer<WeatherForecast> channelProducer) =>
+//app.MapPost("/3", async ([FromKeyedServices("weatherforecast2")] IChannelProducer<WeatherForecast> channelProducer) =>
+//{
+//    await channelProducer.SendAsync(new WeatherForecast(DateOnly.FromDateTime(DateTime.Now), 20, "Cloudy"), CancellationToken.None, correlationId: "1");
+//    return Results.Accepted();
+//});
+
+// Message received by DefaultMessageHandler
+app.MapPost("/3", async ([FromKeyedServices("generic")] IChannelProducer channelProducer) =>
 {
-    await channelProducer.SendAsync(new WeatherForecast(DateOnly.FromDateTime(DateTime.Now), 20, "Cloudy"), CancellationToken.None);
+    await channelProducer.SendAsync(new { Message = "Hello, World!" }, CancellationToken.None, correlationId: "1");
     return Results.Accepted();
 });
 
