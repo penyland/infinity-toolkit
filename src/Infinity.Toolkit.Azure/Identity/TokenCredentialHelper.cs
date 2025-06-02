@@ -13,7 +13,6 @@ public static class TokenCredentialHelper
     ///
     /// To include additional credential types, set the corresponding environment variable to "true".
     /// INCLUDE_VISUAL_STUDIO_CREDENTIAL
-    /// INCLUDE_VISUAL_STUDIO_CODE_CREDENTIAL
     /// INCLUDE_INTERACTIVE_BROWSER_CREDENTIAL
     /// INCLUDE_SHARED_TOKEN_CACHE_CREDENTIAL
     /// INCLUDE_AZURE_DEVELOPER_CLI_CREDENTIAL
@@ -50,11 +49,6 @@ public static class TokenCredentialHelper
         if (Equals(Environment.GetEnvironmentVariable("INCLUDE_VISUAL_STUDIO_CREDENTIAL"), "true"))
         {
             tokenCredentials = [.. tokenCredentials, new VisualStudioCredential()];
-        }
-
-        if (Equals(Environment.GetEnvironmentVariable("INCLUDE_VISUAL_STUDIO_CODE_CREDENTIAL"), "true"))
-        {
-            tokenCredentials = [.. tokenCredentials, new VisualStudioCodeCredential()];
         }
 
         if (Equals(Environment.GetEnvironmentVariable("INCLUDE_AZURE_POWER_SHELL_CREDENTIAL"), "true"))

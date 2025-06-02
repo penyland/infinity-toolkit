@@ -1,0 +1,27 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/AzureSample/AzureSample.csproj" />
+    <Project Path="samples/AzureServiceBusMessagingSample/AzureServiceBusMessagingSample.csproj" />
+    <Project Path="samples/ConsoleLoggingFormatterSample/ConsoleLoggingFormatterSample.csproj" />
+    <Project Path="samples/FeatureModulesSample.Module1/FeatureModulesSample.Module1.csproj" />
+    <Project Path="samples/FeatureModulesSample/FeatureModulesSample.csproj" />
+    <Project Path="samples/MediatorSample/MediatorSample.csproj" />
+    <Project Path="samples/MessagingSample/MessagingSample.csproj" />
+    <Project Path="samples/PipelineSample/PipelineSample.csproj" />
+    <Project Path="samples/SlackMessageBuilder/SlackMessageBuilder.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Infinity.Toolkit.Azure/Infinity.Toolkit.Azure.csproj" />
+    <Project Path="src/Infinity.Toolkit.Experimental/Infinity.Toolkit.Experimental.csproj" />
+    <Project Path="src/Infinity.Toolkit.FeatureModules/Infinity.Toolkit.FeatureModules.csproj" />
+    <Project Path="src/Infinity.Toolkit.LogFormatter/Infinity.Toolkit.LogFormatter.csproj" />
+    <Project Path="src/Infinity.Toolkit.Messaging.AzureServiceBus/Infinity.Toolkit.Messaging.AzureServiceBus.csproj" />
+    <Project Path="src/Infinity.Toolkit.Messaging/Infinity.Toolkit.Messaging.csproj" />
+    <Project Path="src/Infinity.Toolkit.OpenApi/Infinity.Toolkit.OpenApi.csproj" />
+    <Project Path="src/Infinity.Toolkit.Slack/Infinity.Toolkit.Slack.csproj" />
+    <Project Path="src/Infinity.Toolkit/Infinity.Toolkit.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Infinity.Toolkit.Tests/Infinity.Toolkit.Tests.csproj" />
+  </Folder>
+</Solution>
