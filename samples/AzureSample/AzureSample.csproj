@@ -4,7 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>d8aec6bd-a2d3-47c2-9830-27044fcaef87</UserSecretsId>
+    <UserSecretsId>Infinity.Toolkit</UserSecretsId>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 

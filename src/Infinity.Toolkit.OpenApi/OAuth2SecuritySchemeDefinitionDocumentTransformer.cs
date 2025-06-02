@@ -7,8 +7,10 @@ using Microsoft.OpenApi.Models;
 
 namespace Infinity.Toolkit.OpenApi;
 
-public class OAuth2Settings
+public class OpenApiOAuth2Settings
 {
+    public const string AuthenticationScheme = "oauth2";
+
     internal const string DefaultConfigSectionName = "AzureAd";
 
     public string Instance { get; set; } = default!;
@@ -21,6 +23,8 @@ public class OAuth2Settings
 
     public string Scopes { get; set; } = default!;
 
+    public string[]? ScopesArray => Scopes.Split(" ");
+
     public Uri AuthorizationUrl => new($"{Instance.TrimEnd('/')}/{TenantId}/oauth2/v2.0/authorize", UriKind.Absolute);
 
     public Uri TokenUrl => new($"{Instance}/{TenantId}/oauth2/v2.0/token", UriKind.Absolute);
@@ -28,9 +32,9 @@ public class OAuth2Settings
 
 public static class AzureAdOAuth2SecuritySchemeDefinitionDocumentTransformerExtensions
 {
-    public static void AddOAuth2OpenApiSecuritySchemeDefinition(this IServiceCollection services, Action<OAuth2Settings>? configureSettings = null, string configSectionPath = OAuth2Settings.DefaultConfigSectionName)
+    public static void AddOAuth2OpenApiSecuritySchemeDefinition(this IServiceCollection services, Action<OpenApiOAuth2Settings>? configureSettings = null, string configSectionPath = OpenApiOAuth2Settings.DefaultConfigSectionName)
     {
-        services.AddOptions<OAuth2Settings>()
+        services.AddOptions<OpenApiOAuth2Settings>()
             .BindConfiguration(configSectionPath)
             .Configure(configureSettings ?? (_ => { }))
             .PostConfigure(settings =>
@@ -48,7 +52,7 @@ public static class AzureAdOAuth2SecuritySchemeDefinitionDocumentTransformerExte
     }
 }
 
-public sealed class OAuth2SecuritySchemeDefinitionDocumentTransformer(IOptions<OAuth2Settings> options) : IOpenApiDocumentTransformer
+public sealed class OAuth2SecuritySchemeDefinitionDocumentTransformer(IOptions<OpenApiOAuth2Settings> options) : IOpenApiDocumentTransformer
 {
     public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
@@ -57,10 +61,10 @@ public sealed class OAuth2SecuritySchemeDefinitionDocumentTransformer(IOptions<O
         var securityScheme = new OpenApiSecurityScheme
         {
             Type = SecuritySchemeType.OAuth2,
-            Name = AuthenticationScheme,
-            Scheme = AuthenticationScheme,
-            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = AuthenticationScheme },
-            In = ParameterLocation.Header,
+            Name = OpenApiOAuth2Settings.AuthenticationScheme,
+            Scheme = OpenApiOAuth2Settings.AuthenticationScheme,
+            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = OpenApiOAuth2Settings.AuthenticationScheme },
+            //In = ParameterLocation.Header,
             Flows = new OpenApiOAuthFlows
             {
                 AuthorizationCode = new OpenApiOAuthFlow

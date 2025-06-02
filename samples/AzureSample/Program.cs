@@ -30,15 +30,15 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference(options =>
     {
-        var settings = app.Services.GetRequiredService<IOptions<OAuth2Settings>>();
-        options.Authentication = new()
-        {
-            OAuth2 = new()
-            {
-                ClientId = settings.Value.ClientId,
-                Scopes = [.. settings.Value.Scopes.Split(" ")]
-            }
-        };
+        var settings = app.Services.GetRequiredService<IOptions<OpenApiOAuth2Settings>>();
+        options.WithDefaultHttpClient(ScalarTarget.Shell, ScalarClient.Curl)
+               .AddPreferredSecuritySchemes("oauth2")
+               .AddAuthorizationCodeFlow("oauth2", flow =>
+               {
+                   flow.ClientId = settings?.Value.ClientId;
+                   flow.Pkce = Pkce.Sha256;
+                   flow.SelectedScopes = settings?.Value.ScopesArray;
+               });
     });
 }
 
