@@ -4,7 +4,7 @@
     <TargetFrameworks>net9.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <VersionPrefix>1.0.4</VersionPrefix>
+    <VersionPrefix>1.0.5</VersionPrefix>
     <PackageId>Infinity.Toolkit.LogFormatter</PackageId>
     <Description>A logging formatter that formats log messages with a Visual Studio Code inspired theme and Serilog like formatting.</Description>
     <PackageTags>Logging formatter</PackageTags>
@@ -15,9 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.5" />    
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.5" />
   </ItemGroup>
   
 </Project>

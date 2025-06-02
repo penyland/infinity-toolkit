@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Infinity.Toolkit</RootNamespace>
-    <VersionPrefix>1.0.1</VersionPrefix>
+    <VersionPrefix>1.0.2</VersionPrefix>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,11 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.2" NoWarn="NU1605" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.5" NoWarn="NU1605" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.5" />
     <PackageReference Include="Scrutor" Version="6.0.1" />
-    <PackageReference Include="System.Memory.Data" Version="9.0.2" />
+    <PackageReference Include="System.Memory.Data" Version="9.0.5" />
   </ItemGroup>
 
 </Project>
