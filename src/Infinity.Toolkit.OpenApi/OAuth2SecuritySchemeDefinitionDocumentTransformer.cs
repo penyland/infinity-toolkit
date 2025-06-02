@@ -23,7 +23,7 @@ public class OpenApiOAuth2Settings
 
     public string Scopes { get; set; } = default!;
 
-    public string[]? ScopesArray => Scopes.Split(" ");
+    public string[]? ScopesArray => Scopes.Split(" ", StringSplitOptions.RemoveEmptyEntries);
 
     public Uri AuthorizationUrl => new($"{Instance.TrimEnd('/')}/{TenantId}/oauth2/v2.0/authorize", UriKind.Absolute);
 
@@ -64,14 +64,14 @@ public sealed class OAuth2SecuritySchemeDefinitionDocumentTransformer(IOptions<O
             Name = OpenApiOAuth2Settings.AuthenticationScheme,
             Scheme = OpenApiOAuth2Settings.AuthenticationScheme,
             Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = OpenApiOAuth2Settings.AuthenticationScheme },
-            //In = ParameterLocation.Header,
+            In = ParameterLocation.Header,
             Flows = new OpenApiOAuthFlows
             {
                 AuthorizationCode = new OpenApiOAuthFlow
                 {
                     AuthorizationUrl = options.Value.AuthorizationUrl,
                     TokenUrl = options.Value.TokenUrl,
-                    Scopes = options.Value.Scopes.Split(" ").ToDictionary(x => x, x => x),
+                    Scopes = options.Value.Scopes.Split(" ", StringSplitOptions.RemoveEmptyEntries).ToDictionary(x => x, x => x),
                     Extensions = new Dictionary<string, IOpenApiExtension>
                     {
                         ["x-usePkce"] = new OpenApiString("SHA-256")

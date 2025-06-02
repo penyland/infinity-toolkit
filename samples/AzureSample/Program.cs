@@ -32,8 +32,8 @@ if (app.Environment.IsDevelopment())
     {
         var settings = app.Services.GetRequiredService<IOptions<OpenApiOAuth2Settings>>();
         options.WithDefaultHttpClient(ScalarTarget.Shell, ScalarClient.Curl)
-               .AddPreferredSecuritySchemes("oauth2")
-               .AddAuthorizationCodeFlow("oauth2", flow =>
+               .AddPreferredSecuritySchemes(OpenApiOAuth2Settings.AuthenticationScheme)
+               .AddAuthorizationCodeFlow(OpenApiOAuth2Settings.AuthenticationScheme, flow =>
                {
                    flow.ClientId = settings?.Value.ClientId;
                    flow.Pkce = Pkce.Sha256;
