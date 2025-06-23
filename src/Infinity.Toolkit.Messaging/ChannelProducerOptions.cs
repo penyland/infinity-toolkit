@@ -5,7 +5,7 @@ public abstract class ChannelProducerOptions : ChannelOptions
     /// <summary>
     /// The key of the producer.
     /// </summary>
-    public string Key { get; set; }
+    internal string ServiceKey { get; set; }
 
     /// <summary>
     /// The name of the producer.

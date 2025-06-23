@@ -38,7 +38,7 @@ internal sealed class InMemoryChannelProducer : IChannelProducer
                 .WithBody(payload, jsonSerializerOptions)
                 .WithMessageId(id ?? Guid.NewGuid().ToString())
                 .WithContentType(contentType)
-                .WithEventType(channelProducerOptions.EventTypeName ?? channelProducerOptions.EventTypeName ?? channelProducerOptions.Key)
+                .WithEventType(channelProducerOptions.EventTypeName ?? payload.GetType().Name ?? string.Empty)
                 .WithCorrelationId(correlationId)
                 .WithHeaders(headers)
                 .WithSource(channelProducerOptions.Source)
@@ -68,7 +68,7 @@ internal sealed class InMemoryChannelProducer : IChannelProducer
 
             scope?.SetTag(DiagnosticProperty.MessagingDestinationName, channelProducerOptions.ChannelName);
             scope?.SetTag(DiagnosticProperty.MessagingMessageId, envelope.MessageId);
-            scope?.SetTag(DiagnosticProperty.MessageBusMessageType, DiagnosticProperty.MessageTypeRaw);
+            scope?.SetTag(DiagnosticProperty.MessageBusMessageType, DiagnosticProperty.MessageTypeUndefined);
             messageBusMetrics?.RecordMessagePublished(InMemoryBusDefaults.System, channelProducerOptions.ChannelName);
 
             return sender.SendAsync(envelope.ToInMemoryMessage(), cancellationToken);

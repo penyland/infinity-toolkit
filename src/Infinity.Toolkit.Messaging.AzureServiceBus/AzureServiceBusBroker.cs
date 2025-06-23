@@ -129,12 +129,12 @@ internal class AzureServiceBusBroker : IBroker
             {
                 try
                 {
-                    Logger?.ProcessingMessage(args.Message.MessageId, args.EntityPath, cloudEventsType);
+                    Logger?.ProcessingMessageWithType(args.Message.MessageId, args.EntityPath, cloudEventsType);
                     var eventType = cloudEventsType?[(cloudEventsType.LastIndexOf('.') + 1)..] ?? string.Empty;
 
                     if (!eventType.Equals(options.EventTypeName))
                     {
-                        Logger?.CloudEventsTypeMismatch(options.EventTypeName ?? string.Empty, eventType);
+                        //Logger?.CloudEventsTypeMismatch(options.EventTypeName ?? string.Empty, eventType);
                         throw new InvalidOperationException(CloudEventsTypeNotFound);
                     }
 
@@ -144,7 +144,7 @@ internal class AzureServiceBusBroker : IBroker
                         throw new InvalidOperationException($"{EventTypeWasNotRegistered} {CloudEvents.Type}");
                     }
 
-                    onProcessMessageAsync = CreateOnProcessMessageAsync(messageTypeRegistration.EventType);
+                    onProcessMessageAsync = CreateOnProcessMessageAsync(messageTypeRegistration.EventType!);
                 }
                 catch (Exception ex)
                 {
@@ -154,7 +154,7 @@ internal class AzureServiceBusBroker : IBroker
             else
             {
                 messageBusMetrics.RecordMessageConsumed(Name, args.EntityPath, errortype: Reasons.EventTypeWasNotRegistered);
-                Logger?.MissingCloudEventsTypeProperty(args.Message.MessageId, args.EntityPath);
+                //Logger?.MissingCloudEventsTypeProperty(args.Message.MessageId, args.EntityPath);
             }
         }
         else
@@ -201,7 +201,7 @@ internal class AzureServiceBusBroker : IBroker
             using var activity = clientDiagnostics.CreateDiagnosticActivityScopeForMessageHandler(args.EntityPath, messageHandler.GetType(), args.Message.ApplicationProperties.ToDictionary());
 
             activity?.SetTag(DiagnosticProperty.MessagingMessageId, args.Message.MessageId);
-            activity?.SetTag(DiagnosticProperty.MessageBusMessageType, DiagnosticProperty.MessageTypeRaw);
+            activity?.SetTag(DiagnosticProperty.MessageBusMessageType, DiagnosticProperty.MessageTypeUndefined);
             activity?.SetTag(DiagnosticProperty.MessageBusMessageHandler, messageHandler.GetType().FullName);
 
             activity?.AddEvent(new ActivityEvent(DiagnosticProperty.MessagingConsumerInvokingHandler));

@@ -48,5 +48,5 @@ public static partial class DiagnosticProperty
     public const string MessageBusMessageType = "messagebus.message.type";
     public const string MessageBusSequenceNumber = "messagebus.message.sequenceNumber";
 
-    public const string MessageTypeRaw = "raw";
+    public const string MessageTypeUndefined = "undefined";
 }

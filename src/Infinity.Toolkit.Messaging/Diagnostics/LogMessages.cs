@@ -2,26 +2,34 @@
 
 internal static class LogMessages
 {
+    // Trace
+    public const string ProcessingMessage = "Processing message with id {messageId} on {channel}.";
+    public const string ProcessingMessageWithType = "Processing message with id: {messageId} on channel: {channel} with type: {eventType}";
+
     // Debug
     public const string InitializingMessageBus = "Initializing message bus";
     public const string StartingMessageBus = "Starting message bus";
     public const string StoppingMessageBus = "Stopping message bus";
     public const string MessageBusStarted = "Message bus started";
     public const string MessageBusStopped = "Message bus stopped";
-    public const string ProcessingMessage = "Processing message with id: {messageId} on channel: {channel} with type: {eventType}";
+    public const string NoEventTypeFoundForMessage = "No event type found for message with id: {messageId} on channel: {channelName}";
     public const string StartingMessageBroker = "Starting message broker {Name}";
     public const string StoppingMessageBroker = "Stopping message broker {Name}";
+    public const string StartProcessingChannelStart = "Starting processing channel: {channel}";
+    public const string StopProcessingChannelStart = "Stopping processing channel: {channel}";
+    public const string EventTypeFound = "Event type {eventType} found.";
+    public const string EventTypeNotFound = "Event type {eventType} not found.";
 
     // Information
-    public const string InitializingBus = "Initializing broker: {brokerName}";
-    public const string InitializingChannelWithEventType = "Initializing channel: {channelName} with eventType: {eventType}";
-    public const string InitializingChannel = "Initializing channel: {channelName} with no event type.";
+    public const string InitializingBus = "Initializing bus: {brokerName}";
+    public const string InitializingChannelConsumerWithEventType = "Initializing channel consumer: {channelName} with eventType: {eventType}";
+    public const string InitializingChannelConsumer = "Initializing channel consumer: {channelName}.";
+    public const string InitializingChannelProducerWithEventType = "Initializing channel producer: {channelName} with eventType: {eventType}";
+    public const string InitializingChannelProducer = "Initializing channel producer: {channelName}.";
     public const string MessageBusDelayedStart = "Message bus delayed start for {delay}s";
     public const string MessageBusAutomaticStartDisabled = "Message bus automatic start disabled. Call StartAsync() to start listening for messages.";
 
-    public const string StartProcessingChannelStart = "Starting processing channel: {channel}";
     public const string StartProcessingChannelStarted = "Started processing channel: {channel}";
-    public const string StopProcessingChannelStart = "Stopping processing channel: {channel}";
     public const string StopProcessingChannelStopped = "Stopped processing channel: {channel}";
 
     public const string CouldNotCreateMessageProcessorMethod = "Could not create a message processor for message.";
@@ -57,9 +65,7 @@ internal static class LogMessages
     public const string CouldNotProcessMessage = "Could not process message on channel {channel}. Message: {message}";
     public const string ChannelOptionsNotFoundMessage = "Channel options for channel {channelName} was not found.";
     public const string ChannelProcessorNotFoundMessage = "Channel processor for channel {channelName} was not found.";
-    public const string CloudEventsTypeMismatch = "Cloud events type mismatch for channel. Expected: {expected} but found: {eventType}";
     public const string ApplicationFailedToStart = "Application failed to start.";
     public const string EventTypeNotRegistered = "Event type {eventType} not registered.";
-    public const string MissingCloudEventsTypeProperty = "CloudEventsType property is missing for message {messageId} on {channel}";
     public const string AnErrorOccurredWhileStartingTheProcessor = "An error occurred while starting the processor on broker {broker} for channel {channel}";
 }

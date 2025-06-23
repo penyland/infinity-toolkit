@@ -57,6 +57,7 @@ internal sealed class InMemoryChannelProducer<TMessage> : IChannelProducer<TMess
                 .WithMessageId(id ?? Guid.NewGuid().ToString())
                 .WithContentType(contentType)
                 .WithCorrelationId(correlationId)
+                .WithEventType<TMessage>()
                 .WithEventType(messageBusOptions.EventTypeIdentifierPrefix, eventType ?? channelProducerOptions.EventTypeName ?? typeof(TMessage).Name)
                 .WithSource(channelProducerOptions.Source)
                 .WithHeaders(headers)
@@ -86,7 +87,7 @@ internal sealed class InMemoryChannelProducer<TMessage> : IChannelProducer<TMess
                 .WithMessageId(id ?? Guid.NewGuid().ToString())
                 .WithContentType(contentType)
                 .WithCorrelationId(correlationId)
-                .WithEventType(messageBusOptions.EventTypeIdentifierPrefix, eventType ?? channelProducerOptions.EventTypeName ?? typeof(TMessage).Name)
+                .WithEventType<TMessage>()
                 .WithSource(channelProducerOptions.Source)
                 .WithHeaders(headers)
                 .Build();
@@ -111,6 +112,7 @@ internal sealed class InMemoryChannelProducer<TMessage> : IChannelProducer<TMess
 
         if (channelProducerOptions is not null)
         {
+            // TODO: Register sender in client factory using the message type?
             var sender = clientFactory.GetSender(channelProducerOptions.ChannelName);
 
             scope?.SetTag(DiagnosticProperty.MessagingDestinationName, channelProducerOptions.ChannelName);

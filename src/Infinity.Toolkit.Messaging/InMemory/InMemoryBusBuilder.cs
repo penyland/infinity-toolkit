@@ -13,7 +13,7 @@ public sealed class InMemoryBusBuilder(MessageBusBuilder messageBusBuilder)
 
 public static class InMemoryBusBuilderExtensions
 {
-    public static InMemoryBusBuilder AddChannelConsumer<TMessage>(this InMemoryBusBuilder builder) => builder.AddChannelConsumer<TMessage>(options => { });
+    #region ChannelConsumers
 
     /// <summary>
     /// Adds a channel consumer to the broker.
@@ -22,36 +22,9 @@ public static class InMemoryBusBuilderExtensions
     /// <param name="builder">The <see cref="InMemoryBusBuilder"/>.</param>
     /// <param name="configureChannelOptions">A delegate that can be used to configure the channel options.</param>
     /// <returns>An <see cref="InMemoryBusBuilder"/> that can be used to further configure the InMemoryBroker.</returns>
-    public static InMemoryBusBuilder AddChannelConsumer<TMessage>(this InMemoryBusBuilder builder, Action<InMemoryChannelConsumerOptions> configureChannelOptions)
+    public static InMemoryBusBuilder AddChannelConsumer<TMessage>(this InMemoryBusBuilder builder, Action<InMemoryChannelConsumerOptions>? configureChannelOptions = default)
     {
-        builder.Services.AddOptions<InMemoryChannelConsumerOptions>(typeof(TMessage).AssemblyQualifiedName)
-            .Configure(options =>
-            {
-                options.EventType = typeof(TMessage);
-                options.ChannelName = typeof(TMessage).Name;
-                options.ChannelType = ChannelType.Topic;
-                options.SubscriptionName = typeof(TMessage).Name;
-                configureChannelOptions(options);
-            })
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        builder.Services.AddOptions<InMemoryBusOptions>()
-            .Configure(options =>
-            {
-                options.ChannelConsumerRegistry.Add(typeof(TMessage).AssemblyQualifiedName ?? typeof(TMessage).Name, new ChannelConsumerRegistration
-                {
-                    BrokerName = builder.BrokerName,
-                    EventType = typeof(TMessage),
-                    Key = typeof(TMessage).AssemblyQualifiedName ?? typeof(TMessage).Name
-                });
-            })
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        builder.Services.ConfigureOptions<ConfigureInMemoryBusChannelOptions>();
-
-        return builder;
+        return builder.ConfigureChannelConsumer(typeof(TMessage).AssemblyQualifiedName ?? typeof(TMessage).Name, typeof(TMessage), configureChannelOptions);
     }
 
     /// <summary>
@@ -59,28 +32,47 @@ public static class InMemoryBusBuilderExtensions
     /// Only one producer per key is allowed.
     /// </summary>
     /// <param name="builder">The <see cref="InMemoryBusBuilder"/>.</param>
-    /// <param name="key">The key to identify the channel consumer with.</param>
+    /// <param name="serviceKey">The key to identify the channel consumer with.</param>
     /// <param name="configureChannelOptions">A delegate that can be used to configure the channel options.</param>
     /// <returns>An <see cref="InMemoryBusBuilder"/> that can be used to further configure the InMemoryBroker.</returns>
-    public static InMemoryBusBuilder AddChannelConsumer(this InMemoryBusBuilder builder, Action<InMemoryChannelConsumerOptions> configureChannelOptions, string key)
+    public static InMemoryBusBuilder AddKeyedChannelConsumer(this InMemoryBusBuilder builder, string serviceKey, Action<InMemoryChannelConsumerOptions>? configureChannelOptions)
     {
-        builder.Services.AddOptions<InMemoryChannelConsumerOptions>(key)
+        return builder.ConfigureChannelConsumer(serviceKey, configureChannelOptions: configureChannelOptions);
+    }
+
+    public static InMemoryBusBuilder AddKeyedChannelConsumer<TMessage>(this InMemoryBusBuilder builder, string serviceKey, Action<InMemoryChannelConsumerOptions>? configureChannelOptions = default)
+    {
+        return builder.ConfigureChannelConsumer(serviceKey, typeof(TMessage), configureChannelOptions);
+    }
+
+    private static InMemoryBusBuilder ConfigureChannelConsumer(this InMemoryBusBuilder builder, string serviceKey, Type? type = default, Action<InMemoryChannelConsumerOptions>? configureChannelOptions = default)
+    {
+        builder.Services.AddOptions<InMemoryBusOptions>()
             .Configure(options =>
             {
-                options.RequireCloudEventsTypeProperty = false;
-                configureChannelOptions(options);
+                options.ChannelConsumerRegistry.Add(serviceKey, new ChannelConsumerRegistration
+                {
+                    BrokerName = builder.BrokerName,
+                    EventType = type,
+                    Key = serviceKey
+                });
             })
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        builder.Services.AddOptions<InMemoryBusOptions>()
+        builder.Services.AddOptions<InMemoryChannelConsumerOptions>(serviceKey)
             .Configure(options =>
-            {
-                options.ChannelConsumerRegistry.Add(key, new ChannelConsumerRegistration
+        {
+                options.ChannelName = serviceKey;
+                options.ChannelType = ChannelType.Topic;
+                options.SubscriptionName = $"{serviceKey}subscription";
+
+                if (type is not null)
                 {
-                    BrokerName = builder.BrokerName,
-                    Key = key
-                });
+                    options.EventType = type;
+                }
+
+                configureChannelOptions?.Invoke(options);
             })
             .ValidateDataAnnotations()
             .ValidateOnStart();
@@ -88,89 +80,6 @@ public static class InMemoryBusBuilderExtensions
         builder.Services.ConfigureOptions<ConfigureInMemoryBusChannelOptions>();
 
         return builder;
-    }
-
-    /// <summary>
-    /// Adds a keyed channel producer to the InMemoryBroker.
-    /// </summary>
-    /// <param name="builder">The <see cref="InMemoryBusBuilder"/>.</param>
-    /// <param name="serviceKey">The key to identify the channel producer.</param>
-    /// <param name="configureChannelOptions">A delegate that can be used to configure the channel options.</param>
-    /// <returns>An <see cref="InMemoryBusBuilder"/> that can be used to further configure the InMemoryBroker.</returns>
-    public static InMemoryBusBuilder AddChannelProducer(this InMemoryBusBuilder builder, string serviceKey, Action<InMemoryChannelProducerOptions> configureChannelOptions)
-    {
-        ArgumentNullException.ThrowIfNull(serviceKey, nameof(serviceKey));
-        builder.ConfigureChannelProducerOptions(serviceKey, configureChannelOptions);
-        builder.Services.AddKeyedTransient<IChannelProducer, InMemoryChannelProducer>(serviceKey);
-        return builder;
-    }
-
-    /// <summary>
-    /// Adds a transient default channel producer that can produce messages of the type <typeparamref name="TEventType"/> to the InMemoryBroker.
-    /// The channel producer is configured to send messages to a topic channel with the same name as the type of the message.
-    /// </summary>
-    /// <typeparam name="TEventType">The type of the message.</typeparam>
-    /// <param name="builder">The <see cref="InMemoryBusBuilder"/>.</param>
-    /// <returns>An <see cref="InMemoryBusBuilder"/> that can be used to further configure the InMemoryBroker.</returns>
-    public static InMemoryBusBuilder AddChannelProducer<TEventType>(this InMemoryBusBuilder builder)
-        where TEventType : class
-    {
-        builder.ConfigureChannelProducerOptions(typeof(TEventType), options =>
-        {
-            options.ChannelName = typeof(TEventType).Name;
-        });
-
-        builder.Services.AddTransient<IChannelProducer<TEventType>, InMemoryChannelProducer<TEventType>>();
-        return builder;
-    }
-
-    /// <summary>
-    /// Adds a transient default channel producer that can produce messages of the type <typeparamref name="TEventType"/> to the InMemoryBroker.
-    /// </summary>
-    /// <typeparam name="TEventType">The type of the message.</typeparam>
-    /// <param name="builder">The <see cref="InMemoryBusBuilder"/>.</param>
-    /// <param name="configureChannelOptions">A delegate that can be used to configure the channel options.</param>
-    /// <returns>An <see cref="InMemoryBusBuilder"/> that can be used to further configure the InMemoryBroker.</returns>
-    public static InMemoryBusBuilder AddChannelProducer<TEventType>(this InMemoryBusBuilder builder, Action<InMemoryChannelProducerOptions> configureChannelOptions)
-        where TEventType : class
-    {
-        builder.ConfigureChannelProducerOptions(typeof(TEventType), configureChannelOptions);
-        builder.Services.AddTransient<IChannelProducer<TEventType>, InMemoryChannelProducer<TEventType>>();
-        return builder;
-    }
-
-    /// <summary>
-    /// Adds a transient channel producer of the type <typeparamref name="TImplementation"/> that can produce messages of the type <typeparamref name="TEventType"/> to the InMemoryBroker.
-    /// </summary>
-    /// <typeparam name="TEventType">The type of the event.</typeparam>
-    /// <typeparam name="TImplementation">A type that implements <see cref="IChannelProducer{TEventType}"/>.</typeparam>
-    /// <param name="builder">The <see cref="InMemoryBusBuilder"/>.</param>
-    /// <param name="configureChannelOptions">A delegate that can be used to configure the channel options.</param>
-    /// <returns>An <see cref="InMemoryBusBuilder"/> that can be used to further configure the InMemoryBroker.</returns>
-    public static InMemoryBusBuilder AddChannelProducer<TEventType, TImplementation>(this InMemoryBusBuilder builder, Action<InMemoryChannelProducerOptions> configureChannelOptions)
-        where TEventType : class
-        where TImplementation : class
-    {
-        builder.Services.AddTransient<TImplementation>();
-        return builder.AddChannelProducer<TEventType>(configureChannelOptions);
-    }
-
-    /// <summary>
-    /// Adds a transient channel producer of the type <typeparamref name="TService"/> with an implementation type <typeparamref name="TImplementation"/> that can produce messages of the type <typeparamref name="TEventType"/> to the InMemoryBroker.
-    /// </summary>
-    /// <typeparam name="TEventType">The type of the event.</typeparam>
-    /// <typeparam name="TService">The type of the service to add.</typeparam>
-    /// <typeparam name="TImplementation">The type of the implementation to use.</typeparam>
-    /// <param name="builder">The <see cref="InMemoryBusBuilder"/>.</param>
-    /// <param name="configureChannelOptions">A delegate that can be used to configure the channel options.</param>
-    /// <returns>An <see cref="InMemoryBusBuilder"/> that can be used to further configure the InMemoryBroker.</returns>
-    public static InMemoryBusBuilder AddChannelProducer<TEventType, TService, TImplementation>(this InMemoryBusBuilder builder, Action<InMemoryChannelProducerOptions> configureChannelOptions)
-        where TEventType : class
-        where TService : class
-        where TImplementation : class, TService
-    {
-        builder.Services.AddTransient<TService, TImplementation>();
-        return builder.AddChannelProducer<TEventType>(configureChannelOptions);
     }
 
     /// <summary>
@@ -193,6 +102,112 @@ public static class InMemoryBusBuilderExtensions
         builder.Services.AddTransient<IDeferredChannelConsumer<TEventType>, InMemoryDeferredChannelConsumer<TEventType>>();
         return builder;
     }
+    #endregion
+
+
+    #region ChannelProducers
+
+    /// <summary>
+    /// Adds a default channel producer to the in-memory bus builder.
+    /// </summary>
+    /// <param name="builder">Used to configure the in-memory bus with a new channel producer.</param>
+    /// <param name="configureChannelOptions">Allows customization of options for the channel producer being added.</param>
+    /// <returns>Returns the updated in-memory bus builder with the new channel producer.</returns>
+    public static InMemoryBusBuilder AddDefaultChannelProducer(this InMemoryBusBuilder builder, Action<InMemoryChannelProducerOptions>? configureChannelOptions = null)
+    {
+        return builder.AddKeyedChannelProducer("default", configureChannelOptions);
+    }
+
+    /// <summary>
+    /// Adds a transient default channel producer that can produce messages of the type <typeparamref name="TMessage"/> to the InMemoryBroker.
+    /// </summary>
+    /// <typeparam name="TMessage">The type of the message.</typeparam>
+    /// <param name="builder">The <see cref="InMemoryBusBuilder"/>.</param>
+    /// <param name="configureChannelOptions">A delegate that can be used to configure the channel options.</param>
+    /// <returns>An <see cref="InMemoryBusBuilder"/> that can be used to further configure the InMemoryBroker.</returns>
+    public static InMemoryBusBuilder AddChannelProducer<TMessage>(this InMemoryBusBuilder builder, Action<InMemoryChannelProducerOptions>? configureChannelOptions = null)
+        where TMessage : class
+    {
+        builder.ConfigureChannelProducerOptions<TMessage>(typeof(TMessage).AssemblyQualifiedName ?? typeof(TMessage).Name, options =>
+        {
+            options.ChannelName = typeof(TMessage).Name;
+            configureChannelOptions?.Invoke(options);
+        });
+
+        builder.Services.AddTransient<IChannelProducer<TMessage>, InMemoryChannelProducer<TMessage>>();
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds a keyed channel producer to the InMemoryBroker.
+    /// </summary>
+    /// <param name="builder">The <see cref="InMemoryBusBuilder"/>.</param>
+    /// <param name="serviceKey">The key to identify the channel producer.</param>
+    /// <param name="configureChannelProducerOptions">A delegate that can be used to configure the channel options.</param>
+    /// <returns>An <see cref="InMemoryBusBuilder"/> that can be used to further configure the InMemoryBroker.</returns>
+    public static InMemoryBusBuilder AddKeyedChannelProducer(this InMemoryBusBuilder builder, string serviceKey, Action<InMemoryChannelProducerOptions>? configureChannelProducerOptions = default)
+    {
+        ArgumentNullException.ThrowIfNull(serviceKey, nameof(serviceKey));
+        builder.ConfigureKeyedChannelProducerOptions(serviceKey, configureChannelProducerOptions: configureChannelProducerOptions);
+        builder.Services.AddKeyedTransient<IChannelProducer, InMemoryChannelProducer>(serviceKey);
+        return builder;
+    }
+
+    public static InMemoryBusBuilder AddKeyedChannelProducer<TMessage>(this InMemoryBusBuilder builder, string serviceKey, Action<InMemoryChannelProducerOptions>? configureChannelProducerOptions = default)
+        where TMessage : class
+    {
+        ArgumentNullException.ThrowIfNull(serviceKey, nameof(serviceKey));
+        builder.ConfigureChannelProducerOptions<TMessage>(serviceKey, configureChannelProducerOptions: configureChannelProducerOptions);
+        builder.Services.AddKeyedTransient<IChannelProducer<TMessage>, InMemoryChannelProducer<TMessage>>(serviceKey);
+        return builder;
+    }
+
+    private static InMemoryBusBuilder ConfigureChannelProducerOptions<TMessage>(this InMemoryBusBuilder builder, string serviceKey, Action<InMemoryChannelProducerOptions>? configureChannelProducerOptions)
+        where TMessage : class
+    {
+        return builder.ConfigureKeyedChannelProducerOptions(serviceKey, typeof(TMessage), configureChannelProducerOptions);
+    }
+
+    private static InMemoryBusBuilder ConfigureKeyedChannelProducerOptions(this InMemoryBusBuilder builder, string serviceKey, Type? type = default, Action<InMemoryChannelProducerOptions>? configureChannelProducerOptions = default)
+    {
+        builder.Services.AddOptions<InMemoryBusOptions>()
+            .Configure(options =>
+            {
+                options.ChannelProducerRegistry.Add(serviceKey, new ChannelProducerRegistration
+                {
+                    BrokerName = builder.BrokerName,
+                    Key = serviceKey,
+                    EventType = type
+                });
+            })
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        builder.Services.AddOptions<InMemoryChannelProducerOptions>(serviceKey)
+            .Configure(options =>
+            {
+                options.ChannelName = serviceKey;
+                options.ChannelType = ChannelType.Topic;
+
+                if (type is not null)
+                {
+                    options.EventType = type;
+                }
+
+                options.ServiceKey = serviceKey;
+                options.Name = $"{serviceKey}ChannelProducer";
+
+                configureChannelProducerOptions?.Invoke(options);
+            })
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        builder.Services.ConfigureOptions<ConfigureInMemoryChannelProducerOptions>();
+
+        return builder;
+    }
+
+    #endregion
 
     /// <summary>
     /// Adds a broker of type <typeparamref name="TBroker"/> with options of type <typeparamref name="TBrokerOptions"/> to the InMemoryBrokerBuilder.
@@ -207,41 +222,6 @@ public static class InMemoryBusBuilderExtensions
         where TBrokerOptions : MessageBusBrokerOptions
     {
         builder.MessageBusBuilder.AddBroker<TBroker, TBrokerOptions>(InMemoryBusDefaults.Name, configureOptions);
-        return builder;
-    }
-
-    private static InMemoryBusBuilder ConfigureChannelProducerOptions(this InMemoryBusBuilder builder, Type eventType, Action<InMemoryChannelProducerOptions> configureChannelProducerOptions)
-    {
-        builder.Services.ConfigureOptions<ConfigureInMemoryChannelProducerOptions>();
-
-        builder.Services.AddOptions<InMemoryChannelProducerOptions>(eventType.AssemblyQualifiedName ?? eventType.Name)
-            .Configure(options =>
-            {
-                options.EventType = eventType;
-                options.Key = eventType.AssemblyQualifiedName ?? eventType.Name;
-                options.Name = $"{eventType.Name}ChannelProducer";
-                configureChannelProducerOptions(options);
-            })
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        return builder;
-    }
-
-    private static InMemoryBusBuilder ConfigureChannelProducerOptions(this InMemoryBusBuilder builder, string serviceKey, Action<InMemoryChannelProducerOptions> configureChannelProducerOptions)
-    {
-        builder.Services.ConfigureOptions<ConfigureInMemoryChannelProducerOptions>();
-
-        builder.Services.AddOptions<InMemoryChannelProducerOptions>(serviceKey)
-            .Configure(options =>
-            {
-                options.Key = serviceKey;
-                options.Name = $"{serviceKey}ChannelProducer";
-                configureChannelProducerOptions(options);
-            })
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
         return builder;
     }
 }

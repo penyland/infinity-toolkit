@@ -52,8 +52,6 @@ internal sealed class InMemoryChannelProcessor : IAsyncDisposable
             releaseSemaphore = true;
             if (ActiveProcessorTask is null)
             {
-                Logger.StartProcessingChannelStart(ChannelName);
-
                 if (ProcessMessageAsync is null)
                 {
                     throw new InvalidOperationException(LogMessages.ProcessMessageAsyncNotSet);
@@ -137,8 +135,6 @@ internal sealed class InMemoryChannelProcessor : IAsyncDisposable
             {
                 processingStartStopSemaphore.Release();
             }
-
-            Logger?.StopProcessingChannelStopped(ChannelName);
         }
     }
 
@@ -167,7 +163,13 @@ internal sealed class InMemoryChannelProcessor : IAsyncDisposable
                 try
                 {
                     var receivedMessage = new InMemoryReceivedMessage(message);
-                    await ProcessMessageAsync!.Invoke(new ProcessMessageEventArgs(receivedMessage, ChannelName, inMemoryChannelReceiver, cancellationToken: cancellationToken));
+                    var task = ProcessMessageAsync?.Invoke(new ProcessMessageEventArgs(receivedMessage, ChannelName, inMemoryChannelReceiver, cancellationToken));
+
+                    if (task is not null && task.IsFaulted)
+                    {
+                        var errorArgs = new ProcessErrorEventArgs(task.Exception, ChannelName);
+                        ProcessErrorAsync?.Invoke(errorArgs);
+                    }
                 }
                 catch (Exception ex)
                 {

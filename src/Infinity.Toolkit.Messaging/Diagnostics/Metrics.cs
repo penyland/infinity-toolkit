@@ -67,7 +67,9 @@ internal sealed class Metrics
         MessagingClientConsumedMessages.Add(delta, tagList);
     }
 
-    public void RecordMessagingClientOperationDuration<TMessage>(double value, string system, string channel) =>
+    public void RecordMessagingClientOperationDuration<TMessage>(double value, string system, string channel) => RecordMessagingClientOperationDuration(value, system, channel, typeof(TMessage).Name);
+
+    public void RecordMessagingClientOperationDuration(double value, string system, string channel, string messageType = "") =>
         MessagingClientOperationDuration.Record(
             value,
             new TagList()
@@ -77,10 +79,10 @@ internal sealed class Metrics
                 { DiagnosticProperty.MessagingDestinationName, channel },
                 { DiagnosticProperty.MessagingOperationName, DiagnosticProperty.OperationConsume },
                 { DiagnosticProperty.MessagingOperationType, DiagnosticProperty.OperationProcess },
-                { DiagnosticProperty.MessageBusMessageType, typeof(TMessage).Name }
+                { DiagnosticProperty.MessageBusMessageType, messageType }
             });
 
-    public void RecordMessageHandlerElapsedTime<TMessage>(double value, string system, string channel, string handler) =>
+    public void RecordMessageHandlerElapsedTime(double value, string system, string channel, string handler, string messageType = "") =>
         MessageHandlerElapsedTime.Record(
             value,
             new TagList()
@@ -90,11 +92,13 @@ internal sealed class Metrics
                 { DiagnosticProperty.MessagingDestinationName, channel },
                 { DiagnosticProperty.MessagingOperationName, DiagnosticProperty.OperationConsume },
                 { DiagnosticProperty.MessagingOperationType, DiagnosticProperty.OperationProcess },
-                { DiagnosticProperty.MessageBusMessageType, typeof(TMessage).Name },
+                { DiagnosticProperty.MessageBusMessageType, messageType },
                 { DiagnosticProperty.MessageBusMessageHandler, handler }
             });
 
-    public void RecordMessagingProcessDuration<TMessage>(double value, string system, string channel) =>
+    public void RecordMessageHandlerElapsedTime<TMessage>(double value, string system, string channel, string handler) => RecordMessageHandlerElapsedTime(value, system, channel, handler, typeof(TMessage).Name);
+
+    public void RecordMessagingProcessDuration(double value, string system, string channel, string messageType = "") =>
         MessagingProcessDuration.Record(
             value,
             new TagList()
@@ -104,11 +108,10 @@ internal sealed class Metrics
                 { DiagnosticProperty.MessagingDestinationName, channel },
                 { DiagnosticProperty.MessagingOperationName, DiagnosticProperty.OperationConsume },
                 { DiagnosticProperty.MessagingOperationType, DiagnosticProperty.OperationProcess },
-                { DiagnosticProperty.MessageBusMessageType, typeof(TMessage).Name }
+                { DiagnosticProperty.MessageBusMessageType, messageType }
             });
 
-    public void RecordMessagePublished<TMessage>(string system, string channel, string? errortype = default) =>
-        RecordMessagePublished(system, channel, typeof(TMessage).Name, errortype);
+    public void RecordMessagingProcessDuration<TMessage>(double value, string system, string channel) => RecordMessagingProcessDuration(value, system, channel, typeof(TMessage).Name);
 
     public void RecordMessagePublished(string system, string channel, string? messageType = default, string? errortype = default)
     {
@@ -133,4 +136,7 @@ internal sealed class Metrics
 
         MessagingClientPublishedMessages.Add(1, tagList);
     }
+
+    public void RecordMessagePublished<TMessage>(string system, string channel, string? errortype = default) => RecordMessagePublished(system, channel, typeof(TMessage).Name, errortype);
+
 }
