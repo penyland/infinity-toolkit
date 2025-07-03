@@ -19,6 +19,7 @@
     <Project Path="src/Infinity.Toolkit.Messaging/Infinity.Toolkit.Messaging.csproj" />
     <Project Path="src/Infinity.Toolkit.OpenApi/Infinity.Toolkit.OpenApi.csproj" />
     <Project Path="src/Infinity.Toolkit.Slack/Infinity.Toolkit.Slack.csproj" />
+    <Project Path="src/Infinity.Toolkit.TestUtils/Infinity.Toolkit.TestUtils.csproj" />
     <Project Path="src/Infinity.Toolkit/Infinity.Toolkit.csproj" />
   </Folder>
   <Folder Name="/tests/">

@@ -1,4 +1,3 @@
-using Infinity.Toolkit.Tests.TestUtils;
 using Microsoft.Extensions.Logging;
 
 namespace Infinity.Toolkit.Tests.Messaging;
