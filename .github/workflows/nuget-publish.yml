@@ -38,10 +38,10 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test
+        run: dotnet test --configuration Release --no-build --verbosity normal
 
       - name: Pack
-        run: dotnet pack --configuration Release --no-build --output ./nupkgs
+        run: dotnet pack --configuration Release --no-build --output ./nupkgs -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
 
       - name: Publish
         uses: actions/upload-artifact@v4
@@ -57,8 +57,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-
       - uses: actions/download-artifact@v4
         with:
           name: nuget-packages
@@ -71,7 +69,5 @@ jobs:
 
       - name: Publish to NuGet
         run: |
-          for f in ./nupkgs/*.nupkg
-          do
-            dotnet nuget push $f --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
-          done
+          dotnet nuget push **/*.nupkg --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push **/*.snupkg --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
