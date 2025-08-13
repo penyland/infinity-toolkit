@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Infinity.Toolkit.Azure</RootNamespace>
     <VersionPrefix>0.1.2</VersionPrefix>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   
   <ItemGroup>
@@ -14,9 +15,9 @@
   
   <ItemGroup>
     <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.4.0" />
-    <PackageReference Include="Azure.Identity" Version="1.14.1" />
-    <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.2.0" />
-    <PackageReference Include="Microsoft.FeatureManagement" Version="4.1.0" />
+    <PackageReference Include="Azure.Identity" Version="1.15.0" />
+    <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.3.0" />
+    <PackageReference Include="Microsoft.FeatureManagement" Version="4.2.1" />
   </ItemGroup>
 
 </Project>

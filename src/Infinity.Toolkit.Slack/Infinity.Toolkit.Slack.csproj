@@ -8,6 +8,7 @@
     <PackageId>Infinity.Toolkit.Slack</PackageId>
     <Description>Useful tools for creating Slack messages using block kit as well as helpers for authenticating and verifying requests from Slack.</Description>
     <PackageTags>Slack;Toolkit;</PackageTags>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   
   <ItemGroup>
