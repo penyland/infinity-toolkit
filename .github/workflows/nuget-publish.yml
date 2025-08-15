@@ -49,7 +49,9 @@ jobs:
           name: nuget-packages
           if-no-files-found: error
           retention-days: 7
-          path: ./nupkgs/*.nupkg
+          path: |
+            ./nupkgs/*.nupkg
+            ./nupkgs/*.snupkg
 
   publish-nuget:
     needs: build-and-test
