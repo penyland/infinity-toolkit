@@ -1,4 +1,6 @@
-﻿namespace Infinity.Toolkit.Experimental;
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace Infinity.Toolkit.Experimental;
 
 public class ErrorResult : Result, Failure
 {
@@ -70,4 +72,15 @@ public class Error(string code, string details)
 
     // Result result = new Error("Failed to update message");
     public static implicit operator Result(Error error) => new ErrorResult(error);
+
+    public static implicit operator ProblemDetails(Error error)
+    {
+        return new ProblemDetails
+        {
+            Title = error.Code,
+            Detail = error.Details,
+            Type = error.Code,
+            Status = 400 // Default to Bad Request
+        };
+    }
 }

@@ -15,6 +15,7 @@
     <Project Path="src/Infinity.Toolkit.EntityFramework/Infinity.Toolkit.EntityFramework.csproj" Id="467bd3bb-ee34-40fb-8fcd-77b30f7840b4" />
     <Project Path="src/Infinity.Toolkit.Experimental/Infinity.Toolkit.Experimental.csproj" />
     <Project Path="src/Infinity.Toolkit.FeatureModules/Infinity.Toolkit.FeatureModules.csproj" />
+    <Project Path="src/Infinity.Toolkit.Handlers/Infinity.Toolkit.Handlers.csproj" Id="72e82e18-4202-4162-ac8a-bdb6ffe97be8" />
     <Project Path="src/Infinity.Toolkit.IntegrationTests/Infinity.Toolkit.IntegrationTests.csproj" Id="9a934310-d8bf-4571-85d2-77474666f95f" />
     <Project Path="src/Infinity.Toolkit.LogFormatter/Infinity.Toolkit.LogFormatter.csproj" />
     <Project Path="src/Infinity.Toolkit.Messaging.AzureServiceBus/Infinity.Toolkit.Messaging.AzureServiceBus.csproj" />
