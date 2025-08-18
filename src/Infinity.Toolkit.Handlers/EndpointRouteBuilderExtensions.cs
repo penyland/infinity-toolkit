@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Infinity.Toolkit.Handlers;
 
-public static class RouteEndpointBuilderExtensions
+public static class EndpointRouteBuilderExtensions
 {
     public static RouteHandlerBuilder MapGetQuery<TRequest, TResponse>(this IEndpointRouteBuilder builder, string path)
         where TRequest : class, IQuery
