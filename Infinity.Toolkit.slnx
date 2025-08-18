@@ -5,6 +5,7 @@
     <Project Path="samples/ConsoleLoggingFormatterSample/ConsoleLoggingFormatterSample.csproj" />
     <Project Path="samples/FeatureModulesSample.Module1/FeatureModulesSample.Module1.csproj" />
     <Project Path="samples/FeatureModulesSample/FeatureModulesSample.csproj" />
+    <Project Path="samples/HandlersSample/HandlersSample.csproj" Id="87a7a8a4-5f14-4015-910e-222d3dd2d712" />
     <Project Path="samples/MediatorSample/MediatorSample.csproj" />
     <Project Path="samples/MessagingSample/MessagingSample.csproj" />
     <Project Path="samples/PipelineSample/PipelineSample.csproj" />
