@@ -1,6 +1,5 @@
-using Infinity.Toolkit.Experimental;
+using Infinity.Toolkit;
 using Infinity.Toolkit.Handlers;
-using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +19,7 @@ builder.Services.Decorate<IRequestHandler<CreateProduct>, LoggingRequestHandler<
 
 // Alternatively, decorate all IRequestHandler<TIn> implementations with a logging handler.
 // This will apply to all handlers that implement IRequestHandler<TIn> so in this example we will get double logging for CreateProductHandler.
-builder.Services.Decorate(typeof(IRequestHandler<>), typeof(LoggingRequestHandler<>)); 
+builder.Services.Decorate(typeof(IRequestHandler<>), typeof(LoggingRequestHandler<>));
 
 // Decorate all IRequestHandler<TIn, TResult> implementations with a logging handler.
 builder.Services.Decorate(typeof(IRequestHandler<,>), typeof(LoggingRequestHandler<,>));
@@ -88,7 +87,7 @@ class CreateProductHandlerDecorator<CreateProduct>(IRequestHandler<CreateProduct
 
 record ProductCreatedQuery(int Id);
 
-class ProductCreatedQueryHandler(InMemoryDatabase inMemoryDatabase, ILogger<ProductCreatedQueryHandler> logger ) : IRequestHandler<ProductCreatedQuery, Product>
+class ProductCreatedQueryHandler(InMemoryDatabase inMemoryDatabase, ILogger<ProductCreatedQueryHandler> logger) : IRequestHandler<ProductCreatedQuery, Product>
 {
     public Task<Result<Product>> HandleAsync(IHandlerContext<ProductCreatedQuery> context, CancellationToken cancellationToken = default)
     {
@@ -175,5 +174,5 @@ class InMemoryDatabase
         return result;
     }
 
-    public Product? Get(int id) => products.TryGetValue(id, out var product) ? product: null;
+    public Product? Get(int id) => products.TryGetValue(id, out var product) ? product : null;
 }
