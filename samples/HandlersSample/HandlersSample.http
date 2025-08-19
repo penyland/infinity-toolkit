@@ -1,0 +1,17 @@
+@HandlersSample_HostAddress = https://localhost:7229
+
+GET {{HandlersSample_HostAddress}}/product/1
+Accept: application/json
+
+###
+
+POST {{HandlersSample_HostAddress}}/product
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Surface Laptop 7"
+}
+
+
+###
