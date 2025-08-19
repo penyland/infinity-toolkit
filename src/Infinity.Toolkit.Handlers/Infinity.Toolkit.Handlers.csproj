@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Infinity.Toolkit.Experimental\Infinity.Toolkit.Experimental.csproj" />
+    <ProjectReference Include="..\Infinity.Toolkit\Infinity.Toolkit.csproj" />
   </ItemGroup>
 
 </Project>

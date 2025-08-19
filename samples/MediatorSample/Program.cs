@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using Infinity.Toolkit;
 using Infinity.Toolkit.Experimental;
 using Infinity.Toolkit.Experimental.Mediator;
 using MediatorSample;
@@ -66,3 +67,16 @@ public class LoggingMediator(IMediator inner) : IMediator
         return result;
     }
 }
+
+
+
+//builder.Services.AddScoped<IRequestHandler<CreateProduct>, CreateProductHandler>();
+//builder.Services.Decorate<IRequestHandler<CreateProduct>, CreateProductHandlerDecorator<CreateProduct>>();
+
+//builder.Services.Scan(scan => scan.FromAssembliesOf(typeof(Product))
+//    .AddClasses(classes => classes.AssignableTo(typeof(IRequestHandler<>)), false)
+//        .AsImplementedInterfaces()
+//        .WithScopedLifetime()
+//    .AddClasses(classes => classes.AssignableTo(typeof(IRequestHandler<,>)), false)
+//        .AsImplementedInterfaces()
+//        .WithScopedLifetime());
