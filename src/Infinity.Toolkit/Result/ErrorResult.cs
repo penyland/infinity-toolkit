@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Infinity.Toolkit.Experimental;
+namespace Infinity.Toolkit;
 
 public class ErrorResult : Result, Failure
 {
@@ -57,6 +57,17 @@ public class ErrorResult<T> : Result<T>, Failure
     public string Message { get; set; }
 
     public IReadOnlyCollection<Error> Errors { get; }
+
+    //public static implicit operator ProblemDetails(ErrorResult<T> errorResult)
+    //{
+    //    return new ProblemDetails
+    //    {
+    //        Title = errorResult.Error.Code,
+    //        Detail = errorResult.Error.Details,
+    //        Type = errorResult.Error.Code,
+    //        Status = 400 // Default to Bad Request
+    //    };
+    //}
 }
 
 public class Error(string code, string details)

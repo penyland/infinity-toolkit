@@ -1,4 +1,4 @@
-﻿namespace Infinity.Toolkit.Experimental;
+﻿namespace Infinity.Toolkit;
 
 public abstract class Result
 {
