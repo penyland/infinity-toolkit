@@ -33,7 +33,7 @@ public static class ServiceCollectionExtensions
         where TRequestHandler : class, IRequestHandler<TRequest, TResult>
     {
         services.AddScoped<IRequestHandler<TRequest, TResult>, TRequestHandler>();
-        return new RequestHandlerBuilder(services, typeof(IRequestHandler<TRequest>), typeof(TRequestHandler));
+        return new RequestHandlerBuilder(services, typeof(IRequestHandler<TRequest, TResult>), typeof(TRequestHandler));
     }
 
     /// <summary>
@@ -69,11 +69,11 @@ public static class ServiceCollectionExtensions
 /// </summary>
 /// <param name="services"></param>
 /// <param name="handlerType"></param>
-public sealed class RequestHandlerBuilder(IServiceCollection services, Type requestType, Type handlerType)
+public sealed class RequestHandlerBuilder(IServiceCollection services, Type serviceType, Type handlerType)
 {
     internal IServiceCollection Services { get; } = services;
 
-    internal Type RequestType { get; } = requestType;
+    internal Type ServiceType { get; } = serviceType;
 
     internal Type HandlerType { get; } = handlerType;
 }
@@ -88,7 +88,7 @@ public static class RequestHandlerBuilderExtensions
     public static RequestHandlerBuilder Decorate<TDecoratedRequestHandler>(this RequestHandlerBuilder builder)
         where TDecoratedRequestHandler : class
     {
-        builder.Services.Decorate(builder.RequestType, typeof(TDecoratedRequestHandler));
+        builder.Services.Decorate(builder.ServiceType, typeof(TDecoratedRequestHandler));
         return builder;
     }
 }

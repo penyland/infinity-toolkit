@@ -16,7 +16,7 @@ public static class EndpointRouteBuilderExtensions
             var result = await requestHandler.HandleAsync(
                 new HandlerContext<TRequest>
                 {
-                    Body = new BinaryData(request),
+                    Body = BinaryData.FromObjectAsJson(request),
                     Request = request
                 });
 

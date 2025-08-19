@@ -37,7 +37,7 @@ app.MapPost("/product", async (CreateProduct command, IRequestHandler<CreateProd
     var result = await requestHandler.HandleAsync(
         new HandlerContext<CreateProduct>
         {
-            Body = new BinaryData(command),
+            Body = BinaryData.FromObjectAsJson(command),
             Request = command
         });
 
