@@ -9,7 +9,7 @@ namespace Infinity.Toolkit.Handlers;
 public static class EndpointRouteBuilderExtensions
 {
     public static RouteHandlerBuilder MapGetQuery<TRequest, TResponse>(this IEndpointRouteBuilder builder, string path)
-        where TRequest : class, IQuery
+        where TRequest : class
     {
         return builder.MapGet(path, async ([AsParameters] TRequest request, [FromServices] IRequestHandler<TRequest, TResponse> requestHandler) =>
         {

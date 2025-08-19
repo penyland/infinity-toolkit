@@ -8,32 +8,32 @@ public static class ServiceCollectionExtensions
     /// Adds a request handler to the service collection.
     /// </summary>
     /// <typeparam name="TRequest">The request type.</typeparam>
-    /// <typeparam name="TRequestHandler">The mediator handler type.</typeparam>
+    /// <typeparam name="TRequestHandler">The request handler type.</typeparam>
     /// <param name="services">The service collection.</param>
     /// <returns>A <see cref="RequestHandlerBuilder"/> instance used to configure the request handler.</returns>
-    public static IServiceCollection AddRequestHandler<TRequest, TRequestHandler>(this IServiceCollection services)
+    public static RequestHandlerBuilder AddRequestHandler<TRequest, TRequestHandler>(this IServiceCollection services)
         where TRequest : class
         where TRequestHandler : class, IRequestHandler<TRequest>
     {
-        services.AddTransient<IRequestHandler<TRequest>, TRequestHandler>();
-        return services;
+        services.AddScoped<IRequestHandler<TRequest>, TRequestHandler>();      
+        return new RequestHandlerBuilder(services, typeof(IRequestHandler<TRequest>), typeof(TRequestHandler));
     }
 
     /// <summary>
-    /// Adds a mediator handler to the service collection that returns a result.
+    /// Adds a request handler to the service collection that returns a result.
     /// </summary>
     /// <typeparam name="TRequest">The request type.</typeparam>
     /// <typeparam name="TResult">The result type.</typeparam>
-    /// <typeparam name="TRequestHandler">The mediator handler type.</typeparam>
+    /// <typeparam name="TRequestHandler">The request handler type.</typeparam>
     /// <param name="services">The service collection.</param>
-    /// <returns>A <see cref="RequestHandlerBuilder"/> instance used to configure the mediator handler.</returns>
-    public static IServiceCollection AddRequestHandler<TRequest, TResult, TRequestHandler>(this IServiceCollection services)
+    /// <returns>A <see cref="RequestHandlerBuilder"/> instance used to configure the request handler.</returns>
+    public static RequestHandlerBuilder AddRequestHandler<TRequest, TResult, TRequestHandler>(this IServiceCollection services)
         where TRequest : class
         where TResult : class
         where TRequestHandler : class, IRequestHandler<TRequest, TResult>
     {
-        services.AddTransient<IRequestHandler<TRequest, TResult>, TRequestHandler>();
-        return services;
+        services.AddScoped<IRequestHandler<TRequest, TResult>, TRequestHandler>();
+        return new RequestHandlerBuilder(services, typeof(IRequestHandler<TRequest>), typeof(TRequestHandler));
     }
 
     /// <summary>
@@ -45,8 +45,7 @@ public static class ServiceCollectionExtensions
         where TRequest : class
         where TDecorator : class, IRequestHandler<TRequest>
     {
-        services.Decorate<IRequestHandler<TRequest>, TDecorator>();
-        return services;
+        return services.Decorate<IRequestHandler<TRequest>, TDecorator>();
     }
 
     /// <summary>
@@ -61,8 +60,7 @@ public static class ServiceCollectionExtensions
         where TResult : class
         where TDecorator : class, IRequestHandler<TRequest, TResult>
     {
-        services.Decorate<IRequestHandler<TRequest, TResult>, TDecorator>();
-        return services;
+        return services.Decorate<IRequestHandler<TRequest, TResult>, TDecorator>();
     }
 }
 
@@ -71,9 +69,11 @@ public static class ServiceCollectionExtensions
 /// </summary>
 /// <param name="services"></param>
 /// <param name="handlerType"></param>
-public sealed class RequestHandlerBuilder(IServiceCollection services, Type handlerType)
+public sealed class RequestHandlerBuilder(IServiceCollection services, Type requestType, Type handlerType)
 {
     internal IServiceCollection Services { get; } = services;
+
+    internal Type RequestType { get; } = requestType;
 
     internal Type HandlerType { get; } = handlerType;
 }
@@ -81,21 +81,14 @@ public sealed class RequestHandlerBuilder(IServiceCollection services, Type hand
 public static class RequestHandlerBuilderExtensions
 {
     /// <summary>
-    /// Decorates all registered instances of <see cref="IRequestHandler{TRequest}"/> using the specified type <typeparamref name="TDecorator"/>.
+    /// Decorates all registered instances of <see cref="IRequestHandler{TRequest}"/> using the specified type <typeparamref name="TDecoratedRequestHandler"/>.
     /// </summary>
-    /// <typeparam name="TDecorator">The decorator type.</typeparam>
-    /// <returns>A <see cref="RequestHandlerBuilder"/> instance used to configure the mediator handler.</returns>
-    public static RequestHandlerBuilder Decorate<TDecorator>(this RequestHandlerBuilder builder)
-        where TDecorator : class => builder.Decorate(typeof(TDecorator));
-
-    /// <summary>
-    /// Decorates all registered instances of <see cref="IRequestHandler{TRequest}"/> using the specified type <paramref name="decoratorType"/>.
-    /// </summary>
-    /// <param name="decoratorType">The decorator type.</param>
-    /// <returns>A <see cref="RequestHandlerBuilder"/> instance used to configure the mediator handler.</returns>
-    public static RequestHandlerBuilder Decorate(this RequestHandlerBuilder builder, Type decoratorType)
+    /// <typeparam name="TDecoratedRequestHandler">The decorator type.</typeparam>
+    /// <returns>A <see cref="RequestHandlerBuilder"/> instance used to configure the request handler.</returns>
+    public static RequestHandlerBuilder Decorate<TDecoratedRequestHandler>(this RequestHandlerBuilder builder)
+        where TDecoratedRequestHandler : class
     {
-        builder.Services.Decorate(builder.HandlerType, decoratorType);
+        builder.Services.Decorate(builder.RequestType, typeof(TDecoratedRequestHandler));
         return builder;
     }
 }
