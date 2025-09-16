@@ -9,10 +9,12 @@ public static class WebApplicationExtensions
     public static FeatureModuleBuilder MapFeatureModules(this WebApplication app)
     {
         var builder = new FeatureModuleBuilder(app);
-        var featureModules = app.Services.GetRequiredService<IEnumerable<IFeatureModule>>();
+
+        var logger = app.Services.GetService<ILoggerFactory>()?.CreateLogger("Infinity.Toolkit.FeatureModules");
+        var featureModules = app.Services.GetRequiredService<IEnumerable<IFeatureModuleBase>>();
         if (featureModules == null || !featureModules.Any())
         {
-            app.Logger.LogWarning(new EventId(4000, "NoModulesRegistered"), "No feature modules registered.");
+            logger?.LogWarning(new EventId(4000, "NoModulesRegistered"), "No feature modules registered.");
             return builder;
         }
 
@@ -22,7 +24,7 @@ public static class WebApplicationExtensions
         // Map all endpoints provided by the feature modules, if any.
         foreach (var module in webFeatureModules)
         {
-            app.Logger.LogDebug(new EventId(1004, "MappingEndpoints"), "Mapping endpoints for {module}", module.GetType().FullName ?? nameof(module));
+            logger?.LogDebug(new EventId(1004, "MappingEndpoints"), "Mapping endpoints for {module}", module.GetType().FullName ?? nameof(module));
             module.MapEndpoints(app);
         }
 
