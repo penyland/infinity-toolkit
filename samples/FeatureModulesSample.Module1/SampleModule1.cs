@@ -24,9 +24,9 @@ public class SampleModule1 : WebFeatureModule
             .WithDisplayName("Get system info");
     }
 
-    public override ModuleContext RegisterModule(ModuleContext moduleContext)
+    public override void RegisterModule(WebApplicationBuilder builder)
     {
-        return moduleContext;
+        base.RegisterModule(builder);
     }
 
     private static JsonHttpResult<Response> GetSystemInfo(IWebHostEnvironment webHostEnvironment)
