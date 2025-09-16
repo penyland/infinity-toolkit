@@ -1,18 +1,10 @@
 ﻿using Infinity.Toolkit.LogFormatter;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.DependencyModel;
 
 namespace Infinity.Toolkit.FeatureModules;
 
 public static class ServiceCollectionExtensions
 {
-    private static readonly string? CurrentAssemblyName;
-
-    static ServiceCollectionExtensions()
-    {
-        CurrentAssemblyName = typeof(ServiceCollectionExtensions).Assembly.GetName().Name;
-    }
-
     /// <summary>
     /// Add all feature modules that are found in all assemblies.
     /// </summary>
@@ -50,7 +42,7 @@ public static class ServiceCollectionExtensions
         {
             logger?.LogDebug(new EventId(1000, "Scanning"), "Scanning assemblies for feature modules...");
 
-            var discoveredModules = DiscoverModules(options, logger);
+            var discoveredModules = ModuleUtilities.DiscoverModules(options, logger);
             RegisterModules(discoveredModules, services, configuration, hostEnvironment, logger);
 
             logger?.LogDebug(new EventId(1003, "ScanningComplete"), "Registering feature modules completed.");
@@ -62,47 +54,6 @@ public static class ServiceCollectionExtensions
             logger.LogError(new EventId(5000, "ScanningFailed"), "Failed to register feature modules. {ex}", ex.Message);
             return services;
         }
-    }
-
-    /// <summary>
-    /// Discover all modules that references IFeatureModule.
-    /// </summary>
-    /// <returns>A list of all feature modules in the solution.</returns>
-    private static IEnumerable<TypeInfo> DiscoverModules(FeatureModuleOptions options, ILogger? logger)
-    {
-        var assemblies = new HashSet<Assembly>
-        {
-            typeof(Assembly).Assembly,
-        };
-
-        var entryAssembly = Assembly.GetEntryAssembly();
-        var context = DependencyContext.Load(entryAssembly!)!;
-
-        foreach (var assembly in context.RuntimeLibraries)
-        {
-            if (IsReferencingCurrentAssembly(assembly))
-            {
-                foreach (var assemblyName in assembly.GetDefaultAssemblyNames(context))
-                {
-                    assemblies.Add(Assembly.Load(assemblyName));
-                }
-            }
-        }
-
-        var typesAssignableTo = assemblies
-            .SelectMany(x =>
-                x.DefinedTypes
-                .Where(type => type is { IsAbstract: false, IsInterface: false } &&
-                                      type.IsAssignableTo(typeof(IFeatureModule)) &&
-                                      !options.ExcludedModules.Any(t => t == type.FullName)));
-
-        logger?.LogInformation(new EventId(1001, "ModulesFound"), "Found {moduleCount} feature modules.", typesAssignableTo.Count());
-        return typesAssignableTo;
-    }
-
-    private static bool IsReferencingCurrentAssembly(Library library)
-    {
-        return library.Dependencies.Any(dependency => dependency.Name.Equals(CurrentAssemblyName));
     }
 
     /// <summary>

@@ -1,4 +1,7 @@
-﻿namespace Infinity.Toolkit.FeatureModules;
+﻿using Infinity.Toolkit.LogFormatter;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
+namespace Infinity.Toolkit.FeatureModules;
 
 public static class WebApplicationBuilderExtensions
 {
@@ -42,7 +45,80 @@ public static class WebApplicationBuilderExtensions
 
     internal static WebApplicationBuilder RegisterFeatureModules(this WebApplicationBuilder builder, FeatureModuleOptions options, ILoggerFactory? loggerFactory)
     {
-        builder.Services.RegisterFeatureModules(builder.Configuration, builder.Environment, options, loggerFactory);
+        loggerFactory ??= LoggerFactory.Create(loggingBuilder =>
+        {
+            loggingBuilder
+                .AddConfiguration(builder.Configuration.GetSection("Logging"))
+#if DEBUG
+                .AddDebug()
+#endif
+                .AddConsole(options => options.FormatterName = "CodeThemeConsoleFormatter").AddConsoleFormatter<CodeThemeConsoleFormatter, CustomOptions>();
+        });
+        var logger = loggerFactory.CreateLogger("Infinity.Toolkit.FeatureModules");
+
+        try
+        {
+            logger?.LogDebug(new EventId(1000, "Scanning"), "Scanning assemblies for feature modules...");
+
+            var discoveredModules = ModuleUtilities.DiscoverModules(options, logger);
+            RegisterModules(discoveredModules, builder, logger);
+
+            logger?.LogDebug(new EventId(1003, "ScanningComplete"), "Registering feature modules completed.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(new EventId(5000, "ScanningFailed"), "Failed to register feature modules. {ex}", ex.Message);
+        }
+
         return builder;
     }
+
+    /// <summary>
+    /// Register all classes implementing IFeatureModule while scanning the project to IServiceCollection.
+    /// </summary>
+    /// <param name="discoveredModules">List of found feature modules.</param>
+    /// <param name="builder">The <see cref="WebApplicationBuilder"/>.</param>
+    /// <param name="logger">The <see cref="ILogger"/>.</param>
+    /// <exception cref="InvalidOperationException">Thrown if no modules are found while scanning.</exception>
+    private static void RegisterModules(IEnumerable<TypeInfo> discoveredModules, WebApplicationBuilder builder, ILogger? logger)
+    {
+        ArgumentNullException.ThrowIfNull(discoveredModules, nameof(discoveredModules));
+        ArgumentNullException.ThrowIfNull(builder, nameof(builder));
+
+        Dictionary<Type, IFeatureModule> registeredFeatureModules = [];
+
+        var serviceDescriptors = discoveredModules
+            .Select(type => ServiceDescriptor.Transient(typeof(IFeatureModule), type));
+        builder.Services.TryAddEnumerable(serviceDescriptors);
+
+        var modules = discoveredModules
+            .Select(Activator.CreateInstance)
+            .Cast<IFeatureModule>();
+
+        foreach (var module in modules)
+        {
+            logger?.LogDebug(new EventId(1002, "RegisteringModules"), "Registering feature module: {module} - v{version}", module.GetType().FullName, module.ModuleInfo?.Version);
+            registeredFeatureModules.Add(module.GetType(), module);
+
+            if (module is IWebFeatureModule webModule)
+            {
+                webModule.RegisterModule(builder);
+            }
+            else
+            {
+                module.RegisterModule(new()
+                {
+                    Configuration = builder.Configuration,
+                    Environment = builder.Environment,
+                    Services = builder.Services
+                });
+            }
+        }
+
+        builder.Services.Configure<FeatureModuleOptions>(options =>
+        {
+            options.AdditionalAssemblies.AddRange([.. registeredFeatureModules.Keys.Select(x => x.Assembly)]);
+        });
+    }
+
 }
