@@ -24,11 +24,6 @@ public class SampleModule1 : WebFeatureModule
             .WithDisplayName("Get system info");
     }
 
-    public override void RegisterModule(WebApplicationBuilder builder)
-    {
-        base.RegisterModule(builder);
-    }
-
     private static JsonHttpResult<Response> GetSystemInfo(IWebHostEnvironment webHostEnvironment)
     {
         var processorArchitecture = RuntimeInformation.ProcessArchitecture switch

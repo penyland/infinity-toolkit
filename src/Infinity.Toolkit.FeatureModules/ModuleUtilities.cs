@@ -34,7 +34,7 @@ internal static class ModuleUtilities
             .SelectMany(x =>
                 x.DefinedTypes
                 .Where(type => type is { IsAbstract: false, IsInterface: false } &&
-                                      type.IsAssignableTo(typeof(IFeatureModule)) &&
+                                      type.IsAssignableTo(typeof(IFeatureModuleBase)) &&
                                       !options.ExcludedModules.Any(t => t == type.FullName)));
 
         logger?.LogInformation(new EventId(1001, "ModulesFound"), "Found {moduleCount} feature modules.", typesAssignableTo.Count());

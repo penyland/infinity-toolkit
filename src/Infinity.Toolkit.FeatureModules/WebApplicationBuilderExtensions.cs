@@ -85,33 +85,37 @@ public static class WebApplicationBuilderExtensions
         ArgumentNullException.ThrowIfNull(discoveredModules, nameof(discoveredModules));
         ArgumentNullException.ThrowIfNull(builder, nameof(builder));
 
-        Dictionary<Type, IFeatureModule> registeredFeatureModules = [];
+        Dictionary<Type, IFeatureModuleBase> registeredFeatureModules = [];
 
         var serviceDescriptors = discoveredModules
-            .Select(type => ServiceDescriptor.Transient(typeof(IFeatureModule), type));
+            .Select(type => ServiceDescriptor.Transient(typeof(IFeatureModuleBase), type));
         builder.Services.TryAddEnumerable(serviceDescriptors);
 
         var modules = discoveredModules
             .Select(Activator.CreateInstance)
-            .Cast<IFeatureModule>();
+            .Cast<IFeatureModuleBase>();
 
         foreach (var module in modules)
         {
-            logger?.LogDebug(new EventId(1002, "RegisteringModules"), "Registering feature module: {module} - v{version}", module.GetType().FullName, module.ModuleInfo?.Version);
+            logger?.LogDebug(new EventId(1002, "RegisteringModules"), "Registering feature module: {module} - Version: {version}", module.GetType().FullName, module.ModuleInfo?.Version);
             registeredFeatureModules.Add(module.GetType(), module);
 
             if (module is IWebFeatureModule webModule)
             {
                 webModule.RegisterModule(builder);
             }
-            else
+            else if (module is IFeatureModule featureModule)
             {
-                module.RegisterModule(new()
+                featureModule?.RegisterModule(new()
                 {
                     Configuration = builder.Configuration,
                     Environment = builder.Environment,
                     Services = builder.Services
                 });
+            }
+            else
+            {
+                logger?.LogError(new EventId(1002, "RegisteringModules"), "Module {module} does not implement IFeatureModule or IWebFeatureModule.", module.GetType().FullName);
             }
         }
 

@@ -70,26 +70,30 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(discoveredModules, nameof(discoveredModules));
         ArgumentNullException.ThrowIfNull(services, nameof(services));
 
-        Dictionary<Type, IFeatureModule> registeredFeatureModules = [];
+        Dictionary<Type, IFeatureModuleBase> registeredFeatureModules = [];
 
         var serviceDescriptors = discoveredModules
-            .Select(type => ServiceDescriptor.Transient(typeof(IFeatureModule), type));
+            .Select(type => ServiceDescriptor.Transient(typeof(IFeatureModuleBase), type));
         services.TryAddEnumerable(serviceDescriptors);
 
         var modules = discoveredModules
             .Select(Activator.CreateInstance)
-            .Cast<IFeatureModule>();
+            .Cast<IFeatureModuleBase>();
 
         foreach (var module in modules)
         {
             logger?.LogDebug(new EventId(1002, "RegisteringModules"), "Registering feature module: {module} - v{version}", module.GetType().FullName, module.ModuleInfo?.Version);
             registeredFeatureModules.Add(module.GetType(), module);
-            module.RegisterModule(new()
+
+            if (module is IFeatureModule featureModule)
             {
-                Configuration = configuration,
-                Environment = hostEnvironment,
-                Services = services
-            });
+                featureModule.RegisterModule(new()
+                {
+                    Configuration = configuration,
+                    Environment = hostEnvironment,
+                    Services = services
+                });
+            }
         }
 
         services.Configure<FeatureModuleOptions>(options =>
