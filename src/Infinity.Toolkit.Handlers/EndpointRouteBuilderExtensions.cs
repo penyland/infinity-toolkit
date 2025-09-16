@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Infinity.Toolkit.Experimental;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
@@ -29,30 +30,6 @@ public static class EndpointRouteBuilderExtensions
             return response;
         })
         .Produces<TResponse>(statusCode: StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status400BadRequest);
-    }
-
-    public static RouteHandlerBuilder MapPostCommand<TRequest>(this IEndpointRouteBuilder builder, string path)
-        where TRequest : class
-    {
-        return builder.MapPost(path, async ([AsParameters] TRequest request, [FromServices] IRequestHandler<TRequest> requestHandler) =>
-        {
-            var result = await requestHandler.HandleAsync(
-                new HandlerContext<TRequest>
-                {
-                    Body = BinaryData.FromObjectAsJson(request),
-                    Request = request
-                });
-
-            IResult response = result switch
-            {
-                Success => TypedResults.Ok(),
-                Failure => TypedResults.Problem(result.Error),
-                _ => TypedResults.BadRequest("Failed to process request.")
-            };
-            return response;
-        })
-        .Produces(statusCode: StatusCodes.Status200OK)
         .Produces(StatusCodes.Status400BadRequest);
     }
 }
