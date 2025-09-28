@@ -1,27 +1,25 @@
-﻿using Infinity.Toolkit.Experimental;
+﻿namespace Infinity.Toolkit.Handlers;
 
-namespace Infinity.Toolkit.Handlers;
-
-public interface IRequestHandler<TIn>
-    where TIn : class
+public interface IRequestHandler<TResponse>
+    where TResponse : class
 {
     /// <summary>
-    /// Represents a handler for a request that does not return a result except for success or failure.
+    /// Represents a handler for a request that does not take any parameters and returns a result of type <typeparamref name="TResponse"/>.
     /// </summary>
-    /// <param name="context">The request context.</param>
     /// <param name="cancellationToken">An optional cancellation token.</param>
     /// <returns>Returns the result of the request.</returns>
-    Task<Result> HandleAsync(IHandlerContext<TIn> context, CancellationToken cancellationToken = default);
+    Task<Result<TResponse>> HandleAsync(CancellationToken cancellationToken = default);
 }
 
-public interface IRequestHandler<TIn, TResult>
-    where TIn : class
+public interface IRequestHandler<TRequest, TResult>
+    where TRequest : class
+    where TResult : class
 {
     /// <summary>
-    /// Represents a handler for a request which returns a result.
+    /// Represents a handler for a request which takes a parameter of type <typeparamref name="TRequest"/> and returns a result of type <typeparamref name="TResult"/>.
     /// </summary>
     /// <param name="context">The request context.</param>
     /// <param name="cancellationToken">An optional cancellation token.</param>
     /// <returns>Returns the result of the request.</returns>
-    Task<Result<TResult>> HandleAsync(IHandlerContext<TIn> context, CancellationToken cancellationToken = default);
+    Task<Result<TResult>> HandleAsync(IHandlerContext<TRequest> context, CancellationToken cancellationToken = default);
 }
