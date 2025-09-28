@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-namespace Infinity.Toolkit;
+﻿namespace Infinity.Toolkit;
 
 public class ErrorResult : Result, Failure
 {
@@ -32,6 +30,7 @@ public class ErrorResult : Result, Failure
 
     public IReadOnlyCollection<Error> Errors { get; }
 }
+
 public class ErrorResult<T> : Result<T>, Failure
 {
     public ErrorResult(Error error)
@@ -68,30 +67,4 @@ public class ErrorResult<T> : Result<T>, Failure
     //        Status = 400 // Default to Bad Request
     //    };
     //}
-}
-
-public class Error(string code, string details)
-{
-    public Error(string details)
-        : this(string.Empty, details)
-    {
-    }
-
-    public string Code { get; } = code ?? string.Empty;
-
-    public string Details { get; } = details;
-
-    // Result result = new Error("Failed to update message");
-    public static implicit operator Result(Error error) => new ErrorResult(error);
-
-    public static implicit operator ProblemDetails(Error error)
-    {
-        return new ProblemDetails
-        {
-            Title = error.Code,
-            Detail = error.Details,
-            Type = error.Code,
-            Status = 400 // Default to Bad Request
-        };
-    }
 }
