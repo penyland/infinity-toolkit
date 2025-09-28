@@ -1,4 +1,6 @@
-﻿namespace Infinity.Toolkit;
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace Infinity.Toolkit;
 
 public static class ResultExtensions
 {
@@ -24,4 +26,24 @@ public static class ResultExtensions
     }
 
     public static Result<T> ToResult<T>(this T value) => new SuccessResult<T>(value);
+
+    public static ProblemDetails ToProblemDetails(this Result result)
+    {
+        if (result is Success)
+        {
+            throw new InvalidOperationException("Unable to convert a SuccessResult to ProblemDetails");
+        }
+
+        return new ProblemDetails
+        {
+            Title = result.Errors.First().Details,
+            Detail = result.Errors.First().Details,
+            Type = result.Errors.First().Code,
+            Status = 400, // Default to Bad Request for now
+            Extensions =
+            {
+                ["errors"] = result.Errors
+            }
+        };
+    }
 }

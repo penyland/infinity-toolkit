@@ -1,6 +1,6 @@
-﻿namespace Infinity.Toolkit;
-#pragma warning restore SA1302 // Interface names should begin with I
-#pragma warning restore IDE1006 // Naming Styles
+﻿using System.Diagnostics;
+
+namespace Infinity.Toolkit;
 
 public class SuccessResult : Result, Success
 {
@@ -9,6 +9,7 @@ public class SuccessResult : Result, Success
     }
 }
 
+[DebuggerDisplay("Value = {Value}")]
 public class SuccessResult<T> : Result<T>, Success
 {
     public SuccessResult()

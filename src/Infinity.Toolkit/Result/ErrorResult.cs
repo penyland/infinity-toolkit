@@ -1,4 +1,6 @@
-﻿namespace Infinity.Toolkit;
+﻿using System.Diagnostics;
+
+namespace Infinity.Toolkit;
 
 public class ErrorResult : Result, Failure
 {
@@ -33,8 +35,15 @@ public class ErrorResult : Result, Failure
     public string Message { get; }
 }
 
+[DebuggerDisplay("Errors {Errors.Count}")]
 public class ErrorResult<T> : Result<T>, Failure
 {
+    public ErrorResult(T value) 
+        : base(value, [])
+    {
+        Succeeded = false;
+    }
+
     public ErrorResult(Error error)
         : base(default!, [error])
     {
@@ -81,4 +90,14 @@ public class ErrorResult<T> : Result<T>, Failure
     //    };
     //}
     public string Message { get; }
+}
+
+public class ErrorResult<T, TError> : ErrorResult<T>, Failure
+    where TError : Error
+{
+    public ErrorResult(TError error)
+        : base([error])
+    {
+        Succeeded = false;
+    }
 }

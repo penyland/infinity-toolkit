@@ -10,11 +10,9 @@ public abstract class Result
 
     public static Result Success() => new SuccessResult();
 
-    public static Result<T> Ok<T>(T value) => new SuccessResult<T>(value);
+    public static Result<T> Success<T>() => new SuccessResult<T>(default!);
 
     public static Result<T> Success<T>(T data) => new SuccessResult<T>(data);
-
-    public static Result<T> Success<T>() => new SuccessResult<T>();
 
     public static Result Failure(string message) => new ErrorResult(message);
 
@@ -29,9 +27,13 @@ public abstract class Result
     public static Result<T> Failure<T>(Exception exception) => new ErrorResult<T>(exception);
 
     /// <summary>
-    /// Implicitly extracts <see cref="Error"/>s (if any) from a <see cref="Result"/> instance. 
+    /// Converts a <see cref="Result"/> instance to an array of <see cref="Error"/> objects, representing the errors
+    /// contained in the result.
     /// </summary>
-    /// <param name="result"></param>
+    /// <remarks>If the specified <paramref name="result"/> is not an <see cref="ErrorResult"/>, the returned
+    /// array contains a single <see cref="Error.None"/> value to indicate the absence of errors.</remarks>
+    /// <param name="result">The <see cref="Result"/> to convert. If the result contains errors, they will be returned in the array;
+    /// otherwise, a default error is returned.</param>
     public static implicit operator Error[](Result result)
     {
         if (result is ErrorResult errorResult)
@@ -83,7 +85,7 @@ public abstract class Result<T> : Result
 {
     private T value;
 
-    protected Result(T value, IReadOnlyCollection<Error> errors)
+    internal Result(T value, IReadOnlyCollection<Error> errors)
     {
         this.value = value;
         Errors = errors;
@@ -105,25 +107,47 @@ public abstract class Result<T> : Result
         return new ErrorResult<T>(result.Errors);
     }
 
+    /// <summary>
+    /// Implicitly converts a value of type <typeparamref name="T"/> to a <see cref="Result{T}"/> representing a
+    /// successful result.
+    /// </summary>
+    /// <remarks>This operator allows direct assignment of a value of type <typeparamref name="T"/> to a <see
+    /// cref="Result{T}"/> variable, treating the value as a successful result. This can simplify code when working with
+    /// APIs that return <see cref="Result{T}"/>.</remarks>
+    /// <param name="value">The value to be wrapped in a <see cref="SuccessResult{T}"/>.</param>
     public static implicit operator Result<T>(T value) => new SuccessResult<T>(value);
 
+    /// <summary>
+    /// Converts an <see cref="Error"/> instance to a <see cref="Result{T}"/> representing a failed result.
+    /// </summary>
+    /// <remarks>This operator enables implicit conversion from <see cref="Error"/> to <see
+    /// cref="Result{T}"/>, allowing error values to be returned directly where a result is expected. The resulting <see
+    /// cref="Result{T}"/> will indicate failure and contain the provided error.</remarks>
+    /// <param name="error">The error information to associate with the failed result. Cannot be null.</param>
     public static implicit operator Result<T>(Error error) => new ErrorResult<T>(error);
 
+    /// <summary>
+    /// Converts an <see cref="Exception"/> to a <see cref="Result{T}"/> representing a failed operation.
+    /// </summary>
+    /// <remarks>This operator allows exceptions to be implicitly converted to error results, enabling
+    /// streamlined error handling in result-based workflows. The resulting <see cref="Result{T}"/> will indicate
+    /// failure and contain the provided exception.</remarks>
+    /// <param name="exception">The exception that describes the error condition to be encapsulated in the result. Cannot be null.</param>
     public static implicit operator Result<T>(Exception exception) => new ErrorResult<T>(exception);
 
+    /// <summary>
+    /// Implicitly converts a <see cref="Result{T}"/> instance to its contained value of type <typeparamref name="T"/>.
+    /// </summary>
+    /// <remarks>If the <paramref name="result"/> represents a failure, accessing its value may throw an
+    /// exception depending on the implementation of <see cref="Result{T}"/>. Use this conversion only when you are
+    /// certain the result is successful.</remarks>
+    /// <param name="result">The <see cref="Result{T}"/> instance to convert.</param>
     public static implicit operator T(Result<T> result) => result.Value;
-
-    public TResult Switch<TResult>(Func<T, TResult> onSuccess, Func<IReadOnlyCollection<Error>, TResult> onFailure)
-    {
-        return Succeeded ? onSuccess(Value!) : onFailure(Errors);
-    }
 }
 
-#pragma warning disable SA1302 // Interface names should begin with I
 #pragma warning disable IDE1006 // Naming Styles
 public interface Success { }
 
 public interface Failure { }
 
 #pragma warning restore IDE1006 // Naming Styles
-#pragma warning restore SA1302 // Interface names should begin with I
