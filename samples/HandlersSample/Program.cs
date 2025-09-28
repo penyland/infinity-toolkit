@@ -40,7 +40,7 @@ app.MapPost("/product", async (CreateProduct command, IRequestHandler<CreateProd
             Request = command
         });
 
-    return result.Succeeded ? Results.Ok() : Results.Problem(result.Error);
+    return result.Succeeded ? Results.Ok() : Results.Problem(/*result.Errors*/);
 })
 .WithName("CreateProduct")
 .WithSummary("Creates a new product.")
@@ -79,7 +79,7 @@ class CreateProductHandlerDecorator<CreateProduct>(IRequestHandler<CreateProduct
         }
         else
         {
-            logger.LogInformation($"Failed to handle request of type {typeof(CreateProduct).Name}: {result.Error}");
+            logger.LogInformation($"Failed to handle request of type {typeof(CreateProduct).Name}: {result.Errors}");
         }
         return result;
     }
@@ -127,7 +127,7 @@ class LoggingRequestHandler<TIn>(IRequestHandler<TIn> innerHandler, ILogger<Logg
         }
         else
         {
-            logger.LogInformation($"Failed to handle request of type {typeof(TIn).Name}: {result.Error}");
+            logger.LogInformation($"Failed to handle request of type {typeof(TIn).Name}: {result.Errors}");
         }
         return result;
     }
@@ -146,7 +146,7 @@ class LoggingRequestHandler<TIn, TResult>(IRequestHandler<TIn, TResult> innerHan
         }
         else
         {
-            logger.LogInformation($"Failed to handle request of type {typeof(TIn).Name}: {result.Error}");
+            logger.LogInformation($"Failed to handle request of type {typeof(TIn).Name}: {result.Errors}");
         }
         return result;
     }

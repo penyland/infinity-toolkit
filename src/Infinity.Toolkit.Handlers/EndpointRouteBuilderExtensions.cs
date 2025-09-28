@@ -1,4 +1,4 @@
-﻿using Infinity.Toolkit.Experimental;
+﻿using Infinity.Toolkit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +23,7 @@ public static class EndpointRouteBuilderExtensions
             IResult response = result switch
             {
                 Success => TypedResults.Ok(result.Value),
-                Failure => TypedResults.Problem(result.Error),
+                Failure => TypedResults.Problem(/*result.Errors*/),
                 _ => TypedResults.BadRequest("Failed to process request.")
             };
 
