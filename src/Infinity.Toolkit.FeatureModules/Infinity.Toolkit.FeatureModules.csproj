@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <VersionPrefix>1.2.1</VersionPrefix>
+    <VersionPrefix>1.3.0</VersionPrefix>
     <PackageId>Infinity.Toolkit.FeatureModules</PackageId>
     <Description>Infinity Toolkit Feature Modules let's you automatically register dependencies and endpoints in modules which simplifies development when you are working with vertical feature slices.</Description>
     <PackageTags>FeatureModules;VerticalSliceArchitecture;ModularMonoliths;MinimalApis</PackageTags>
