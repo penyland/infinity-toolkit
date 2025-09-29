@@ -8,11 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Infinity.Toolkit.Handlers\Infinity.Toolkit.Handlers.csproj" />
+    <PackageReference Include="Scrutor" Version="6.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Scrutor" Version="6.1.0" />
+    <ProjectReference Include="..\..\src\Infinity.Toolkit.AspNetCore\Infinity.Toolkit.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\src\Infinity.Toolkit\Infinity.Toolkit.csproj" />
   </ItemGroup>
 
 </Project>

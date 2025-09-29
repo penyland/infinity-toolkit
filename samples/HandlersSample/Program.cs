@@ -1,4 +1,5 @@
 using Infinity.Toolkit;
+using Infinity.Toolkit.AspNetCore;
 using Infinity.Toolkit.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);

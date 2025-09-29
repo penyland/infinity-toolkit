@@ -1,5 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
-using Xunit;
+using Infinity.Toolkit.AspNetCore;
 
 namespace Infinity.Toolkit.Results.Tests;
 
