@@ -20,16 +20,15 @@ public class ResultExtensionsTests
     }
 
     [Fact]
-    public void Value_WithFailureResult_ReturnsDefault()
+    public void Value_WithFailureResult_Throws_InvalidOperationException()
     {
         // Arrange
         var result = Result.Failure<string>("Error occurred");
 
         // Act
-        var actualValue = result.Value();
-
         // Assert
-        Assert.Null(actualValue);
+        Should.Throw<InvalidOperationException>(() => result.Value())
+            .Message.ShouldBe("You can't access .Value when .Succeeded is false");
     }
 
     [Fact]

@@ -9,6 +9,7 @@ public static class ResultExtensions
         return result switch
         {
             SuccessResult<T> success => success.Value,
+            ErrorResult<T> => throw new InvalidOperationException($"You can't access .{nameof(Result<>.Value)} when .{nameof(Result.Succeeded)} is false"),
             _ => default
         };
     }
@@ -27,7 +28,7 @@ public static class ResultExtensions
 
     public static Result<T> ToResult<T>(this T value) => new SuccessResult<T>(value);
 
-    public static ProblemDetails ToProblemDetails(this Result result)
+    public static ProblemDetails ToProblemDetails(this Result result, int status = 400)
     {
         if (result is Success)
         {
@@ -39,7 +40,7 @@ public static class ResultExtensions
             Title = result.Errors.First().Details,
             Detail = result.Errors.First().Details,
             Type = result.Errors.First().Code,
-            Status = 400, // Default to Bad Request for now
+            Status = status,
             Extensions =
             {
                 ["errors"] = result.Errors

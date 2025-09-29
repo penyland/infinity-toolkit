@@ -92,13 +92,12 @@ public class ResultTests
     }
 
     [Fact]
-    public void Result_Value_Should_Return_Default_When_Failed()
+    public void Result_Value_Should_Throw_InvalidOperationException_When_Failed()
     {
         var result = Result.Failure<string>("An error occurred");
 
-        var extractedValue = result.Value();
-
-        extractedValue.ShouldBeNull();
+        Should.Throw<InvalidOperationException>(() => _ = result.Value())
+            .Message.ShouldBe("You can't access .Value when .Succeeded is false");
     }
 
     [Fact]
