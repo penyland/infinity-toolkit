@@ -9,8 +9,7 @@ public class ResultTests
         result.Succeeded.ShouldBeTrue();
         result.Failed.ShouldBeFalse();
         result.Errors.ShouldNotBeNull();
-        result.Errors.Count.ShouldBe(1);
-        result.Errors.First().ShouldBe(Error.None);
+        result.Errors.Count.ShouldBe(0);        
     }
 
     [Fact]
@@ -232,17 +231,7 @@ public class ResultTests
 
         Should.Throw<InvalidOperationException>(() => _ = result.Value)
             .Message.ShouldBe("You can't access .Value when .Succeeded is false");
-    }
-
-    [Fact]
-    public void Result_With_Generic_Value_Should_Fail_When_Error_Occurs()
-    {
-        var result = Result.Failure<TestResponse>("An error occurred");
-        result.Succeeded.ShouldBeFalse();
-
-        Should.Throw<InvalidOperationException>(() => _ = result.Value)
-            .Message.ShouldBe("You can't access .Value when .Succeeded is false");
-    }
+    }    
 
     [Fact]
     public void Result_With_Generic_Value_Should_Implicitly_Convert_From_Value()

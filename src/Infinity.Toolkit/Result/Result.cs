@@ -6,7 +6,7 @@ public abstract class Result
 
     public bool Failed => !Succeeded;
 
-    public IReadOnlyCollection<Error> Errors { get; protected set; } = [Error.None];
+    public IReadOnlyCollection<Error> Errors { get; protected set; } = [];
 
     public static Result Success() => new SuccessResult();
 
