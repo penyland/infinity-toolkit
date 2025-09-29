@@ -9,12 +9,9 @@ public class SuccessResult : Result, Success
     }
 }
 
-[DebuggerDisplay("Value = {Value}")]
+[DebuggerDisplay("Success: Value = {Value}")]
 public class SuccessResult<T> : Result<T>, Success
 {
-    public SuccessResult()
-        : base(default!, []) => Succeeded = true;
-
     public SuccessResult(T data)
         : base(data, []) => Succeeded = true;
 }

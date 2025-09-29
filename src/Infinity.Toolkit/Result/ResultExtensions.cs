@@ -7,7 +7,7 @@ public static class ResultExtensions
         return result switch
         {
             SuccessResult<T> success => success.Value,
-            ErrorResult<T> => throw new InvalidOperationException($"You can't access .{nameof(Result<>.Value)} when .{nameof(Result.Succeeded)} is false"),
+            ErrorResult<T> => throw new InvalidOperationException($"You can't access .{nameof(Result<T>.Value)} when .{nameof(Result.Succeeded)} is false"),
             _ => default
         };
     }

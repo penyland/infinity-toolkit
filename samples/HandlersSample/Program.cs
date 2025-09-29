@@ -41,7 +41,7 @@ app.MapPost("/product", async (CreateProduct command, IRequestHandler<CreateProd
             Request = command
         });
 
-    return result.Succeeded ? Results.Ok() : Results.Problem(/*result.Errors*/);
+    return result.Succeeded ? Results.Ok() : Results.Problem(result.ToProblemDetails());
 })
 .WithName("CreateProduct")
 .WithSummary("Creates a new product.")
@@ -119,9 +119,9 @@ class ProductCreatedQueryDecorator(IRequestHandler<ProductCreatedQuery, Product>
 class LoggingRequestHandler<TIn>(IRequestHandler<TIn> innerHandler, ILogger<LoggingRequestHandler<TIn>> logger) : IRequestHandler<TIn>
     where TIn : class
 {
-    public async Task<Result<TIn>> HandleAsync(/*IHandlerContext<TIn> context, */CancellationToken cancellationToken = default)
+    public async Task<Result<TIn>> HandleAsync(CancellationToken cancellationToken = default)
     {
-        logger.LogInformation($"Handling request of type {typeof(TIn).Name}"); // with data: {context.Request}");
+        logger.LogInformation($"Handling request of type {typeof(TIn).Name}");
         var result = await innerHandler.HandleAsync(cancellationToken);
         if (result.Succeeded)
         {
@@ -167,6 +167,7 @@ class InMemoryDatabase
         }
         products[product.Id] = product;
     }
+
     public Product? Get(string name)
     {
         var result = products
