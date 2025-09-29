@@ -1,4 +1,5 @@
-﻿using Infinity.Toolkit.Experimental;
+﻿using Infinity.Toolkit;
+using Infinity.Toolkit.Experimental;
 using Infinity.Toolkit.Experimental.Mediator;
 using Infinity.Toolkit.Experimental.Pipeline;
 

@@ -5,7 +5,7 @@ namespace Infinity.Toolkit.Handlers;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds a request handler to the service collection.
+    /// Adds a request handler to the service collection that doesn't take any parameters and returns a <see cref="Result"/> indicating success or failure.
     /// </summary>
     /// <typeparam name="TRequest">The request type.</typeparam>
     /// <typeparam name="TRequestHandler">The request handler type.</typeparam>
@@ -23,17 +23,17 @@ public static class ServiceCollectionExtensions
     /// Adds a request handler to the service collection that returns a result.
     /// </summary>
     /// <typeparam name="TRequest">The request type.</typeparam>
-    /// <typeparam name="TResult">The result type.</typeparam>
+    /// <typeparam name="TResponse">The result type.</typeparam>
     /// <typeparam name="TRequestHandler">The request handler type.</typeparam>
     /// <param name="services">The service collection.</param>
     /// <returns>A <see cref="RequestHandlerBuilder"/> instance used to configure the request handler.</returns>
-    public static RequestHandlerBuilder AddRequestHandler<TRequest, TResult, TRequestHandler>(this IServiceCollection services)
+    public static RequestHandlerBuilder AddRequestHandler<TRequest, TResponse, TRequestHandler>(this IServiceCollection services)
         where TRequest : class
-        where TResult : class
-        where TRequestHandler : class, IRequestHandler<TRequest, TResult>
+        where TResponse : class
+        where TRequestHandler : class, IRequestHandler<TRequest, TResponse>
     {
-        services.AddScoped<IRequestHandler<TRequest, TResult>, TRequestHandler>();
-        return new RequestHandlerBuilder(services, typeof(IRequestHandler<TRequest, TResult>), typeof(TRequestHandler));
+        services.AddScoped<IRequestHandler<TRequest, TResponse>, TRequestHandler>();
+        return new RequestHandlerBuilder(services, typeof(IRequestHandler<TRequest, TResponse>), typeof(TRequestHandler));
     }
 
     /// <summary>

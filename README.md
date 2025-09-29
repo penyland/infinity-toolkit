@@ -1,16 +1,23 @@
 # infinity-toolkit
-Infinity Toolkit is a collection of useful utilities simplifying development of modular monoliths and applications using vertical slice architecture.
+Infinity Toolkit is a collection of useful nuget-packages simplifying development of modular monoliths and applications using vertical slice architecture.
 
 ## Features
 - [Feature modules](#feature-modules) - Let's you automatically register dependencies and endpoints in modules which simplifies development when you are working in feature slices.
-- [Mediator](#mediator) - A bare bones mediator test. (WIP)
+- [Result type](#result-type) - A simple Result type for handling success and failure in a functional way.
+- [Handlers](#handlers) - A simple way to create handlers for commands and queries.
 - [Logging formatter](#logging-formatter) - logging formatter with a Visual Studio Code inspired theme and Serilog like formatting
+- OpenApi document transformers - Simplifying setting up security schemes.
+- Messaging framework - A simple messaging framework for sending and listening to messages. Supports in-memory and Azure Service Bus.
+- [Infinity.Toolkit.Azure](#Infinity.Toolkit.Azure) - Utilities for working with Azure. 
+  - TokenCredentialHelper - Helps creating a ChainedTokenCredential used to authenticate with Azure services.
+  - Simplifying setup and configuring Azure App Configuration.
+- And more to come...
 
 # Feature modules
 Infinity.Toolkit.FeatureModules is a library that simplifies development applications where you want to split functionality in different modules. It is especially useful when you are working with vertical slices in a modular monolith or application.
 However though, the library can be used in any type of application. It let's you automatically register dependencies and endpoints in modules which simplifies development when you are working in feature slices.
 
-### Quick Start
+## Quick Start
 To get started with Feature Modules there are two options:
 1. Look at the sample project in the repository. The sample project found here [FeatureModulesSample](samples/FeatureModulesSample) is a simple web api with two feature modules.
 2. Create a new project and integrate the library.
@@ -96,13 +103,24 @@ There are two types of feature modules:
 The difference is that the WebFeatureModule has access to `WebApplication` which allows you to map endpoints to the application.
 To create a web feature module, you need to create a class that inherits from `WebFeatureModule` or implements `IWebFeatureModule`. 
 
-# Mediator
-A simple mediator implementation that can be used to send messages between different parts of the application.
-This is a work in progress and will be updated with more features and examples.
-Currently this is a test using TPL Dataflow.
-
 # Logging formatter
 A logging formatter that formats log messages with a Visual Studio Code inspired theme and Serilog like formatting.
+
+# Infinity.Toolkit.Azure
+## TokenCredentialHelper
+Helps creating a ChainedTokenCredential used to authenticate with Azure services.
+By default, the following credential types are included:
+EnvironmentCredential
+ManagedIdentityCredential
+
+To include additional credential types, set the corresponding environment variable to "true".
+INCLUDE_VISUAL_STUDIO_CREDENTIAL
+INCLUDE_VISUAL_STUDIO_CODE_CREDENTIAL
+INCLUDE_INTERACTIVE_BROWSER_CREDENTIAL
+INCLUDE_AZURE_DEVELOPER_CLI_CREDENTIAL
+INCLUDE_AZURE_POWER_SHELL_CREDENTIAL
+INCLUDE_AZURE_CLI_CREDENTIAL
+INCLUDE_WORKLOAD_IDENTITY_CREDENTIAL
 
 # Contributing
 If you have any ideas, suggestions or issues, please create an issue or a pull request. Or reach out to me on [BlueSky](https://bsky.app/profile/peternylander.bsky.social).

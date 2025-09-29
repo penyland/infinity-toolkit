@@ -1,15 +1,16 @@
-﻿using Infinity.Toolkit.Experimental;
+﻿using Infinity.Toolkit.Handlers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-namespace Infinity.Toolkit.Handlers;
+namespace Infinity.Toolkit.AspNetCore;
 
 public static class EndpointRouteBuilderExtensions
 {
     public static RouteHandlerBuilder MapGetQuery<TRequest, TResponse>(this IEndpointRouteBuilder builder, string path)
         where TRequest : class
+        where TResponse : class
     {
         return builder.MapGet(path, async ([AsParameters] TRequest request, [FromServices] IRequestHandler<TRequest, TResponse> requestHandler) =>
         {
@@ -23,7 +24,7 @@ public static class EndpointRouteBuilderExtensions
             IResult response = result switch
             {
                 Success => TypedResults.Ok(result.Value),
-                Failure => TypedResults.Problem(result.Error),
+                Failure => TypedResults.Problem(result.ToProblemDetails()),
                 _ => TypedResults.BadRequest("Failed to process request.")
             };
 

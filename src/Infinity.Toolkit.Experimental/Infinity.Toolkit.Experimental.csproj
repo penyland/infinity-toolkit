@@ -23,4 +23,8 @@
     <PackageReference Include="System.Memory.Data" Version="9.0.9" />
   </ItemGroup>
   
+  <ItemGroup>
+    <ProjectReference Include="..\Infinity.Toolkit\Infinity.Toolkit.csproj" />
+  </ItemGroup>
+  
 </Project>
