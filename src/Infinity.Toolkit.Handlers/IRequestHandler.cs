@@ -11,15 +11,15 @@ public interface IRequestHandler<TResponse>
     Task<Result<TResponse>> HandleAsync(CancellationToken cancellationToken = default);
 }
 
-public interface IRequestHandler<TRequest, TResult>
+public interface IRequestHandler<TRequest, TResponse>
     where TRequest : class
-    where TResult : class
+    where TResponse : class
 {
     /// <summary>
-    /// Represents a handler for a request which takes a parameter of type <typeparamref name="TRequest"/> and returns a result of type <typeparamref name="TResult"/>.
+    /// Represents a handler for a request which takes a parameter of type <typeparamref name="TRequest"/> and returns a result of type <typeparamref name="TResponse"/>.
     /// </summary>
     /// <param name="context">The request context.</param>
     /// <param name="cancellationToken">An optional cancellation token.</param>
     /// <returns>Returns the result of the request.</returns>
-    Task<Result<TResult>> HandleAsync(IHandlerContext<TRequest> context, CancellationToken cancellationToken = default);
+    Task<Result<TResponse>> HandleAsync(IHandlerContext<TRequest> context, CancellationToken cancellationToken = default);
 }
