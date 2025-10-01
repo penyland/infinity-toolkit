@@ -36,7 +36,7 @@ public class AzureAppConfigSettings
     public bool UseKeyVault { get; set; } = true;
 
     [JsonIgnore]
-    public TokenCredential? TokenCredential { get; set; } = Identity.TokenCredentialHelper.GetTokenCredential();
+    public TokenCredential? TokenCredential { get; set; }
 
     internal void ParseConnectionString(string? connectionString)
     {
@@ -97,39 +97,52 @@ public static class ConfigurationBuilderExtensions
         ArgumentNullException.ThrowIfNull(builder, nameof(builder));
         var settings = new AzureAppConfigSettings()
         {
-            ApplicationName = builder.Environment.ApplicationName
+            ApplicationName = builder.Environment.ApplicationName,
+            TokenCredential = Identity.TokenCredentialHelper.GetTokenCredential()
         };
 
         builder.Configuration.GetSection(configSectionName).Bind(settings);
         configureSettings?.Invoke(settings);
+
+        builder.Services.AddAzureAppConfiguration();
 
         builder.Configuration.AddAzureAppConfiguration(options =>
         {
             if (builder.Configuration.GetConnectionString("AzureAppConfig") is string connectionString)
             {
                 settings.ParseConnectionString(connectionString);
-                options.Connect(builder.Configuration.GetConnectionString("AzureAppConfig"));
+                options.Connect(connectionString);
             }
             else
             {
-                if (Uri.TryCreate(settings.Endpoint.ToString(), UriKind.Absolute, out var endpointUri))
+                // Try to use configured endpoint
+                if (settings.Endpoint != null && Uri.TryCreate(settings.Endpoint.ToString(), UriKind.Absolute, out var endpointUri))
                 {
-                    options.Connect(endpointUri, settings.TokenCredential);
+                    // Endpoint from settings is valid
                 }
                 else
                 {
-                    throw new InvalidOperationException($"""
-                        The 'Endpoint' key in
-                        '{configSectionName}') isn't a valid URI.
+                    // Try to get endpoint from environment variable
+                    var envEndpoint = Environment.GetEnvironmentVariable("AZURE_APP_CONFIG_ENDPOINT");
+                    if (!Uri.TryCreate(envEndpoint, UriKind.Absolute, out endpointUri))
+                    {
+                        throw new InvalidOperationException($"""
+                            ConnectionString is missing.
+                            It should be provided in 'ConnectionStrings:AzureAppConfig'
+                            or '{configSectionName}:Endpoint' key
+                            configuration section or 'AZURE_APP_CONFIG_ENDPOINT' environment variable.
                         """);
+                    }
                 }
+
+                options.Connect(endpointUri, settings.TokenCredential);
             }
 
             if (!string.IsNullOrEmpty(settings.GlobalKeyFilter))
             {
                 // Filter by global key filter
                 options
-                    .Select($"{settings.GlobalKeyFilter}*")
+                    .Select($"{settings.GlobalKeyFilter}*", LabelFilter.Null)
                     .Select($"{settings.GlobalKeyFilter}*", builder.Environment.EnvironmentName)
                     .TrimKeyPrefix($"{settings.GlobalKeyFilter}:");
             }
@@ -138,7 +151,7 @@ public static class ConfigurationBuilderExtensions
             {
                 // Filter by application name
                 options
-                    .Select($"{settings.ApplicationName}*")
+                    .Select($"{settings.ApplicationName}*", LabelFilter.Null)
                     .Select($"{settings.ApplicationName}*", builder.Environment.EnvironmentName)
                     .TrimKeyPrefix(settings.ApplicationName + ":");
             }
