@@ -9,7 +9,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.ConfigureAzureAppConfiguration(configureSettings: options =>
 {
-    options.TokenCredential = new AzureCliCredential();
+    //options.TokenCredential = new VisualStudioCredential(new() { TenantId = "cf4e6228-1dc7-45f6-aa1c-71e47553e4ac" });
+    //options.TokenCredential = new AzureCliCredential(new() { TenantId = "cf4e6228-1dc7-45f6-aa1c-71e47553e4ac" });
+    //options.TokenCredential = new DefaultAzureCredential();
+    options.TokenCredential = new ChainedTokenCredential(
+        new AzureCliCredential(),
+        new VisualStudioCredential()
+        );
 }, refreshOptions: refreshOptions =>
 {
     refreshOptions.SetRefreshInterval(TimeSpan.FromSeconds(15));
@@ -43,6 +49,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAzureAppConfiguration();
 
 app.MapGet("/config", ([FromServices] IConfiguration configuration) =>
 {
