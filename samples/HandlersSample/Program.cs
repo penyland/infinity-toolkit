@@ -1,6 +1,7 @@
 using Infinity.Toolkit;
 using Infinity.Toolkit.AspNetCore;
 using Infinity.Toolkit.Handlers;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,11 +17,11 @@ builder.Services.AddScoped<IRequestHandler<ProductCreatedQuery, Product>, Produc
 builder.Services.Decorate<IRequestHandler<ProductCreatedQuery, Product>, ProductCreatedQueryDecorator>();
 
 // Decorate the CreateProductRequestHandler with a logging decorator using .Decorate
-builder.Services.Decorate<IRequestHandler<CreateProduct>, LoggingRequestHandler<CreateProduct>>();
+//builder.Services.Decorate<IRequestHandler<CreateProduct>, LoggingRequestHandler<CreateProduct>>();
 
 // Alternatively, decorate all IRequestHandler<TIn> implementations with a logging handler.
 // This will apply to all handlers that implement IRequestHandler<TIn> so in this example we will get double logging for CreateProductHandler.
-builder.Services.Decorate(typeof(IRequestHandler<>), typeof(LoggingRequestHandler<>));
+//builder.Services.Decorate(typeof(IRequestHandler<>), typeof(LoggingRequestHandler<>));
 
 // Decorate all IRequestHandler<TIn, TResult> implementations with a logging handler.
 builder.Services.Decorate(typeof(IRequestHandler<,>), typeof(LoggingRequestHandler<,>));
@@ -47,16 +48,44 @@ app.MapPost("/product", async (CreateProduct command, IRequestHandler<CreateProd
 .WithSummary("Creates a new product.")
 .WithDescription("This endpoint creates a new product with the specified ID and name.");
 
-app.MapGetQuery<ProductCreatedQuery, Product>("/product/{id}")
+app.MapGetQuery<ProductCreatedQuery, Product>("/product2/{id}")
     .WithName("GetProductCreated")
     .WithSummary("Gets the product created information.")
     .WithDescription("This endpoint retrieves the product created information.");
 
+app.MapGet("/product/{id}", async ([AsParameters] ProductCreatedQuery query, [AsParameters] QueryParameters request, IRequestHandler<ProductCreatedQuery, Product> requestHandler) =>
+{
+    var response = await requestHandler.HandleAsync(
+                new HandlerContext<ProductCreatedQuery>
+                {
+                    Body = BinaryData.FromObjectAsJson(request),
+                    Request = query
+                });
+
+    return Results.Ok(response.Value);
+});
+
+app.MapGetQuery2<ProductCreatedQuery, Product, string>("/product3/{id}", product => $"Id: {product.Id} = {product.Name}" )
+    .WithName("GetProductCreated2")
+    .WithSummary("Gets the product created information with a transformer.")
+    .WithDescription("This endpoint retrieves the product created information and transforms the response.");
+
 app.Run();
+
+struct QueryParameters()
+{
+    [FromQuery]
+    public int? Limit { get; set; } = 10;
+
+    //[FromServices]
+    //public IRequestHandler<ProductCreatedQuery, Product> RequestHandler { get; set; }
+}
+
 
 record Product(int Id, string Name);
 
 record CreateProduct(int Id, string Name);
+
 record CreateProductResponse();
 
 class CreateProductHandler(InMemoryDatabase inMemoryDatabase) : IRequestHandler<CreateProduct, CreateProductResponse>
