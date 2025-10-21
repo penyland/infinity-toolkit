@@ -128,7 +128,7 @@ public static class ConfigurationBuilderExtensions
                         Unable to find a valid Azure App Configuration endpoint.
                         Please provide a valid endpoint using one of the following sources:
                         - 'ConnectionStrings:AzureAppConfig' (connection string)
-                        - '{configSectionName}:Endpoint' configuration section
+                        - '${configSectionName}:Endpoint' configuration section
                         - 'AZURE_APP_CONFIG_ENDPOINT' environment variable
                         """);
                     }
