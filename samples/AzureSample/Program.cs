@@ -1,5 +1,5 @@
 using Azure.Identity;
-using Infinity.Toolkit.Azure.Configuration;
+using Infinity.Toolkit.Azure;
 using Infinity.Toolkit.OpenApi;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;

@@ -5,7 +5,7 @@
 /// </summary>
 public abstract class FeatureModule : IFeatureModule
 {
-    public virtual IModuleInfo? ModuleInfo => new FeatureModuleInfo(nameof(FeatureModule), Assembly.GetExecutingAssembly()?.GetName()?.Version?.ToString() ?? "1.0.0");
+    public abstract IModuleInfo? ModuleInfo { get; }
 
     public virtual ModuleContext RegisterModule(ModuleContext moduleContext) => moduleContext;
 }
@@ -16,9 +16,9 @@ public abstract class FeatureModule : IFeatureModule
 /// </summary>
 public abstract class WebFeatureModule : IWebFeatureModule
 {
-    public virtual IModuleInfo? ModuleInfo => new FeatureModuleInfo(nameof(WebFeatureModule), Assembly.GetExecutingAssembly()?.GetName()?.Version?.ToString() ?? "1.0.0");
+    public abstract IModuleInfo? ModuleInfo { get; }
 
-    public virtual void RegisterModule(WebApplicationBuilder builder) { }
+    public virtual void RegisterModule(IHostApplicationBuilder builder) { }
 
     public virtual void MapEndpoints(WebApplication app) { }
 }

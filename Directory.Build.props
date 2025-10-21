@@ -12,7 +12,7 @@
     <Authors>Peter Nylander</Authors>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Copyright>Copyright © 2025 Peter Nylander </Copyright>
+    <Copyright>Copyright © $([System.DateTime]::Now.Year) Peter Nylander </Copyright>
   </PropertyGroup>
     
   <PropertyGroup>
@@ -49,8 +49,8 @@
 
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <PackageProjectUrl>https://github.com/penyland/infinity-tomahawk</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/penyland/infinity-tomahawk</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/penyland/infinity-toolkit</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/penyland/infinity-toolkit</RepositoryUrl>
 
   </PropertyGroup>
 
