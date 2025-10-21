@@ -125,10 +125,11 @@ public static class ConfigurationBuilderExtensions
                     if (!Uri.TryCreate(envEndpoint, UriKind.Absolute, out endpointUri))
                     {
                         throw new InvalidOperationException($"""
-                            ConnectionString is missing.
-                            It should be provided in 'ConnectionStrings:AzureAppConfig'
-                            or '{configSectionName}:Endpoint' key
-                            configuration section or 'AZURE_APP_CONFIG_ENDPOINT' environment variable.
+                        Unable to find a valid Azure App Configuration endpoint.
+                        Please provide a valid endpoint using one of the following sources:
+                        - 'ConnectionStrings:AzureAppConfig' (connection string)
+                        - '${configSectionName}:Endpoint' configuration section
+                        - 'AZURE_APP_CONFIG_ENDPOINT' environment variable
                         """);
                     }
                 }

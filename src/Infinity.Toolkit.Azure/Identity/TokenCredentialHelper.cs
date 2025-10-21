@@ -31,9 +31,13 @@ public static class TokenCredentialHelper
         // First check if the app is running in Azure
         if (EnvironmentHelper.IsRunningInAzure)
         {
+            var userAssignedClientId = clientId ?? Environment.GetEnvironmentVariable("AZURE_CLIENT_ID");
             tokenCredentials = [
                 new EnvironmentCredential(),
-                new ManagedIdentityCredential(ManagedIdentityId.FromUserAssignedClientId(clientId ?? Environment.GetEnvironmentVariable("AZURE_CLIENT_ID") ?? string.Empty))];
+                string.IsNullOrWhiteSpace(userAssignedClientId)
+                    ? new ManagedIdentityCredential()
+                    : new ManagedIdentityCredential(ManagedIdentityId.FromUserAssignedClientId(userAssignedClientId))
+            ];
 
             var tokenCredential = new ChainedTokenCredential(tokenCredentials);
             return tokenCredential;
