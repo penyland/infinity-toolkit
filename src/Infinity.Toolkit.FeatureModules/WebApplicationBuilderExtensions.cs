@@ -97,12 +97,6 @@ public static class WebApplicationBuilderExtensions
 
         foreach (var module in modules)
         {
-            if (registeredFeatureModules.ContainsKey(module.GetType()))
-            {
-                logger?.LogWarning(new EventId(1001, "RegisteringModules"), "Module {module} is already registered. Skipping duplicate registration.", module.GetType().FullName);
-                continue;
-            }
-
             registeredFeatureModules.Add(module.GetType(), module);
 
             if (module is IWebFeatureModule webModule)
