@@ -43,5 +43,5 @@ public interface IWebFeatureModule : IFeatureModuleBase
     /// <summary>
     /// Register all dependencies needed by a web module in the DI-container.
     /// </summary>
-    void RegisterModule(WebApplicationBuilder builder);
+    void RegisterModule(IHostApplicationBuilder builder);
 }

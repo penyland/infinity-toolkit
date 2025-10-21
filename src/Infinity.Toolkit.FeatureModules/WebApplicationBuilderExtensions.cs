@@ -80,7 +80,7 @@ public static class WebApplicationBuilderExtensions
     /// <param name="builder">The <see cref="WebApplicationBuilder"/>.</param>
     /// <param name="logger">The <see cref="ILogger"/>.</param>
     /// <exception cref="InvalidOperationException">Thrown if no modules are found while scanning.</exception>
-    private static void RegisterModules(IEnumerable<TypeInfo> discoveredModules, WebApplicationBuilder builder, ILogger? logger)
+    private static void RegisterModules(IEnumerable<TypeInfo> discoveredModules, IHostApplicationBuilder builder, ILogger? logger)
     {
         ArgumentNullException.ThrowIfNull(discoveredModules, nameof(discoveredModules));
         ArgumentNullException.ThrowIfNull(builder, nameof(builder));
@@ -97,15 +97,22 @@ public static class WebApplicationBuilderExtensions
 
         foreach (var module in modules)
         {
-            logger?.LogDebug(new EventId(1002, "RegisteringModules"), "Registering feature module: {module} - Version: {version}", module.GetType().FullName, module.ModuleInfo?.Version);
+            if (registeredFeatureModules.ContainsKey(module.GetType()))
+            {
+                logger?.LogWarning(new EventId(1001, "RegisteringModules"), "Module {module} is already registered. Skipping duplicate registration.", module.GetType().FullName);
+                continue;
+            }
+
             registeredFeatureModules.Add(module.GetType(), module);
 
             if (module is IWebFeatureModule webModule)
             {
+                logger?.LogInformation(new EventId(1002, "RegisteringModules"), "Registering web feature module: {module}", module.GetType().FullName);
                 webModule.RegisterModule(builder);
             }
             else if (module is IFeatureModule featureModule)
             {
+                logger?.LogInformation(new EventId(1002, "RegisteringModules"), "Registering feature module: {module}", module.GetType().FullName);
                 featureModule?.RegisterModule(new()
                 {
                     Configuration = builder.Configuration,

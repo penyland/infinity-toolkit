@@ -31,6 +31,11 @@ jobs:
         with:
           dotnet-version: "9.0.x"
 
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
       - name: Restore dependencies
         run: dotnet restore
 
@@ -41,7 +46,7 @@ jobs:
         run: dotnet test --configuration Release --no-build --verbosity normal
 
       - name: Pack
-        run: dotnet pack --configuration Release --no-build --output ./nupkgs -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
+        run: dotnet pack --configuration Release --output ./nupkgs -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
 
       - name: Publish
         uses: actions/upload-artifact@v4
@@ -67,7 +72,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "9.0.x"
+          dotnet-version: "10.0.x"
 
       - name: Publish to NuGet
         run: |

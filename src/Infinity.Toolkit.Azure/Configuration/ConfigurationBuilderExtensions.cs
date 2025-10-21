@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 using System.Data.Common;
 using System.Text.Json.Serialization;
 
-namespace Infinity.Toolkit.Azure.Configuration;
+namespace Infinity.Toolkit.Azure;
 
 // Config section specifications
 //"Infinity": {
@@ -23,7 +23,7 @@ namespace Infinity.Toolkit.Azure.Configuration;
 
 public class AzureAppConfigSettings
 {
-    internal const string DefaultConfigSectionName = "Infinity:Azure:AppConfig";
+    internal const string DefaultConfigSectionName = "AzureAppConfiguration";
 
     public string ApplicationName { get; set; }
 
@@ -33,10 +33,10 @@ public class AzureAppConfigSettings
 
     public bool UseFeatureFlags { get; set; } = true;
 
-    public bool UseKeyVault { get; set; } = true;
+    public bool UseKeyVault { get; set; } = false;
 
     [JsonIgnore]
-    public TokenCredential? TokenCredential { get; set; } = Identity.TokenCredentialHelper.GetTokenCredential();
+    public TokenCredential? TokenCredential { get; set; }
 
     internal void ParseConnectionString(string? connectionString)
     {
@@ -84,52 +84,63 @@ public class AzureAppConfigSettings
 
 public static class ConfigurationBuilderExtensions
 {
-    private const string DefaultConfigSectionName = "Infinity:Azure:AppConfig";
-
     public static IHostApplicationBuilder ConfigureAzureAppConfiguration(this IHostApplicationBuilder builder)
-        => builder.ConfigureAzureAppConfiguration(DefaultConfigSectionName, null, null);
+        => builder.ConfigureAzureAppConfiguration(AzureAppConfigSettings.DefaultConfigSectionName, null, null);
 
     public static IHostApplicationBuilder ConfigureAzureAppConfiguration(this IHostApplicationBuilder app, Action<AzureAppConfigSettings>? configure = null, Action<AzureAppConfigurationRefreshOptions>? refreshOptions = null)
-        => app.ConfigureAzureAppConfiguration(DefaultConfigSectionName, configure, refreshOptions);
+        => app.ConfigureAzureAppConfiguration(AzureAppConfigSettings.DefaultConfigSectionName, configure, refreshOptions);
 
-    public static IHostApplicationBuilder ConfigureAzureAppConfiguration(this IHostApplicationBuilder builder, string configSectionName = DefaultConfigSectionName, Action<AzureAppConfigSettings>? configureSettings = null, Action<AzureAppConfigurationRefreshOptions>? refreshOptions = null)
+    public static IHostApplicationBuilder ConfigureAzureAppConfiguration(this IHostApplicationBuilder builder, string configSectionName = AzureAppConfigSettings.DefaultConfigSectionName, Action<AzureAppConfigSettings>? configureSettings = null, Action<AzureAppConfigurationRefreshOptions>? refreshOptions = null)
     {
         ArgumentNullException.ThrowIfNull(builder, nameof(builder));
         var settings = new AzureAppConfigSettings()
         {
-            ApplicationName = builder.Environment.ApplicationName
+            ApplicationName = builder.Environment.ApplicationName,
+            TokenCredential = Identity.TokenCredentialHelper.GetTokenCredential()
         };
 
         builder.Configuration.GetSection(configSectionName).Bind(settings);
         configureSettings?.Invoke(settings);
+
+        builder.Services.AddAzureAppConfiguration();
 
         builder.Configuration.AddAzureAppConfiguration(options =>
         {
             if (builder.Configuration.GetConnectionString("AzureAppConfig") is string connectionString)
             {
                 settings.ParseConnectionString(connectionString);
-                options.Connect(builder.Configuration.GetConnectionString("AzureAppConfig"));
+                options.Connect(connectionString);
             }
             else
             {
-                if (Uri.TryCreate(settings.Endpoint.ToString(), UriKind.Absolute, out var endpointUri))
+                // Try to use configured endpoint
+                if (settings.Endpoint != null && Uri.TryCreate(settings.Endpoint.ToString(), UriKind.Absolute, out var endpointUri))
                 {
-                    options.Connect(endpointUri, settings.TokenCredential);
+                    // Endpoint from settings is valid
                 }
                 else
                 {
-                    throw new InvalidOperationException($"""
-                        The 'Endpoint' key in
-                        '{configSectionName}') isn't a valid URI.
+                    // Try to get endpoint from environment variable
+                    var envEndpoint = Environment.GetEnvironmentVariable("AZURE_APP_CONFIG_ENDPOINT");
+                    if (!Uri.TryCreate(envEndpoint, UriKind.Absolute, out endpointUri))
+                    {
+                        throw new InvalidOperationException($"""
+                            ConnectionString is missing.
+                            It should be provided in 'ConnectionStrings:AzureAppConfig'
+                            or '{configSectionName}:Endpoint' key
+                            configuration section or 'AZURE_APP_CONFIG_ENDPOINT' environment variable.
                         """);
+                    }
                 }
+
+                options.Connect(endpointUri, settings.TokenCredential);
             }
 
             if (!string.IsNullOrEmpty(settings.GlobalKeyFilter))
             {
                 // Filter by global key filter
                 options
-                    .Select($"{settings.GlobalKeyFilter}*")
+                    .Select($"{settings.GlobalKeyFilter}*", LabelFilter.Null)
                     .Select($"{settings.GlobalKeyFilter}*", builder.Environment.EnvironmentName)
                     .TrimKeyPrefix($"{settings.GlobalKeyFilter}:");
             }
@@ -138,7 +149,7 @@ public static class ConfigurationBuilderExtensions
             {
                 // Filter by application name
                 options
-                    .Select($"{settings.ApplicationName}*")
+                    .Select($"{settings.ApplicationName}*", LabelFilter.Null)
                     .Select($"{settings.ApplicationName}*", builder.Environment.EnvironmentName)
                     .TrimKeyPrefix(settings.ApplicationName + ":");
             }
@@ -162,7 +173,10 @@ public static class ConfigurationBuilderExtensions
                 });
             }
 
-            options.ConfigureRefresh(refreshOptions);
+            if (refreshOptions != null)
+            {
+                options.ConfigureRefresh(refreshOptions);
+            }
         });
 
         return builder;
