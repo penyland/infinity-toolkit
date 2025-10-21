@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 using System.Data.Common;
 using System.Text.Json.Serialization;
 
-namespace Infinity.Toolkit.Azure.Configuration;
+namespace Infinity.Toolkit.Azure;
 
 // Config section specifications
 //"Infinity": {
@@ -23,7 +23,7 @@ namespace Infinity.Toolkit.Azure.Configuration;
 
 public class AzureAppConfigSettings
 {
-    internal const string DefaultConfigSectionName = "Infinity:Azure:AppConfig";
+    internal const string DefaultConfigSectionName = "AzureAppConfiguration";
 
     public string ApplicationName { get; set; }
 
@@ -33,7 +33,7 @@ public class AzureAppConfigSettings
 
     public bool UseFeatureFlags { get; set; } = true;
 
-    public bool UseKeyVault { get; set; } = true;
+    public bool UseKeyVault { get; set; } = false;
 
     [JsonIgnore]
     public TokenCredential? TokenCredential { get; set; }
@@ -84,15 +84,13 @@ public class AzureAppConfigSettings
 
 public static class ConfigurationBuilderExtensions
 {
-    private const string DefaultConfigSectionName = "Infinity:Azure:AppConfig";
-
     public static IHostApplicationBuilder ConfigureAzureAppConfiguration(this IHostApplicationBuilder builder)
-        => builder.ConfigureAzureAppConfiguration(DefaultConfigSectionName, null, null);
+        => builder.ConfigureAzureAppConfiguration(AzureAppConfigSettings.DefaultConfigSectionName, null, null);
 
     public static IHostApplicationBuilder ConfigureAzureAppConfiguration(this IHostApplicationBuilder app, Action<AzureAppConfigSettings>? configure = null, Action<AzureAppConfigurationRefreshOptions>? refreshOptions = null)
-        => app.ConfigureAzureAppConfiguration(DefaultConfigSectionName, configure, refreshOptions);
+        => app.ConfigureAzureAppConfiguration(AzureAppConfigSettings.DefaultConfigSectionName, configure, refreshOptions);
 
-    public static IHostApplicationBuilder ConfigureAzureAppConfiguration(this IHostApplicationBuilder builder, string configSectionName = DefaultConfigSectionName, Action<AzureAppConfigSettings>? configureSettings = null, Action<AzureAppConfigurationRefreshOptions>? refreshOptions = null)
+    public static IHostApplicationBuilder ConfigureAzureAppConfiguration(this IHostApplicationBuilder builder, string configSectionName = AzureAppConfigSettings.DefaultConfigSectionName, Action<AzureAppConfigSettings>? configureSettings = null, Action<AzureAppConfigurationRefreshOptions>? refreshOptions = null)
     {
         ArgumentNullException.ThrowIfNull(builder, nameof(builder));
         var settings = new AzureAppConfigSettings()
@@ -175,7 +173,10 @@ public static class ConfigurationBuilderExtensions
                 });
             }
 
-            options.ConfigureRefresh(refreshOptions);
+            if (refreshOptions != null)
+            {
+                options.ConfigureRefresh(refreshOptions);
+            }
         });
 
         return builder;
