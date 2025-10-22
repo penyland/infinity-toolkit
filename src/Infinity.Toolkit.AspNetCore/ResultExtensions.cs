@@ -13,9 +13,26 @@ public static class ResultExtensions
 
         return new ProblemDetails
         {
-            Title = result.Errors.First().Details,
             Detail = result.Errors.First().Details,
-            Type = result.Errors.First().Code,
+            Status = status,
+            Extensions =
+            {
+                ["errors"] = result.Errors
+            }
+        };
+    }
+
+    public static ProblemDetails ToProblemDetails<T>(this ErrorResult<T> result, int status = 400)
+    {
+        if (result is Success)
+        {
+            throw new InvalidOperationException("Unable to convert a SuccessResult to ProblemDetails");
+        }
+
+        return new ProblemDetails
+        {
+            Title = result.Message,
+            //Detail = result.Errors.First().Details,
             Status = status,
             Extensions =
             {
