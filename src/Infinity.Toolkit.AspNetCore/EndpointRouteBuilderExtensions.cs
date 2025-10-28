@@ -194,7 +194,7 @@ public static class EndpointRouteBuilderExtensions
 
             IResult response = result switch
             {
-                Success => TypedResults.Ok(mapper(result)),
+                Success => TypedResults.Ok(mapper(result.Value)),
                 Failure => TypedResults.Problem(result.ToProblemDetails()),
                 _ => TypedResults.BadRequest("Failed to process request.")
             };
@@ -233,7 +233,7 @@ public static class EndpointRouteBuilderExtensions
 
             IResult response = result switch
             {
-                Success => TypedResults.Ok(mapper(result)),
+                Success => TypedResults.Ok(mapper(result.Value)),
                 Failure => TypedResults.Problem(result.ToProblemDetails()),
                 _ => TypedResults.BadRequest("Failed to process request.")
             };
