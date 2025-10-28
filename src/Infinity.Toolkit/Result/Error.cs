@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Infinity.Toolkit;
 
-public class Error(string code, string details, ErrorType type)
+public class Error(string code, string details, ErrorType type = ErrorType.Failure)
 {
     public static readonly Error None = new(string.Empty, string.Empty, ErrorType.None);
     public static readonly Error NullValue = new("NullValue", "Value is null", ErrorType.Validation);
