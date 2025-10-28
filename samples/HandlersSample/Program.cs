@@ -8,11 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<InMemoryDatabase>();
 
 // Register a request handler for CreateProduct using AddRequestHandler and decorate it with a decorator.
-builder.Services.AddRequestHandler<CreateProduct, CreateProductResponse, CreateProductHandler>()
+builder.Services.AddRequestHandler<CreateProduct, Result<CreateProductResponse>, CreateProductHandler>()
     .Decorate<CreateProductHandlerDecorator<CreateProduct>>();
 
 // Decorate the CreateProductHandler request handler with a logging decorator using .Decorate
-builder.Services.Decorate<IRequestHandler<CreateProduct, CreateProductResponse>, CreateProductHandlerLoggingDecorator>();
+builder.Services.Decorate<IRequestHandler<CreateProduct, Result<CreateProductResponse>>, CreateProductHandlerLoggingDecorator>();
 
 // Or register a request handler for ProductCreatedQuery directly on the service collection
 builder.Services.AddScoped<IRequestHandler<ProductCreatedQuery, Result<Product>>, ProductCreatedQueryHandler>();
@@ -31,7 +31,7 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
-app.MapPost("/product", async (CreateProduct command, IRequestHandler<CreateProduct, CreateProductResponse> requestHandler) =>
+app.MapPost("/product", async (CreateProduct command, IRequestHandler<CreateProduct, Result<CreateProductResponse>> requestHandler) =>
 {
     Console.WriteLine($"Received command: {command}");
     var result = await requestHandler.HandleAsync(
@@ -41,8 +41,8 @@ app.MapPost("/product", async (CreateProduct command, IRequestHandler<CreateProd
             Request = command
         });
 
-    //return result.Succeeded ? Results.Ok() : Results.Problem(result.ToProblemDetails());
-    return Results.Ok();
+    return result.Succeeded ? Results.Ok() : Results.Problem(result.ToProblemDetails());
+    //return Results.Ok();
 })
 .WithName("CreateProduct")
 .WithSummary("Creates a new product.")
@@ -60,38 +60,46 @@ record Product(int Id, string Name);
 record CreateProduct(int Id, string Name);
 record CreateProductResponse();
 
-class CreateProductHandler(InMemoryDatabase inMemoryDatabase) : IRequestHandler<CreateProduct, CreateProductResponse>
+class CreateProductHandler(InMemoryDatabase inMemoryDatabase) : IRequestHandler<CreateProduct, Result<CreateProductResponse>>
 {
-    public Task<CreateProductResponse> HandleAsync(IHandlerContext<CreateProduct>? context, CancellationToken cancellationToken = default)
+    public Task<Result<CreateProductResponse>> HandleAsync(IHandlerContext<CreateProduct>? context, CancellationToken cancellationToken = default)
     {
-        inMemoryDatabase.Add(new Product(context!.Request.Id, context.Request.Name));
-        return Task.FromResult(new CreateProductResponse());
+
+        try
+        {
+            inMemoryDatabase.Add(new Product(context!.Request.Id, context.Request.Name));
+            return Task.FromResult(Result.Success(new CreateProductResponse()));
+        }
+        catch (Exception ex)
+        {
+            return Task.FromResult(Result.Failure<CreateProductResponse>(ex));
+        }
     }
 }
 
-class CreateProductHandlerDecorator<CreateProduct>(IRequestHandler<CreateProduct, CreateProductResponse> innerHandler, ILogger<CreateProductHandlerDecorator<CreateProduct>> logger) : IRequestHandler<CreateProduct, CreateProductResponse>
+class CreateProductHandlerDecorator<CreateProduct>(IRequestHandler<CreateProduct, Result<CreateProductResponse>> innerHandler, ILogger<CreateProductHandlerDecorator<CreateProduct>> logger) : IRequestHandler<CreateProduct, Result<CreateProductResponse>>
     where CreateProduct : class
 {
-    public async Task<CreateProductResponse> HandleAsync(IHandlerContext<CreateProduct>? context, CancellationToken cancellationToken = default)
+    public async Task<Result<CreateProductResponse>> HandleAsync(IHandlerContext<CreateProduct>? context, CancellationToken cancellationToken = default)
     {
         logger.LogInformation($"Handling request of type {typeof(CreateProduct).Name} with data: {context!.Request}");
         var result = await innerHandler.HandleAsync(context, cancellationToken);
-        //if (result.Succeeded)
-        //{
-        //    logger.LogInformation($"Successfully handled request of type {typeof(CreateProduct).Name}");
-        //}
-        //else
-        //{
-        //    logger.LogInformation($"Failed to handle request of type {typeof(CreateProduct).Name}: {result.Errors}");
-        //}
+        if (result.Succeeded)
+        {
+            logger.LogInformation($"Successfully handled request of type {typeof(CreateProduct).Name}");
+        }
+        else
+        {
+            logger.LogInformation($"FAILED to handle request of type {typeof(CreateProduct).Name} with {result.Errors.Count} errors. {string.Join(", ", result.Errors)}");
+        }
 
         return result;
     }
 }
 
-class CreateProductHandlerLoggingDecorator(IRequestHandler<CreateProduct, CreateProductResponse> innerHandler, ILogger<CreateProductHandlerLoggingDecorator> logger) : IRequestHandler<CreateProduct, CreateProductResponse>
+class CreateProductHandlerLoggingDecorator(IRequestHandler<CreateProduct, Result<CreateProductResponse>> innerHandler, ILogger<CreateProductHandlerLoggingDecorator> logger) : IRequestHandler<CreateProduct, Result<CreateProductResponse>>
 {
-    public async Task<CreateProductResponse> HandleAsync(IHandlerContext<CreateProduct>? context, CancellationToken cancellationToken = default)
+    public async Task<Result<CreateProductResponse>> HandleAsync(IHandlerContext<CreateProduct>? context, CancellationToken cancellationToken = default)
     {
         logger.LogInformation($"Starting handling CreateProduct command for ID: {context!.Request.Id}, Name: {context.Request.Name}");
         var result = await innerHandler.HandleAsync(context, cancellationToken);
@@ -159,14 +167,6 @@ class LoggingRequestHandler2<TIn, TResult>(IRequestHandler<TIn, TResult> innerHa
         logger.LogInformation($"LoggingRequestHandler2: Handling request of type {typeof(TIn).Name} with data: {context.Request}");
         var result = await innerHandler.HandleAsync(context, cancellationToken);
         logger.LogInformation($"LoggingRequestHandler2: Finished handling request of type {typeof(TIn).Name}");
-        //if (result.Succeeded)
-        //{
-        //    logger.LogInformation($"Successfully handled request of type {typeof(TIn).Name}");
-        //}
-        //else
-        //{
-        //    logger.LogInformation($"Failed to handle request of type {typeof(TIn).Name}: {result.Errors}");
-        //}
         return result;
     }
 }
