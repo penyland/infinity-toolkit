@@ -140,13 +140,13 @@ public static class EndpointRouteBuilderExtensions
     }
 
     /// <summary>
-    /// Maps a GET endpoint that handles a request using the specified request handler and returns a Result.
+    /// Maps a GET endpoint to an asynchronous handler that processes a request of the specified type and returns a Result containing a response of the specified type.
     /// </summary>
-    /// <typeparam name="TRequest"></typeparam>
-    /// <typeparam name="TResponse"></typeparam>
-    /// <param name="builder"></param>
-    /// <param name="path"></param>
-    /// <returns></returns>
+    /// <typeparam name="TRequest">The type of the request handled by the endpoint. Must be a reference type.</typeparam>
+    /// <typeparam name="TResponse">The type of the response returned by the request handler. Must be a reference type.</typeparam>
+    /// <param name="builder">The endpoint route builder used to configure the route.</param>
+    /// <param name="path">The route pattern to map the GET endpoint to. Must be a non-empty string.</param>
+    /// <returns>A RouteHandlerBuilder that can be used to further configure the mapped endpoint.</returns>
     public static RouteHandlerBuilder MapGetRequestHandlerWithResult<TRequest, TResponse>(this IEndpointRouteBuilder builder, string path)
         where TRequest : class
         where TResponse : class
