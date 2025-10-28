@@ -90,11 +90,15 @@ public class ResultExtensionsTests
         var problemDetails = result.ToProblemDetails();
 
         // Assert
-        Assert.Equal("Test error details", problemDetails.Title);
-        Assert.Equal("Test error details", problemDetails.Detail);
-        Assert.Equal("TEST001", problemDetails.Type);
-        Assert.Equal(400, problemDetails.Status);
-        Assert.Contains("errors", problemDetails.Extensions);
+        problemDetails.Detail.ShouldNotBeNullOrEmpty();
+        problemDetails.Detail.ShouldBe("Test error details");
+        problemDetails.Status.ShouldBe(400);
+        problemDetails.Extensions["errors"].ShouldNotBeNull();
+
+        var errors = problemDetails.Extensions["errors"] as IReadOnlyCollection<Error>;
+        errors.ShouldNotBeNull();
+        errors.Count.ShouldBe(1);
+        errors.First().Code.ShouldBe("TEST001");
     }
 
     [Fact]
