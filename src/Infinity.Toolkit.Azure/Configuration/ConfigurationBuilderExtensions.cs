@@ -114,6 +114,19 @@ public static class ConfigurationBuilderExtensions
         builder.Configuration.GetSection(configSectionName).Bind(settings);
         configureSettings?.Invoke(settings);
 
+        // Make sure we have a connection string or endpoint before adding Azure App Configuration
+        if (builder.Configuration.GetConnectionString("AzureAppConfig") is null && settings.Endpoint is null && Environment.GetEnvironmentVariable("AZURE_APP_CONFIG_ENDPOINT") is null)
+        {
+            logger.LogWarning(message: $"""
+                Azure App Configuration is not configured.
+                Please provide a valid connection string or endpoint using one of the following sources:
+                - 'ConnectionStrings:AzureAppConfig' (connection string)
+                - '{configSectionName}:Endpoint' configuration section
+                - 'AZURE_APP_CONFIG_ENDPOINT' environment variable
+            """);
+            return builder;
+        }
+
         builder.Configuration.AddAzureAppConfiguration(options =>
         {
             if (builder.Configuration.GetConnectionString("AzureAppConfig") is string connectionString)
@@ -134,15 +147,7 @@ public static class ConfigurationBuilderExtensions
                     var envEndpoint = Environment.GetEnvironmentVariable("AZURE_APP_CONFIG_ENDPOINT");
                     if (!Uri.TryCreate(envEndpoint, UriKind.Absolute, out endpointUri))
                     {
-                        // Log instead of throwing
-                        logger?.LogError(message: $"""
-                            Unable to find a valid Azure App Configuration endpoint.
-                            Please provide a valid endpoint using one of the following sources:
-                            - 'ConnectionStrings:AzureAppConfig' (connection string)
-                            - '${configSectionName}:Endpoint' configuration section
-                            - 'AZURE_APP_CONFIG_ENDPOINT' environment variable
-                        """);
-                        return;
+                        logger?.LogWarning("Found invalid Azure App Configuration endpoint in environment variable 'AZURE_APP_CONFIG_ENDPOINT': {EnvEndpoint}", envEndpoint);
                     }
                 }
 
