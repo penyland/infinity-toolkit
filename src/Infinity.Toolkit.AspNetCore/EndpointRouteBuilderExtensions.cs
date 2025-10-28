@@ -72,7 +72,7 @@ public static class EndpointRouteBuilderExtensions
 
         return builder.MapGet(path, async ([FromServices] IRequestHandler<TResponse> requestHandler) =>
         {
-            return await requestHandler.HandleAsync();
+            return mapper(await requestHandler.HandleAsync());
         })
         .Produces<TMappedType>(statusCode: StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status400BadRequest);
