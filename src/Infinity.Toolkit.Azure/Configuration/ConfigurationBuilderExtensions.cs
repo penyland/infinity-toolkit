@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System.Data.Common;
 using System.Text.Json.Serialization;
 
@@ -93,6 +94,17 @@ public static class ConfigurationBuilderExtensions
     public static IHostApplicationBuilder ConfigureAzureAppConfiguration(this IHostApplicationBuilder builder, string configSectionName = AzureAppConfigSettings.DefaultConfigSectionName, Action<AzureAppConfigSettings>? configureSettings = null, Action<AzureAppConfigurationRefreshOptions>? refreshOptions = null)
     {
         ArgumentNullException.ThrowIfNull(builder, nameof(builder));
+        var loggerFactory = LoggerFactory.Create(loggingBuilder =>
+        {
+            loggingBuilder
+                .AddConfiguration(builder.Configuration.GetSection("Logging"))
+#if DEBUG
+                .AddDebug()
+#endif
+                .AddConsole();
+        });
+        var logger = loggerFactory.CreateLogger("Infinity.Toolkit.Azure");
+
         var settings = new AzureAppConfigSettings()
         {
             ApplicationName = builder.Environment.ApplicationName,
@@ -101,8 +113,6 @@ public static class ConfigurationBuilderExtensions
 
         builder.Configuration.GetSection(configSectionName).Bind(settings);
         configureSettings?.Invoke(settings);
-
-        builder.Services.AddAzureAppConfiguration();
 
         builder.Configuration.AddAzureAppConfiguration(options =>
         {
@@ -124,13 +134,15 @@ public static class ConfigurationBuilderExtensions
                     var envEndpoint = Environment.GetEnvironmentVariable("AZURE_APP_CONFIG_ENDPOINT");
                     if (!Uri.TryCreate(envEndpoint, UriKind.Absolute, out endpointUri))
                     {
-                        throw new InvalidOperationException($"""
-                        Unable to find a valid Azure App Configuration endpoint.
-                        Please provide a valid endpoint using one of the following sources:
-                        - 'ConnectionStrings:AzureAppConfig' (connection string)
-                        - '${configSectionName}:Endpoint' configuration section
-                        - 'AZURE_APP_CONFIG_ENDPOINT' environment variable
+                        // Log instead of throwing
+                        logger?.LogError(message: $"""
+                            Unable to find a valid Azure App Configuration endpoint.
+                            Please provide a valid endpoint using one of the following sources:
+                            - 'ConnectionStrings:AzureAppConfig' (connection string)
+                            - '${configSectionName}:Endpoint' configuration section
+                            - 'AZURE_APP_CONFIG_ENDPOINT' environment variable
                         """);
+                        return;
                     }
                 }
 

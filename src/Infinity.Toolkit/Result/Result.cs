@@ -22,6 +22,8 @@ public abstract class Result
 
     public static Result<T> Failure<T>(Error error) => new ErrorResult<T>(error);
 
+    public static Result<T> Failure<T>(IReadOnlyCollection<Error> errors) => new ErrorResult<T>(errors);
+
     public static Result<T> Failure<T>(string message, IReadOnlyCollection<Error> errors) => new ErrorResult<T>(message, errors);
 
     public static Result<T> Failure<T>(Exception exception) => new ErrorResult<T>(exception);
