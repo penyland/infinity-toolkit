@@ -48,7 +48,7 @@ app.MapPost("/product", async (CreateProduct command, IRequestHandler<CreateProd
 .WithSummary("Creates a new product.")
 .WithDescription("This endpoint creates a new product with the specified ID and name.");
 
-app.MapGetQueryWithResult<ProductCreatedQuery, Product>("/product/{id}")
+app.MapGetRequestHandlerWithResult<ProductCreatedQuery, Product>("/product/{id}")
     .WithName("GetProductCreated")
     .WithSummary("Gets the product created information.")
     .WithDescription("This endpoint retrieves the product created information.");
