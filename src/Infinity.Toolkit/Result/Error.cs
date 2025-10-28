@@ -59,7 +59,7 @@ public enum ErrorType
     [Description("Internal Server Error")]
     Failure = 500,
 
-    [Description("Unprocessable Entity ")]
+    [Description("Unprocessable Entity")]
     UnprocessableEntity = 422,
 
     [Description("Too Many Requests")]
