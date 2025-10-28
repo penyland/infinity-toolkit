@@ -142,6 +142,7 @@ public static class ConfigurationBuilderExtensions
                             - '${configSectionName}:Endpoint' configuration section
                             - 'AZURE_APP_CONFIG_ENDPOINT' environment variable
                         """);
+                        return;
                     }
                 }
 
