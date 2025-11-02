@@ -5,9 +5,9 @@
 /// </summary>
 public abstract class FeatureModule : IFeatureModule
 {
-    public abstract IModuleInfo? ModuleInfo { get; }
+    public abstract IModuleInfo ModuleInfo { get; }
 
-    public virtual ModuleContext RegisterModule(ModuleContext moduleContext) => moduleContext;
+    public virtual void RegisterModule(IHostApplicationBuilder builder) { }
 }
 
 /// <summary>
@@ -16,7 +16,7 @@ public abstract class FeatureModule : IFeatureModule
 /// </summary>
 public abstract class WebFeatureModule : IWebFeatureModule
 {
-    public abstract IModuleInfo? ModuleInfo { get; }
+    public abstract IModuleInfo ModuleInfo { get; }
 
     public virtual void RegisterModule(IHostApplicationBuilder builder) { }
 
