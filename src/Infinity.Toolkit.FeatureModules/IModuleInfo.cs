@@ -11,5 +11,5 @@ public class FeatureModuleInfo(string? name, string? version) : IModuleInfo
 {
     public string? Name { get; init; } = name;
 
-    public string? Version { get; init; } = version;
+    public string? Version { get; init; } = version ?? "1.0.0";
 }

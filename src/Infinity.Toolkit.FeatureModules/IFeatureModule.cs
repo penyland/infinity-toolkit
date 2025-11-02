@@ -6,7 +6,7 @@ public interface IFeatureModuleBase
     /// <summary>
     /// Gets the meta data that describes the module such as name and version.
     /// </summary>
-    IModuleInfo? ModuleInfo { get; }
+    IModuleInfo ModuleInfo { get; }
 }
 
 /// <summary>
@@ -22,7 +22,7 @@ public interface IFeatureModule : IFeatureModuleBase
     /// <summary>
     /// Register all dependencies needed by a module in the DI-container.
     /// </summary>
-    ModuleContext RegisterModule(ModuleContext moduleContext);
+    void RegisterModule(IHostApplicationBuilder builder);
 }
 
 /// <summary>
@@ -33,15 +33,10 @@ public interface IFeatureModule : IFeatureModuleBase
 /// module to independently register services and endpoints. This facilitates separation of concerns and improves
 /// maintainability in large applications. Modules should ensure that all required services are registered before
 /// mapping endpoints.</remarks>
-public interface IWebFeatureModule : IFeatureModuleBase
+public interface IWebFeatureModule : IFeatureModule
 {
     /// <summary>
     /// Maps all endpoints provided by the module in the DI-container.
     /// </summary>
     void MapEndpoints(WebApplication app);
-
-    /// <summary>
-    /// Register all dependencies needed by a web module in the DI-container.
-    /// </summary>
-    void RegisterModule(IHostApplicationBuilder builder);
 }
