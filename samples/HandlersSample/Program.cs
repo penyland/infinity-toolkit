@@ -62,17 +62,16 @@ record CreateProductResponse();
 
 class CreateProductHandler(InMemoryDatabase inMemoryDatabase) : IRequestHandler<CreateProduct, Result<CreateProductResponse>>
 {
-    public Task<Result<CreateProductResponse>> HandleAsync(IHandlerContext<CreateProduct>? context, CancellationToken cancellationToken = default)
+    public async Task<Result<CreateProductResponse>> HandleAsync(IHandlerContext<CreateProduct>? context, CancellationToken cancellationToken = default)
     {
-
         try
         {
             inMemoryDatabase.Add(new Product(context!.Request.Id, context.Request.Name));
-            return Task.FromResult(Result.Success(new CreateProductResponse()));
+            return new CreateProductResponse();
         }
         catch (Exception ex)
         {
-            return Task.FromResult(Result.Failure<CreateProductResponse>(ex));
+            return Result<CreateProductResponse>.Failure(ex);
         }
     }
 }
@@ -119,10 +118,10 @@ class ProductCreatedQueryHandler(InMemoryDatabase inMemoryDatabase, ILogger<Prod
         var product = inMemoryDatabase.Get(context.Request.Id);
         if (product == null)
         {
-            return Task.FromResult(Result.Failure<Product>($"Product with ID {context.Request.Id} not found."));
+            return Task.FromResult(Result<Product>.Failure($"Product with ID {context.Request.Id} not found."));
         }
 
-        return Task.FromResult(Result.Success(product));
+        return Task.FromResult(Result<Product>.Success(product));
     }
 }
 

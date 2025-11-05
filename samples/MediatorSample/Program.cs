@@ -35,7 +35,7 @@ class ProductCreatedQueryHandler : IMediatorHandler<ProductCreatedQuery, string>
     public Task<Result<string>> HandleAsync(MediatorHandlerContext<ProductCreatedQuery> context, CancellationToken cancellationToken = default)
     {
         Console.WriteLine("ProductCreatedQueryHandler:HandleAsync");
-        return Task.FromResult(Result.Success("Product 1"));
+        return Task.FromResult(Result<string>.Success("Product 1"));
     }
 }
 

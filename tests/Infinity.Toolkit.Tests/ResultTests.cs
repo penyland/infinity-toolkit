@@ -19,7 +19,7 @@ public class ResultTests
         result.Succeeded.ShouldBeFalse();
         result.Failed.ShouldBeTrue();
         result.Errors.ShouldNotBeNull();
-        result.Errors.First().Code.ShouldBe(string.Empty);
+        result.Errors.First().Message.ShouldBe(string.Empty);
         result.Errors.First().Details.ShouldBe("An error occurred");
     }
 
@@ -27,7 +27,7 @@ public class ResultTests
     public void Result_With_Value_Should_Return_Value_When_Successful()
     {
         var value = "Test Value";
-        var result = Result.Success(value);
+        var result = Result<string>.Success(value);
         result.Succeeded.ShouldBeTrue();
         result.Value.ShouldBe(value);
     }
@@ -35,7 +35,7 @@ public class ResultTests
     [Fact]
     public void Result_With_Value_Should_Throw_When_Failed()
     {
-        var result = Result.Failure<string>("An error occurred");
+        var result = Result<string>.Failure("An error occurred");
         result.Succeeded.ShouldBeFalse();
 
         Should.Throw<InvalidOperationException>(() => _ = result.Value)
@@ -46,7 +46,7 @@ public class ResultTests
     public void Result_Match_Should_Execute_OnSuccess_When_Successful()
     {
         var value = "Test Value";
-        var result = Result.Success(value);
+        var result = Result<string>.Success(value);
 
         var matchedValue = result.Match(
             onSuccess: () => "Success",
@@ -83,7 +83,7 @@ public class ResultTests
     public void Result_Value_Should_Return_Value_When_Successful()
     {
         var value = "Test Value";
-        var result = Result.Success(value);
+        var result = Result<string>.Success(value);
 
         var extractedValue = result.Value();
 
@@ -93,7 +93,7 @@ public class ResultTests
     [Fact]
     public void Result_Value_Should_Throw_InvalidOperationException_When_Failed()
     {
-        var result = Result.Failure<string>("An error occurred");
+        var result = Result<string>.Failure("An error occurred");
 
         Should.Throw<InvalidOperationException>(() => _ = result.Value())
             .Message.ShouldBe("You can't access .Value when .Succeeded is false");
@@ -117,7 +117,7 @@ public class ResultTests
 
         result.Succeeded.ShouldBeFalse();
         result.Errors.Count.ShouldBe(1);
-        result.Errors.First().Code.ShouldBe("TestError");
+        result.Errors.First().Message.ShouldBe("TestError");
         result.Errors.First().Details.ShouldBe("An error occurred");
     }
 
@@ -125,7 +125,7 @@ public class ResultTests
     public void Result_Implicit_Conversion_To_Value_Should_Work()
     {
         var value = "Test Value";
-        var result = Result.Success(value);
+        var result = Result<string>.Success(value);
 
         string extractedValue = result;
 
@@ -140,14 +140,14 @@ public class ResultTests
 
         Error[] extractedErrors = result;
 
-        extractedErrors.First().Code.ShouldBe("TestError");
+        extractedErrors.First().Message.ShouldBe("TestError");
         extractedErrors.First().Details.ShouldBe("An error occurred");
     }
 
     [Fact]
     public void Result_Implicit_Conversion_From_Success_Should_Work()
     {
-        var result = Result.Success<string>("Test Value");
+        var result = Result<string>.Success("Test Value");
         Error[] extractedErrors = result;
 
         extractedErrors.First().ShouldBe(Error.None);
@@ -156,7 +156,7 @@ public class ResultTests
     [Fact]
     public void Result_Implicit_Conversion_From_Result_Should_Work()
     {
-        var result = Result.Success("Test Value");
+        var result = Result<string>.Success("Test Value");
         var convertedResult = result;
 
         convertedResult.Succeeded.ShouldBeTrue();
@@ -178,36 +178,29 @@ public class ResultTests
     [Fact]
     public void IsSuccess_Should_Return_True_When_Successful()
     {
-        var result = Result.Success("Test Value");
+        var result = Result<string>.Success("Test Value");
         (result is Success).ShouldBeTrue();
     }
 
     [Fact]
     public void IsFailure_Should_Return_True_When_Failed()
     {
-        var result = Result.Failure<string>("An error occurred");
+        var result = Result<string>.Failure("An error occurred");
         (result is Failure).ShouldBeTrue();
     }
 
     [Fact]
     public void Result_With_Generic_Value_Should_Be_Successful()
     {
-        var result = Result.Success(new TestResponse("Hello, World!"));
+        var result = Result<TestResponse>.Success(new TestResponse("Hello, World!"));
         result.Succeeded.ShouldBeTrue();
         result.Value.Message.ShouldBe("Hello, World!");
     }
 
     [Fact]
-    public void Generic_Result_Should_Be_Successful_When_No_Value_Provided()
-    {
-        var result = Result.Success<TestResponse>();
-        result.Succeeded.ShouldBeTrue();
-    }
-
-    [Fact]
     public void Result_With_Generic_Value_Should_Be_Failure_When_Error_Occurs()
     {
-        var result = Result.Failure<TestResponse>("An error occurred");
+        var result = Result<TestResponse>.Failure("An error occurred");
         result.Succeeded.ShouldBeFalse();
         result.Errors.Count.ShouldBe(1);
         result.Errors.First().Details.ShouldBe("An error occurred");
@@ -217,7 +210,7 @@ public class ResultTests
     public void Result_With_Generic_Value_Should_Return_Value_When_Successful()
     {
         var response = new TestResponse("Test Response");
-        var result = Result.Success(response);
+        var result = Result<TestResponse>.Success(response);
 
         result.Succeeded.ShouldBeTrue();
         result.Value.Message.ShouldBe("Test Response");
@@ -226,7 +219,7 @@ public class ResultTests
     [Fact]
     public void Result_With_Generic_Value_Should_Throw_When_Failed()
     {
-        var result = Result.Failure<TestResponse>("An error occurred");
+        var result = Result<TestResponse>.Failure("An error occurred");
         result.Succeeded.ShouldBeFalse();
 
         Should.Throw<InvalidOperationException>(() => _ = result.Value)
@@ -251,7 +244,7 @@ public class ResultTests
 
         result.Succeeded.ShouldBeFalse();
         result.Errors.Count.ShouldBe(1);
-        result.Errors.First().Code.ShouldBe("TestError");
+        result.Errors.First().Message.ShouldBe("TestError");
         result.Errors.First().Details.ShouldBe("An error occurred");
     }
 
@@ -259,7 +252,7 @@ public class ResultTests
     public void Generic_Failure_With_Exception_Should_Be_Failure()
     {
         var exception = new InvalidOperationException("Test Exception");
-        var result = Result.Failure<TestResponse>(exception);
+        var result = Result<TestResponse>.Failure(exception);
 
         result.Succeeded.ShouldBeFalse();
         result.Errors.Count.ShouldBe(1);
@@ -267,7 +260,7 @@ public class ResultTests
         var exceptionError = result.Errors.First() as ExceptionError;
         exceptionError.ShouldNotBeNull();
         exceptionError.Exception.ShouldBe(exception);
-        exceptionError.Code.ShouldBe(exception.GetType().Name);
+        exceptionError.Message.ShouldBe(exception.GetType().Name);
         exceptionError.Details.ShouldBe("Test Exception");
     }
 
@@ -275,7 +268,7 @@ public class ResultTests
     public void Generic_Failure_With_Exception_Should_Throw_When_Accessing_Value()
     {
         var exception = new InvalidOperationException("Test Exception");
-        var result = Result.Failure<TestResponse>(exception);
+        var result = Result<TestResponse>.Failure(exception);
 
         result.Succeeded.ShouldBeFalse();
 
@@ -294,7 +287,7 @@ public class ResultTests
         var exceptionError = result.Errors.First() as ExceptionError;
         exceptionError.ShouldNotBeNull();
         exceptionError.Exception.ShouldBe(exception);
-        exceptionError.Code.ShouldBe(exception.GetType().Name);
+        exceptionError.Message.ShouldBe(exception.GetType().Name);
         exceptionError.Details.ShouldBe("Test Exception");
     }
 
@@ -302,11 +295,11 @@ public class ResultTests
     public void Generic_Failure_With_Error_Should_Be_Failure()
     {
         var error = new Error("TestError", "An error occurred");
-        var result = Result.Failure<TestResponse>(error);
+        var result = Result<TestResponse>.Failure(error);
 
         result.Succeeded.ShouldBeFalse();
         result.Errors.Count.ShouldBe(1);
-        result.Errors.First().Code.ShouldBe("TestError");
+        result.Errors.First().Message.ShouldBe("TestError");
         result.Errors.First().Details.ShouldBe("An error occurred");
     }
 
@@ -314,7 +307,7 @@ public class ResultTests
     public void Generic_Failure_With_Error_Should_Throw_When_Accessing_Value()
     {
         var error = new Error("TestError", "An error occurred");
-        var result = Result.Failure<TestResponse>(error);
+        var result = Result<TestResponse>.Failure(error);
 
         result.Succeeded.ShouldBeFalse();
 
@@ -330,7 +323,7 @@ public class ResultTests
 
         result.Succeeded.ShouldBeFalse();
         result.Errors.Count.ShouldBe(1);
-        result.Errors.First().Code.ShouldBe("TestError");
+        result.Errors.First().Message.ShouldBe("TestError");
         result.Errors.First().Details.ShouldBe("An error occurred");
     }
 
@@ -338,11 +331,11 @@ public class ResultTests
     public void Generic_Failure_With_Message_And_Errors_Should_Be_Failure()
     {
         var errors = new List<Error> { new("TestError", "An error occurred") };
-        var result = Result.Failure<TestResponse>("Failure message", errors);
+        var result = Result<TestResponse>.Failure("Failure message", errors);
 
         result.Succeeded.ShouldBeFalse();
         result.Errors.Count.ShouldBe(1);
-        result.Errors.First().Code.ShouldBe("TestError");
+        result.Errors.First().Message.ShouldBe("TestError");
         result.Errors.First().Details.ShouldBe("An error occurred");
     }
 
@@ -350,7 +343,7 @@ public class ResultTests
     public void Generic_Failure_With_Message_And_Errors_Should_Throw_When_Accessing_Value()
     {
         var errors = new List<Error> { new("TestError", "An error occurred") };
-        var result = Result.Failure<TestResponse>("Failure message", errors);
+        var result = Result<TestResponse>.Failure("Failure message", errors);
 
         result.Succeeded.ShouldBeFalse();
 
@@ -367,13 +360,13 @@ public class ResultTests
             new("TestError2", "Second error occurred")
         };
 
-        var result = Result.Failure<TestResponse>("Failure message", errors);
+        var result = Result<TestResponse>.Failure("Failure message", errors);
 
         result.Succeeded.ShouldBeFalse();
         result.Errors.Count.ShouldBe(2);
-        result.Errors.ElementAt(0).Code.ShouldBe("TestError1");
+        result.Errors.ElementAt(0).Message.ShouldBe("TestError1");
         result.Errors.ElementAt(0).Details.ShouldBe("First error occurred");
-        result.Errors.ElementAt(1).Code.ShouldBe("TestError2");
+        result.Errors.ElementAt(1).Message.ShouldBe("TestError2");
         result.Errors.ElementAt(1).Details.ShouldBe("Second error occurred");
     }
 
@@ -385,7 +378,7 @@ public class ResultTests
             new("TestError1", "First error occurred"),
             new("TestError2", "Second error occurred")
         };
-        var result = Result.Failure<TestResponse>("Failure message", errors);
+        var result = Result<TestResponse>.Failure("Failure message", errors);
 
         result.Succeeded.ShouldBeFalse();
 
@@ -409,11 +402,11 @@ public class ResultTests
         var initialError = new Error("InitialError", "Initial error occurred");
         var additionalError = new Error("AdditionalError", "Additional error occurred");
 
-        var result1 = Result.Failure<TestResponse>(initialError);
-        var result2 = Result.Failure<TestResponse>(additionalError);
+        var result1 = Result<TestResponse>.Failure(initialError);
+        var result2 = Result<TestResponse>.Failure(additionalError);
 
         // Create a new result from the first result
-        var result3 = Result.Failure(result1);
+        var result3 = Result<string>.Failure(result1);
         result3.Succeeded.ShouldBeFalse();
         result3.Errors.Count.ShouldBe(1);
 
@@ -425,14 +418,14 @@ public class ResultTests
     [Fact]
     public void Success_And_Adding_A_Failure_Should_Not_Be_Successful()
     {
-        var successResult = Result.Success<TestResponse>(new TestResponse("Initial Success"));
+        var successResult = Result<TestResponse>.Success(new TestResponse("Initial Success"));
         var failureError = new Error("FailureError", "Failure occurred");
 
         var result = Result.Failure(successResult, failureError);
 
         result.Succeeded.ShouldBeFalse();
         result.Errors.Count.ShouldBe(1);
-        result.Errors.First().Code.ShouldBe("FailureError");
+        result.Errors.First().Message.ShouldBe("FailureError");
         result.Errors.First().Details.ShouldBe("Failure occurred");
     }
 
@@ -442,15 +435,15 @@ public class ResultTests
         var error1 = new Error("Error1", "First error occurred");
         var error2 = new Error("Error2", "Second error occurred");
 
-        var result1 = Result.Failure<TestResponse>(error1);
-        var result2 = Result.Failure<TestResponse>(error2);
-        var combinedResult = Result.Failure(result1, result2);
+        var result1 = Result<TestResponse>.Failure(error1);
+        var result2 = Result<TestResponse>.Failure(error2);
+        var combinedResult = Result<TestResponse>.Failure(result1, result2);
 
         combinedResult.Succeeded.ShouldBeFalse();
         combinedResult.Errors.Count.ShouldBe(2);
-        combinedResult.Errors.ElementAt(0).Code.ShouldBe("Error1");
+        combinedResult.Errors.ElementAt(0).Message.ShouldBe("Error1");
         combinedResult.Errors.ElementAt(0).Details.ShouldBe("First error occurred");
-        combinedResult.Errors.ElementAt(1).Code.ShouldBe("Error2");
+        combinedResult.Errors.ElementAt(1).Message.ShouldBe("Error2");
         combinedResult.Errors.ElementAt(1).Details.ShouldBe("Second error occurred");
     }
 
@@ -460,7 +453,7 @@ public class ResultTests
         var initialError = new Error("InitialError", "Initial error occurred");
         var additionalError = new Error("AdditionalError", "Additional error occurred");
 
-        var initialResult = Result.Failure<TestResponse>(initialError);
+        var initialResult = Result<TestResponse>.Failure(initialError);
 
         // Create a new result from the first result
         var result2 = Result<TestResponse>.Failure(initialResult, additionalError);

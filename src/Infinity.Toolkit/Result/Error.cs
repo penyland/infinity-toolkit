@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Infinity.Toolkit;
 
-public class Error(string code, string details, ErrorType type = ErrorType.Failure)
+public class Error(string message, string details, ErrorType type = ErrorType.Failure)
 {
     public static readonly Error None = new(string.Empty, string.Empty, ErrorType.None);
     public static readonly Error NullValue = new("NullValue", "Value is null", ErrorType.Validation);
@@ -14,7 +14,7 @@ public class Error(string code, string details, ErrorType type = ErrorType.Failu
     {
     }
 
-    public string Code { get; } = code ?? string.Empty;
+    public string Message { get; } = message ?? string.Empty;
 
     public string Details { get; } = details;
 
@@ -22,7 +22,7 @@ public class Error(string code, string details, ErrorType type = ErrorType.Failu
     public ErrorType Type { get; } = type;
 }
 
-public class ExceptionError(string code, string details, Exception exception) : Error(code, details, ErrorType.Failure)
+public class ExceptionError(string message, string details, Exception exception) : Error(message, details, ErrorType.Failure)
 {
     public Exception Exception { get; } = exception ?? throw new ArgumentNullException(nameof(exception));
 

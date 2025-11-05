@@ -1,32 +1,23 @@
 ﻿namespace Infinity.Toolkit;
 
-public abstract class Result
+public abstract class ResultBase
 {
     public bool Succeeded { get; protected set; } = true;
 
     public bool Failed => !Succeeded;
 
     public IReadOnlyCollection<Error> Errors { get; protected set; } = [];
+}
 
+public abstract class Result : ResultBase
+{
     public static Result Success() => new SuccessResult();
 
-    public static Result<T> Success<T>() => new SuccessResult<T>(default!);
-
-    public static Result<T> Success<T>(T data) => new SuccessResult<T>(data);
+    public static Result BadRequest(string message) => new ErrorResult(new Error(message, string.Empty, ErrorType.Validation));
 
     public static Result Failure(string message) => new ErrorResult(message);
 
     public static Result Failure(Error error) => new ErrorResult(error);
-
-    public static Result<T> Failure<T>(string details) => new ErrorResult<T>(details);
-
-    public static Result<T> Failure<T>(Error error) => new ErrorResult<T>(error);
-
-    public static Result<T> Failure<T>(IReadOnlyCollection<Error> errors) => new ErrorResult<T>(errors);
-
-    public static Result<T> Failure<T>(string message, IReadOnlyCollection<Error> errors) => new ErrorResult<T>(message, errors);
-
-    public static Result<T> Failure<T>(Exception exception) => new ErrorResult<T>(exception);
 
     /// <summary>
     /// Converts a <see cref="Result"/> instance to an array of <see cref="Error"/> objects, representing the errors
@@ -83,7 +74,7 @@ public abstract class Result
     }
 }
 
-public abstract class Result<T> : Result
+public abstract class Result<T> : ResultBase
 {
     private T value;
 
@@ -108,6 +99,34 @@ public abstract class Result<T> : Result
         }
         return new ErrorResult<T>(result.Errors);
     }
+
+    //public static Result<T> Success() => new SuccessResult<T>(default!);
+
+    public static Result<T> Success(T data) => new SuccessResult<T>(data);
+
+    public static Result<T> Failure(string details) => new ErrorResult<T>(details);
+
+    public static Result<T> Failure(Error error) => new ErrorResult<T>(error);
+
+    public static Result<T> Failure(IReadOnlyCollection<Error> errors) => new ErrorResult<T>(errors);
+
+    public static Result<T> Failure(string message, IReadOnlyCollection<Error> errors) => new ErrorResult<T>(message, errors);
+
+    public static Result<T> Failure(Exception exception) => new ErrorResult<T>(exception);
+
+    public static Result<T> BadRequest(string details) => new ErrorResult<T>(new Error("BadRequest", details, ErrorType.Validation));
+
+    public static Result<T> NotFound(string details) => new ErrorResult<T>(new Error("NotFound", details, ErrorType.NotFound));
+
+    public static Result<T> Unauthorized(string details) => new ErrorResult<T>(new Error("Unauthorized", details, ErrorType.Unauthorized));
+
+    public static Result<T> Forbidden(string details) => new ErrorResult<T>(new Error("Forbidden", details, ErrorType.Forbidden));
+
+    public static Result<T> Conflict(string details) => new ErrorResult<T>(new Error("Conflict", details, ErrorType.Conflict));
+
+    public static Result<T> InternalError(string details) => new ErrorResult<T>(new Error("InternalError", details, ErrorType.Failure));
+
+    public static Result<T> ValidationError(string propertyName, string errorMessage) => new ErrorResult<T>(new ValidationError(propertyName, errorMessage));
 
     /// <summary>
     /// Implicitly converts a value of type <typeparamref name="T"/> to a <see cref="Result{T}"/> representing a

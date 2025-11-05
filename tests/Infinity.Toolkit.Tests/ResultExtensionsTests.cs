@@ -9,7 +9,7 @@ public class ResultExtensionsTests
     {
         // Arrange
         var expectedValue = "test value";
-        var result = Result.Success(expectedValue);
+        var result = Result<string>.Success(expectedValue);
 
         // Act
         var actualValue = result.Value();
@@ -22,7 +22,7 @@ public class ResultExtensionsTests
     public void Value_WithFailureResult_Throws_InvalidOperationException()
     {
         // Arrange
-        var result = Result.Failure<string>("Error occurred");
+        var result = Result<string>.Failure("Error occurred");
 
         // Act
         // Assert
@@ -98,7 +98,7 @@ public class ResultExtensionsTests
         var errors = problemDetails.Extensions["errors"] as IReadOnlyCollection<Error>;
         errors.ShouldNotBeNull();
         errors.Count.ShouldBe(1);
-        errors.First().Code.ShouldBe("TEST001");
+        errors.First().Message.ShouldBe("TEST001");
     }
 
     [Fact]
