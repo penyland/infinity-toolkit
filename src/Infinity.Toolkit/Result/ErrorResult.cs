@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net;
 
 namespace Infinity.Toolkit;
 
@@ -75,6 +76,13 @@ public class ErrorResult<T> : Result<T>, Failure
     {
         Succeeded = false;
         Message = exception.Message;
+    }
+
+    public ErrorResult(HttpStatusCode statusCode, string errorMessage, IReadOnlyCollection<Error> errors)
+        : base(default!, errors)
+    {
+        Succeeded = false;
+        Message = errorMessage;
     }
 
     //public IReadOnlyCollection<Error> Errors { get; }
