@@ -16,7 +16,6 @@ public class SampleModule1 : WebFeatureModule
     public override void MapEndpoints(WebApplication app)
     {
         var group = app.MapGroup("/info")
-            .WithOpenApi()
             .WithTags("Info");
 
         group.MapGet("/systeminfo", GetSystemInfo)
