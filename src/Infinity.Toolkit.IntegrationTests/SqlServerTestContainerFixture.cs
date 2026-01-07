@@ -15,8 +15,7 @@ public sealed class SqlServerTestContainerFixture<T, TContext> : WebApplicationF
 {
     public IConfiguration Configuration { get; private set; }
 
-    private readonly MsSqlContainer msSqlContainer = new MsSqlBuilder()
-      .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+    private readonly MsSqlContainer msSqlContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2025-latest")
       .Build();
 
     public override async ValueTask DisposeAsync()

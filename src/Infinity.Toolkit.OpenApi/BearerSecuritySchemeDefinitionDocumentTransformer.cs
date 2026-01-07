@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.OpenApi;
+﻿using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
-using Microsoft.OpenApi.Models;
 
 namespace Infinity.Toolkit.OpenApi;
 
@@ -15,13 +13,12 @@ public sealed class BearerSecuritySchemeDefinitionDocumentTransformer : IOpenApi
         var securityScheme = new OpenApiSecurityScheme
         {
             Type = SecuritySchemeType.Http,
-            Name = JwtBearerDefaults.AuthenticationScheme,
-            Scheme = JwtBearerDefaults.AuthenticationScheme,
-            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = JwtBearerDefaults.AuthenticationScheme }
+            Name = "bearer",
+            Scheme = "bearer",
         };
 
         document.Components ??= new();
-        document.Components.SecuritySchemes.Add(JwtBearerDefaults.AuthenticationScheme, securityScheme);
+        document.Components?.SecuritySchemes?.Add("bearer", securityScheme);
         return Task.CompletedTask;
     }
 }

@@ -26,8 +26,7 @@ internal class WeatherModule : WebFeatureModule
 
             return forecast;
         })
-        .WithName("GetWeatherForecast")
-        .WithOpenApi();
+        .WithName("GetWeatherForecast");
     }
 }
 
