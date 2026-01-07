@@ -2,9 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Interfaces;
-using Microsoft.OpenApi.Models;
 
 namespace Infinity.Toolkit.OpenApi;
 
@@ -26,9 +23,13 @@ public class OpenApiOAuth2Settings
 
     public string[]? ScopesArray => Scopes.Split(" ", StringSplitOptions.RemoveEmptyEntries);
 
-    public Uri AuthorizationUrl => new($"{Instance.TrimEnd('/')}/{TenantId}/oauth2/v2.0/authorize", UriKind.Absolute);
+    public IDictionary<string, string> ScopesDictionary => ScopesArray?.ToDictionary(x => x, x => x) ?? [];
 
-    public Uri TokenUrl => new($"{Instance}/{TenantId}/oauth2/v2.0/token", UriKind.Absolute);
+    public string AuthorityUrl => $"{Instance}{TenantId}";
+
+    public string AuthorizationUrl => $"{AuthorityUrl}/oauth2/v2.0/authorize";
+
+    public string TokenUrl => $"{AuthorityUrl}/oauth2/v2.0/token";
 }
 
 public static class AzureAdOAuth2SecuritySchemeDefinitionDocumentTransformerExtensions
@@ -57,32 +58,31 @@ public sealed class OAuth2SecuritySchemeDefinitionDocumentTransformer(IOptions<O
 {
     public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
-        const string AuthenticationScheme = "oauth2";
+        var oauthOptions = options.Value;
 
         var securityScheme = new OpenApiSecurityScheme
         {
             Type = SecuritySchemeType.OAuth2,
-            Name = OpenApiOAuth2Settings.AuthenticationScheme,
-            Scheme = OpenApiOAuth2Settings.AuthenticationScheme,
-            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = OpenApiOAuth2Settings.AuthenticationScheme },
-            In = ParameterLocation.Header,
+            Name = "oauth2",
+            Scheme = "oauth2",
             Flows = new OpenApiOAuthFlows
             {
                 AuthorizationCode = new OpenApiOAuthFlow
                 {
-                    AuthorizationUrl = options.Value.AuthorizationUrl,
-                    TokenUrl = options.Value.TokenUrl,
-                    Scopes = options.Value.Scopes.Split(" ", StringSplitOptions.RemoveEmptyEntries).ToDictionary(x => x, x => x),
+                    AuthorizationUrl = new Uri(oauthOptions.AuthorizationUrl),
+                    TokenUrl = new Uri(oauthOptions.TokenUrl),
+                    Scopes = oauthOptions.ScopesDictionary,
                     Extensions = new Dictionary<string, IOpenApiExtension>
                     {
-                        ["x-usePkce"] = new OpenApiString("SHA-256")
+                        ["x-usePkce"] = new JsonNodeExtension("SHA-256")
                     }
                 }
             }
         };
 
         document.Components ??= new();
-        document.Components.SecuritySchemes.Add(AuthenticationScheme, securityScheme);
+        document.AddComponent("oauth2", securityScheme);
+
         return Task.CompletedTask;
     }
 }
