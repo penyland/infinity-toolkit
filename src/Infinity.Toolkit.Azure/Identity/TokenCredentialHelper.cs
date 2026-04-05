@@ -35,7 +35,7 @@ public static class TokenCredentialHelper
             tokenCredentials = [
                 new EnvironmentCredential(),
                 string.IsNullOrWhiteSpace(userAssignedClientId)
-                    ? new ManagedIdentityCredential()
+                    ? new ManagedIdentityCredential(new ManagedIdentityCredentialOptions())
                     : new ManagedIdentityCredential(ManagedIdentityId.FromUserAssignedClientId(userAssignedClientId))
             ];
 

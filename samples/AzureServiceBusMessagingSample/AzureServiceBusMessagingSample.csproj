@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,5 +17,6 @@
     <ProjectReference Include="..\..\src\Infinity.Toolkit.Messaging.AzureServiceBus\Infinity.Toolkit.Messaging.AzureServiceBus.csproj" />
     <ProjectReference Include="..\..\src\Infinity.Toolkit.Messaging\Infinity.Toolkit.Messaging.csproj" />
   </ItemGroup>
+
 
 </Project>

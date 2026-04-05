@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <VersionPrefix>0.2.0</VersionPrefix>
+    <VersionPrefix>0.2.1</VersionPrefix>
     <PackageId>Infinity.Toolkit.Slack</PackageId>
     <Description>Useful tools for creating Slack messages using block kit as well as helpers for authenticating and verifying requests from Slack.</Description>
     <PackageTags>Slack;Toolkit;</PackageTags>
