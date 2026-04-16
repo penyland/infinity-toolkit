@@ -131,3 +131,16 @@ When adding a new packable project, include in the `.csproj`:
   <Description>One-line description for NuGet.org</Description>
 </PropertyGroup>
 ```
+
+## Commit messages
+- Follow [Conventional Commits](https://www.conventionalcommits.org) standard.
+- The commit message should be structured as follows:
+  ```
+  <type>[optional scope]: <description>
+
+  [optional body]
+
+  [optional footer(s)]
+  ```
+- Valid types include: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`.
+- Do not end subject line with a period. Use the imperative mood ("Add feature" not "Added feature").
