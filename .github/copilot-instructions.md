@@ -1,6 +1,6 @@
 # Copilot Instructions — Infinity Toolkit
 
-A collection of NuGet packages for building modular monoliths and vertical-slice architecture applications on .NET.
+A collection of NuGet packages for building modular and vertical-slice architecture applications on .NET.
 
 ## Build & Test
 
