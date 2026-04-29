@@ -4,8 +4,6 @@ namespace FeatureModulesSample;
 
 internal class WeatherModule : WebFeatureModule
 {
-    public override IModuleInfo ModuleInfo { get; } = new FeatureModuleInfo("WeatherModule", "1.0.0");
-
     public override void MapEndpoints(WebApplication builder)
     {
 
