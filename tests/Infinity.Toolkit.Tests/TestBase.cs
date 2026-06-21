@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
-namespace Infinity.Toolkit.Tests.Messaging;
+namespace Infinity.Toolkit.Tests;
 
 public class TestBase
 {
