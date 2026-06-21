@@ -52,7 +52,7 @@ public static class EndpointRouteBuilderExtensions
             return result;
         })
         .Produces<TResponse>(statusCode: StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status400BadRequest);
+        .ProducesProblem(StatusCodes.Status400BadRequest);
     }
 
     /// <summary>
@@ -170,7 +170,7 @@ public static class EndpointRouteBuilderExtensions
             return response;
         })
         .Produces<TResponse>(statusCode: StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status400BadRequest);
+        .ProducesProblem(StatusCodes.Status400BadRequest);
     }
 
     /// <summary>

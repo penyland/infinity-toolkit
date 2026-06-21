@@ -1,9 +1,13 @@
-﻿namespace Infinity.Toolkit;
+﻿using System.Text.Json.Serialization;
+
+namespace Infinity.Toolkit;
 
 public abstract class Result
 {
+    [JsonIgnore]
     public bool Succeeded { get; protected set; } = true;
 
+    [JsonIgnore]
     public bool Failed => !Succeeded;
 
     public IReadOnlyCollection<Error> Errors { get; protected set; } = [];
