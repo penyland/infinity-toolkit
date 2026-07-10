@@ -32,8 +32,6 @@ The repository is structured as independent, composable packages under `src/`:
 | `Infinity.Toolkit` | Core: Result type, handlers, functional utilities |
 | `Infinity.Toolkit.FeatureModules` | Auto-discovery and registration of feature modules |
 | `Infinity.Toolkit.AspNetCore` | ASP.NET Core extensions (Result ↔ HTTP, JWT helpers) |
-| `Infinity.Toolkit.Messaging` | In-memory message bus, OpenTelemetry, diagnostics |
-| `Infinity.Toolkit.Messaging.AzureServiceBus` | Azure Service Bus implementation of the messaging abstraction |
 | `Infinity.Toolkit.LogFormatter` | VS Code-themed console log formatter |
 | `Infinity.Toolkit.OpenApi` | OpenAPI security scheme document transformers |
 | `Infinity.Toolkit.Slack` | Slack BlockKit message builders, signature validation, OAuth |

@@ -7,7 +7,6 @@ Infinity Toolkit is a collection of useful nuget-packages simplifying developmen
 - [Handlers](#handlers) - A simple way to create handlers for commands and queries.
 - [Logging formatter](#logging-formatter) - logging formatter with a Visual Studio Code inspired theme and Serilog like formatting
 - OpenApi document transformers - Simplifying setting up security schemes.
-- Messaging framework - A simple messaging framework for sending and listening to messages. Supports in-memory and Azure Service Bus.
 - [Infinity.Toolkit.Azure](#Infinity.Toolkit.Azure) - Utilities for working with Azure. 
   - TokenCredentialHelper - Helps creating a ChainedTokenCredential used to authenticate with Azure services.
   - Simplifying setup and configuring Azure App Configuration.
