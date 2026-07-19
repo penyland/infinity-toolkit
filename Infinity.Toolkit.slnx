@@ -7,6 +7,7 @@
     <Project Path="samples/HandlersSample/HandlersSample.csproj" Id="87a7a8a4-5f14-4015-910e-222d3dd2d712" />
     <Project Path="samples/MediatorSample/MediatorSample.csproj" />
     <Project Path="samples/PipelineSample/PipelineSample.csproj" />
+    <Project Path="samples/ResultExperimentSample/ResultExperimentSample.csproj" Id="8a4aaadf-95a8-4dfa-a755-65eee723f944" />
     <Project Path="samples/SlackMessageBuilder/SlackMessageBuilder.csproj" />
   </Folder>
   <Folder Name="/src/">
