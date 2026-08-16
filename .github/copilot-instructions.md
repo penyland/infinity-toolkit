@@ -10,12 +10,11 @@ dotnet build
 dotnet build --configuration Release
 
 # Test
-dotnet test                                         # all tests
-dotnet test tests/Infinity.Toolkit.Tests/Infinity.Toolkit.Tests.csproj  # single project
+dotnet test                                    # all tests
+dotnet test tests/Infinity.Toolkit.Tests/     # specific project
 
-# Run a single test class or method
-dotnet test --filter "FullyQualifiedName~ResultTests"
-dotnet test --filter "DisplayName~Result_Success_Should_Be_Successful"
+# Run a single test class or method in Test Explorer filter
+# Filter by: "FullyQualifiedName~ResultTests" or "DisplayName~Result_Success_Should_Be_Successful"
 
 # Pack NuGet packages (output: ./artifacts)
 dotnet pack --configuration Release -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
@@ -102,11 +101,11 @@ public class GetItemHandler : RequestHandlerBase<GetItemRequest, Result<Item>>
 
 ### Tests
 
-- **Framework**: xUnit v3 — use `[Fact]` and `[Theory]`
+- **Framework**: TUnit — use `[Test]` attribute (see https://tunit.dev)
 - **Assertions**: Shouldly — `result.Succeeded.ShouldBeTrue()`, `value.ShouldBe(expected)`
 - **Mocking**: NSubstitute
 - **Naming**: `ClassName_Scenario_Should_ExpectedBehavior`
-- Global usings are declared in `Usings.cs` (`global using Xunit;`)
+- Global usings are declared in `Usings.cs` (`global using TUnit.Core;`)
 
 ### Code Style (enforced via `.editorconfig`)
 

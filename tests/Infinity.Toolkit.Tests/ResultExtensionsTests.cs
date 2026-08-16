@@ -4,7 +4,7 @@ namespace Infinity.Toolkit.Results.Tests;
 
 public class ResultExtensionsTests
 {
-    [Fact]
+    [Test]
     public void Value_WithSuccessResult_ReturnsValue()
     {
         // Arrange
@@ -15,10 +15,10 @@ public class ResultExtensionsTests
         var actualValue = result.Value();
 
         // Assert
-        Assert.Equal(expectedValue, actualValue);
+        actualValue.ShouldBe(expectedValue);
     }
 
-    [Fact]
+    [Test]
     public void Value_WithFailureResult_Throws_InvalidOperationException()
     {
         // Arrange
@@ -30,7 +30,7 @@ public class ResultExtensionsTests
             .Message.ShouldBe("You can't access .Value when .Succeeded is false");
     }
 
-    [Fact]
+    [Test]
     public void Match_WithSuccessResult_CallsOnSuccess()
     {
         // Arrange
@@ -44,10 +44,10 @@ public class ResultExtensionsTests
         );
 
         // Assert
-        Assert.Equal(expectedValue, actualValue);
+        actualValue.ShouldBe(expectedValue);
     }
 
-    [Fact]
+    [Test]
     public void Match_WithFailureResult_CallsOnFailure()
     {
         // Arrange
@@ -62,10 +62,10 @@ public class ResultExtensionsTests
         );
 
         // Assert
-        Assert.Equal(expectedValue, actualValue);
+        actualValue.ShouldBe(expectedValue);
     }
 
-    [Fact]
+    [Test]
     public void ToResult_WithValue_ReturnsSuccessResult()
     {
         // Arrange
@@ -75,11 +75,11 @@ public class ResultExtensionsTests
         var result = value.ToResult();
 
         // Assert
-        Assert.True(result.Succeeded);
-        Assert.Equal(value, result.Value());
+        result.Succeeded.ShouldBeTrue();
+        result.Value().ShouldBe(value);
     }
 
-    [Fact]
+    [Test]
     public void ToProblemDetails_WithFailureResult_ReturnsProblemDetails()
     {
         // Arrange
@@ -101,13 +101,13 @@ public class ResultExtensionsTests
         errors.First().Code.ShouldBe("TEST001");
     }
 
-    [Fact]
+    [Test]
     public void ToProblemDetails_WithSuccessResult_ThrowsInvalidOperationException()
     {
         // Arrange
         var result = Result.Success();
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => result.ToProblemDetails());
+        Should.Throw<InvalidOperationException>(() => result.ToProblemDetails());
     }
 }

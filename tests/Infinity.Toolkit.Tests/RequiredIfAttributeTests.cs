@@ -12,7 +12,7 @@ public class RequiredIfAttributeTests
         public string? Property2 { get; set; }
     }
 
-    [Fact]
+    [Test]
     public void Should_Be_Valid_When_Property1_Is_Value()
     {
         // Arrange
@@ -27,7 +27,7 @@ public class RequiredIfAttributeTests
         isValid.ShouldBe(true);
     }
 
-    [Fact]
+    [Test]
     public void Should_Be_Valid_When_Property1_Is_Null_And_Property2_Is_Null()
     {
         // Arrange
@@ -42,7 +42,7 @@ public class RequiredIfAttributeTests
         isValid.ShouldBe(true);
     }
 
-    [Fact]
+    [Test]
     public void Should_Be_Valid_When_Property1_Is_Null_And_Property2_Is_Empty()
     {
         // Arrange
@@ -57,7 +57,7 @@ public class RequiredIfAttributeTests
         isValid.ShouldBe(true);
     }
 
-    [Fact]
+    [Test]
     public void Should_Be_Invalid_When_Property2_Is_Null()
     {
         // Arrange
