@@ -80,35 +80,147 @@ public static class IHostApplicationBuilderExtensions
     /// <returns>A list of all feature modules in the solution.</returns>
     private static IEnumerable<TypeInfo> DiscoverModules(FeatureModuleOptions options, ILogger? logger)
     {
+        var assemblies = GetCandidateAssemblies();
+
+        var generatedModules = (TryGetGeneratedModules(assemblies, logger) ?? [])
+            .Select(type => type.GetTypeInfo())
+            .Where(type => type is { IsAbstract: false, IsInterface: false } &&
+                          type.IsAssignableTo(typeof(IFeatureModuleBase)) &&
+                          !ShouldModuleBeExcluded(type, options))
+            .ToList();
+
+        logger?.LogDebug(
+            new EventId(1004, "UsingGeneratedModules"),
+            "Discovered {count} modules at compile-time.",
+            generatedModules.Count);
+
+        var reflectionModules = assemblies
+            .SelectMany(assembly =>
+                assembly.DefinedTypes
+                    .Where(type => type is { IsAbstract: false, IsInterface: false } &&
+                                   type.IsAssignableTo(typeof(IFeatureModuleBase)) &&
+                                   !ShouldModuleBeExcluded(type, options)))
+            .ToList();
+
+        var generatedFullNames = generatedModules
+            .Select(type => type.FullName)
+            .Where(fullName => !string.IsNullOrWhiteSpace(fullName))
+            .ToHashSet(StringComparer.Ordinal);
+
+        var reflectionOnlyCount = reflectionModules
+            .Count(type => !generatedFullNames.Contains(type.FullName));
+
+        logger?.LogDebug(
+            new EventId(1007, "ReflectionModulesFound"),
+            "Discovered {count} modules by reflection.",
+            reflectionOnlyCount);
+
+        var discoveredModules = generatedModules
+            .Concat(reflectionModules)
+            .GroupBy(type => type.FullName, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .OrderBy(type => type.FullName)
+            .ToList();
+
+        logger?.LogInformation(
+            new EventId(1001, "ModulesFound"),
+            "Discovered total {moduleCount} feature modules. {compileTimeModule}/{runtimeModule} (compile time/runtime)",
+            discoveredModules.Count,
+            generatedModules.Count,
+            reflectionOnlyCount);
+
+        return discoveredModules;
+    }
+
+    /// <summary>
+    /// Attempts to retrieve module types from generated registries using reflection.
+    /// Returns null if no registry type is found.
+    /// </summary>
+    private static Type[]? TryGetGeneratedModules(
+        IEnumerable<Assembly> assemblies,
+        ILogger? logger)
+    {
+        try
+        {
+            const string registryTypeName =
+                "Infinity.Toolkit.FeatureModules.GeneratedFeatureModuleRegistry";
+
+            var generatedTypes = new List<Type>();
+
+            foreach (var assembly in assemblies.Distinct())
+            {
+                var registryType = assembly.GetType(registryTypeName);
+                if (registryType == null)
+                {
+                    continue;
+                }
+
+                var method = registryType.GetMethod(
+                    "GetModuleTypes",
+                    BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                if (method == null)
+                {
+                    continue;
+                }
+
+                if (method.Invoke(null, null) is Type[] types)
+                {
+                    generatedTypes.AddRange(types);
+                }
+            }
+
+            return generatedTypes.Count == 0
+                ? null
+                : generatedTypes.Distinct().ToArray();
+        }
+        catch (Exception ex)
+        {
+            logger?.LogDebug(
+                new EventId(1006, "GeneratedRegistryError"),
+                "Failed to load generated module registry: {message}",
+                ex.Message);
+            return null;
+        }
+    }
+
+    private static IReadOnlyCollection<Assembly> GetCandidateAssemblies()
+    {
         var assemblies = new HashSet<Assembly>
         {
             typeof(Assembly).Assembly,
+            typeof(IHostApplicationBuilderExtensions).Assembly,
         };
 
         var entryAssembly = Assembly.GetEntryAssembly();
-        var context = DependencyContext.Load(entryAssembly!)!;
-
-        foreach (var assembly in context.RuntimeLibraries)
+        if (entryAssembly == null)
         {
-            if (IsReferencingCurrentAssembly(assembly, typeof(IHostApplicationBuilderExtensions).Assembly.GetName().Name))
+            return assemblies;
+        }
+
+        assemblies.Add(entryAssembly);
+
+        var context = DependencyContext.Load(entryAssembly);
+        if (context == null)
+        {
+            return assemblies;
+        }
+
+        foreach (var runtimeLibrary in context.RuntimeLibraries)
+        {
+            if (!IsReferencingCurrentAssembly(
+                    runtimeLibrary,
+                    typeof(IHostApplicationBuilderExtensions).Assembly.GetName().Name))
             {
-                foreach (var assemblyName in assembly.GetDefaultAssemblyNames(context))
-                {
-                    assemblies.Add(Assembly.Load(assemblyName));
-                }
+                continue;
+            }
+
+            foreach (var assemblyName in runtimeLibrary.GetDefaultAssemblyNames(context))
+            {
+                assemblies.Add(Assembly.Load(assemblyName));
             }
         }
 
-        var typesAssignableTo = assemblies
-            .SelectMany(x =>
-                x.DefinedTypes
-                .Where(type => type is { IsAbstract: false, IsInterface: false } &&
-                                      type.IsAssignableTo(typeof(IFeatureModuleBase)) &&
-                                      !ShouldModuleBeExcluded(type, options)))
-            .OrderBy(c => c.FullName);
-
-        logger?.LogInformation(new EventId(1001, "ModulesFound"), "Found {moduleCount} feature modules.", typesAssignableTo.Count());
-        return typesAssignableTo;
+        return assemblies;
     }
 
     private static bool ShouldModuleBeExcluded(TypeInfo type, FeatureModuleOptions options)

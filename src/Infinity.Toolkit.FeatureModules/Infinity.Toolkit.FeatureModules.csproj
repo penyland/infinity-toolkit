@@ -4,20 +4,23 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <VersionPrefix>1.5.5</VersionPrefix>
+    <VersionPrefix>2.0.0</VersionPrefix>
     <PackageId>Infinity.Toolkit.FeatureModules</PackageId>
     <Description>Infinity Toolkit Feature Modules let's you structure your application in modules that automatically register dependencies and endpoints, which simplifies development when you are working with for example vertical slices.</Description>
     <PackageTags>FeatureModules;VerticalSliceArchitecture;ModularMonoliths;MinimalApis</PackageTags>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    
+
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="10.0.11" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Infinity.Toolkit.LogFormatter\Infinity.Toolkit.LogFormatter.csproj" />
+    <ProjectReference Include="..\Infinity.Toolkit.FeatureModules.SourceGenerator\Infinity.Toolkit.FeatureModules.SourceGenerator.csproj" 
+                      OutputItemType="Analyzer" 
+                      ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>
