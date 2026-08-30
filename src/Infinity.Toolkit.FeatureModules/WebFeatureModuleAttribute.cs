@@ -5,6 +5,9 @@ namespace Infinity.Toolkit.FeatureModules;
 /// The attributed class must implement <see cref="IWebFeatureModule"/>.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-public sealed class WebFeatureModuleAttribute : Attribute
+public sealed class WebFeatureModuleAttribute(string name, string version) : Attribute
 {
+    public string Name { get; } = name;
+
+    public string Version { get; } = version;
 }

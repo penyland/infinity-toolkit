@@ -246,6 +246,7 @@ public static class IHostApplicationBuilderExtensions
         ArgumentNullException.ThrowIfNull(builder, nameof(builder));
 
         Dictionary<Type, IFeatureModuleBase> registeredFeatureModules = [];
+        var assemblies = GetCandidateAssemblies();
 
         var serviceDescriptors = discoveredModules
             .Select(type => ServiceDescriptor.Transient(typeof(IFeatureModuleBase), type));
@@ -261,8 +262,24 @@ public static class IHostApplicationBuilderExtensions
 
             if (module is IFeatureModule featureModule)
             {
-                logger?.LogInformation(new EventId(1002, "RegisteringModules"), "Registering feature module: {module} - v{version}", module.ModuleInfo?.Name ?? module.GetType().FullName, module.ModuleInfo?.Version ?? "1.0");
-                featureModule?.RegisterModule(builder);
+                var generatedModuleInfo = TryGetGeneratedModuleInfo(
+                    assemblies,
+                    module.GetType(),
+                    logger);
+
+                var moduleName = generatedModuleInfo?.Name
+                    ?? module.ModuleInfo?.Name
+                    ?? module.GetType().FullName;
+                var moduleVersion = generatedModuleInfo?.Version
+                    ?? module.ModuleInfo?.Version
+                    ?? "1.0";
+
+                logger?.LogInformation(
+                    new EventId(1002, "RegisteringModules"),
+                    "Registering feature module: {module} - v{version}",
+                    moduleName,
+                    moduleVersion);
+                featureModule.RegisterModule(builder);
             }
             else
             {
@@ -274,5 +291,51 @@ public static class IHostApplicationBuilderExtensions
         {
             options.AdditionalAssemblies.AddRange([.. registeredFeatureModules.Keys.Select(x => x.Assembly)]);
         });
+    }
+
+    private static IModuleInfo? TryGetGeneratedModuleInfo(
+        IEnumerable<Assembly> assemblies,
+        Type moduleType,
+        ILogger? logger)
+    {
+        try
+        {
+            const string registryTypeName =
+                "Infinity.Toolkit.FeatureModules.GeneratedFeatureModuleMetadataRegistry";
+
+            foreach (var assembly in assemblies.Distinct())
+            {
+                var registryType = assembly.GetType(registryTypeName);
+                if (registryType == null)
+                {
+                    continue;
+                }
+
+                var method = registryType.GetMethod(
+                    "TryGetModuleInfo",
+                    BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                if (method == null)
+                {
+                    continue;
+                }
+
+                var parameters = new object?[] { moduleType, null };
+                if (method.Invoke(null, parameters) is true &&
+                    parameters[1] is IModuleInfo moduleInfo)
+                {
+                    return moduleInfo;
+                }
+            }
+
+            return null;
+        }
+        catch (Exception ex)
+        {
+            logger?.LogDebug(
+                new EventId(1008, "GeneratedMetadataRegistryError"),
+                "Failed to load generated module metadata registry: {message}",
+                ex.Message);
+            return null;
+        }
     }
 }

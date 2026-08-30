@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
 using System.Linq;
@@ -9,28 +9,32 @@ namespace Infinity.Toolkit.FeatureModules.SourceGenerator;
 [Generator]
 public class FeatureModulesSourceGenerator : IIncrementalGenerator
 {
-    private const string FeatureModuleAttributeFullName = "Infinity.Toolkit.FeatureModules.FeatureModuleAttribute";
-    private const string WebFeatureModuleAttributeFullName = "Infinity.Toolkit.FeatureModules.WebFeatureModuleAttribute";
-    private const string IFeatureModuleBaseFullName = "Infinity.Toolkit.FeatureModules.IFeatureModuleBase";
-    private const string IFeatureModuleFullName = "Infinity.Toolkit.FeatureModules.IFeatureModule";
-    private const string IWebFeatureModuleFullName = "Infinity.Toolkit.FeatureModules.IWebFeatureModule";
+    private const string FeatureModuleAttributeFullName =
+        "Infinity.Toolkit.FeatureModules.FeatureModuleAttribute";
+    private const string WebFeatureModuleAttributeFullName =
+        "Infinity.Toolkit.FeatureModules.WebFeatureModuleAttribute";
+    private const string IFeatureModuleBaseFullName =
+        "Infinity.Toolkit.FeatureModules.IFeatureModuleBase";
+    private const string IFeatureModuleFullName =
+        "Infinity.Toolkit.FeatureModules.IFeatureModule";
+    private const string IWebFeatureModuleFullName =
+        "Infinity.Toolkit.FeatureModules.IWebFeatureModule";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // Register both attribute types for discovery
         var featureModuleProvider = context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 FeatureModuleAttributeFullName,
-                predicate: static (node, _) => node is ClassDeclarationSyntax,
-                transform: static (ctx, _) => GetModuleInfo(ctx, IFeatureModuleFullName))
-            .Where(static m => m.Module != null);
+                static (node, _) => node is ClassDeclarationSyntax,
+                static (ctx, _) => GetAttributedModuleInfo(ctx, IFeatureModuleFullName))
+            .Where(static result => result.Module != null);
 
         var webFeatureModuleProvider = context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 WebFeatureModuleAttributeFullName,
-                predicate: static (node, _) => node is ClassDeclarationSyntax,
-                transform: static (ctx, _) => GetModuleInfo(ctx, IWebFeatureModuleFullName))
-            .Where(static m => m.Module != null);
+                static (node, _) => node is ClassDeclarationSyntax,
+                static (ctx, _) => GetAttributedModuleInfo(ctx, IWebFeatureModuleFullName))
+            .Where(static result => result.Module != null);
 
         var attributedModulesAndDiagnostics = featureModuleProvider
             .Collect()
@@ -39,10 +43,10 @@ public class FeatureModulesSourceGenerator : IIncrementalGenerator
             {
                 var combined = pair.Left.AddRange(pair.Right);
                 var modules = combined
-                    .Where(m => m.Module != null)
-                    .Select(m => m.Module!)
+                    .Where(item => item.Module != null)
+                    .Select(item => item.Module!)
                     .ToImmutableArray();
-                var diagnostics = combined.SelectMany(m => m.Diagnostics).ToImmutableArray();
+                var diagnostics = combined.SelectMany(item => item.Diagnostics).ToImmutableArray();
                 return (Modules: modules, Diagnostics: diagnostics);
             });
 
@@ -52,17 +56,26 @@ public class FeatureModulesSourceGenerator : IIncrementalGenerator
         var allModules = attributedModulesAndDiagnostics.Combine(assignableModules)
             .Select(static (data, _) =>
             {
-                var combinedModules = data.Left.Modules
-                    .Concat(data.Right)
-                    .GroupBy(module => module.FullTypeName, StringComparer.Ordinal)
-                    .Select(group => group.First())
+                var modulesByFullName = data.Left.Modules.ToDictionary(
+                    module => module.FullTypeName,
+                    module => module,
+                    StringComparer.Ordinal);
+
+                foreach (var module in data.Right)
+                {
+                    if (!modulesByFullName.ContainsKey(module.FullTypeName))
+                    {
+                        modulesByFullName[module.FullTypeName] = module;
+                    }
+                }
+
+                var orderedModules = modulesByFullName.Values
                     .OrderBy(module => module.FullTypeName, StringComparer.Ordinal)
                     .ToImmutableArray();
 
-                return (Modules: combinedModules, Diagnostics: data.Left.Diagnostics);
+                return (Modules: orderedModules, Diagnostics: data.Left.Diagnostics);
             });
 
-        // Generate the registry and emit diagnostics
         context.RegisterSourceOutput(allModules, static (spc, data) =>
         {
             foreach (var diagnostic in data.Diagnostics)
@@ -75,14 +88,25 @@ public class FeatureModulesSourceGenerator : IIncrementalGenerator
                 return;
             }
 
-            var registrySource = GenerateRegistry(data.Modules);
-            spc.AddSource("GeneratedFeatureModuleRegistry.g.cs", registrySource);
+            spc.AddSource("GeneratedFeatureModuleRegistry.g.cs", GenerateRegistry(data.Modules));
+
+            var modulesWithMetadata = data.Modules
+                .Where(module => module.Name != null && module.Version != null)
+                .ToImmutableArray();
+
+            if (!modulesWithMetadata.IsEmpty)
+            {
+                spc.AddSource(
+                    "GeneratedFeatureModuleMetadataRegistry.g.cs",
+                    GenerateMetadataRegistry(modulesWithMetadata));
+            }
         });
     }
 
-    private static (ModuleInfo? Module, ImmutableArray<Diagnostic> Diagnostics) GetModuleInfo(
-        GeneratorAttributeSyntaxContext context, 
-        string expectedInterface)
+    private static (ModuleInfo? Module, ImmutableArray<Diagnostic> Diagnostics)
+        GetAttributedModuleInfo(
+            GeneratorAttributeSyntaxContext context,
+            string expectedInterface)
     {
         var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
         var classSymbol = context.TargetSymbol as INamedTypeSymbol;
@@ -92,81 +116,113 @@ public class FeatureModulesSourceGenerator : IIncrementalGenerator
             return (null, diagnostics.ToImmutable());
         }
 
-        // Validate the class implements the expected interface
-        var implementsInterface = ImplementsInterface(classSymbol, expectedInterface);
-
-        if (!implementsInterface)
+        if (!ImplementsInterface(classSymbol, expectedInterface))
         {
-            // Add diagnostic: Attribute applied to class that doesn't implement required interface
-            var diagnostic = Diagnostic.Create(
+            diagnostics.Add(Diagnostic.Create(
                 new DiagnosticDescriptor(
                     id: "IFTK001",
                     title: "Invalid FeatureModule attribute usage",
-                    messageFormat: "Class '{0}' is marked with [{1}] but does not implement {2}",
+                    messageFormat:
+                        "Class '{0}' is marked with [{1}] but does not implement {2}",
                     category: "Infinity.Toolkit.FeatureModules",
                     DiagnosticSeverity.Error,
                     isEnabledByDefault: true),
                 classSymbol.Locations.FirstOrDefault(),
                 classSymbol.Name,
                 context.Attributes[0].AttributeClass?.Name ?? "FeatureModuleAttribute",
-                expectedInterface.Split('.').Last());
+                expectedInterface.Split('.').Last()));
 
-            diagnostics.Add(diagnostic);
             return (null, diagnostics.ToImmutable());
         }
 
-        // Validate class is not abstract
         if (classSymbol.IsAbstract)
         {
-            var diagnostic = Diagnostic.Create(
+            diagnostics.Add(Diagnostic.Create(
                 new DiagnosticDescriptor(
                     id: "IFTK002",
                     title: "Abstract class cannot be a feature module",
-                    messageFormat: "Class '{0}' is marked with a FeatureModule attribute but is abstract",
+                    messageFormat:
+                        "Class '{0}' is marked with a FeatureModule attribute but is abstract",
                     category: "Infinity.Toolkit.FeatureModules",
                     DiagnosticSeverity.Error,
                     isEnabledByDefault: true),
                 classSymbol.Locations.FirstOrDefault(),
-                classSymbol.Name);
+                classSymbol.Name));
 
-            diagnostics.Add(diagnostic);
             return (null, diagnostics.ToImmutable());
         }
 
-        // Validate class has parameterless constructor
         var hasParameterlessConstructor = classSymbol.Constructors
-            .Any(c => c.DeclaredAccessibility == Accessibility.Public && c.Parameters.Length == 0);
+            .Any(c => c.DeclaredAccessibility == Accessibility.Public &&
+                      c.Parameters.Length == 0);
 
         if (!hasParameterlessConstructor)
         {
-            var diagnostic = Diagnostic.Create(
+            diagnostics.Add(Diagnostic.Create(
                 new DiagnosticDescriptor(
                     id: "IFTK003",
                     title: "Feature module must have a public parameterless constructor",
-                    messageFormat: "Class '{0}' is marked with a FeatureModule attribute but does not have a public parameterless constructor",
+                    messageFormat:
+                        "Class '{0}' is marked with a FeatureModule attribute but " +
+                        "does not have a public parameterless constructor",
                     category: "Infinity.Toolkit.FeatureModules",
                     DiagnosticSeverity.Warning,
                     isEnabledByDefault: true),
                 classSymbol.Locations.FirstOrDefault(),
-                classSymbol.Name);
-
-            diagnostics.Add(diagnostic);
+                classSymbol.Name));
         }
 
-        // Return the module info
-        var moduleInfo = new ModuleInfo(
-            classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat
-                .WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted)),
-            classSymbol.ContainingAssembly.Name);
+        if (!TryReadAttributeArguments(context.Attributes[0], out var name, out var version))
+        {
+            diagnostics.Add(Diagnostic.Create(
+                new DiagnosticDescriptor(
+                    id: "IFTK004",
+                    title: "Invalid FeatureModule attribute arguments",
+                    messageFormat:
+                        "Class '{0}' has invalid FeatureModule attribute arguments. " +
+                        "Name and Version must be non-empty strings",
+                    category: "Infinity.Toolkit.FeatureModules",
+                    DiagnosticSeverity.Error,
+                    isEnabledByDefault: true),
+                classSymbol.Locations.FirstOrDefault(),
+                classSymbol.Name));
 
-        return (moduleInfo, diagnostics.ToImmutable());
+            return (null, diagnostics.ToImmutable());
+        }
+
+        return (BuildModuleInfo(classSymbol, name, version), diagnostics.ToImmutable());
     }
 
-    private static bool ImplementsInterface(INamedTypeSymbol classSymbol, string interfaceFullName)
+    private static bool TryReadAttributeArguments(
+        AttributeData attributeData,
+        out string? name,
+        out string? version)
     {
-        return classSymbol.AllInterfaces.Any(i =>
-            i.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat
-                .WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted)) == interfaceFullName);
+        name = null;
+        version = null;
+
+        if (attributeData.ConstructorArguments.Length < 2)
+        {
+            return false;
+        }
+
+        name = attributeData.ConstructorArguments[0].Value as string;
+        version = attributeData.ConstructorArguments[1].Value as string;
+
+        return !string.IsNullOrWhiteSpace(name) && !string.IsNullOrWhiteSpace(version);
+    }
+
+    private static ModuleInfo BuildModuleInfo(
+        INamedTypeSymbol classSymbol,
+        string? name,
+        string? version)
+    {
+        return new ModuleInfo(
+            classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat
+                .WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted)),
+            classSymbol.ContainingAssembly.Name,
+            name,
+            version);
     }
 
     private static ImmutableArray<ModuleInfo> GetAssignableModules(Compilation compilation)
@@ -187,21 +243,34 @@ public class FeatureModulesSourceGenerator : IIncrementalGenerator
                 continue;
             }
 
-            if (!SymbolEqualityComparer.Default.Equals(type, featureModuleBaseSymbol) &&
-                type.AllInterfaces.Any(i =>
-                    SymbolEqualityComparer.Default.Equals(i, featureModuleBaseSymbol)))
+            if (!ImplementsSymbol(type, featureModuleBaseSymbol))
             {
-                modules.Add(new ModuleInfo(
-                    type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat
-                        .WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted)),
-                    type.ContainingAssembly.Name));
+                continue;
             }
+
+            modules.Add(BuildModuleInfo(type, null, null));
         }
 
         return modules
             .GroupBy(module => module.FullTypeName, StringComparer.Ordinal)
             .Select(group => group.First())
             .ToImmutableArray();
+    }
+
+    private static bool ImplementsInterface(INamedTypeSymbol classSymbol, string interfaceFullName)
+    {
+        return classSymbol.AllInterfaces.Any(i =>
+            i.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat
+                .WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted)) ==
+            interfaceFullName);
+    }
+
+    private static bool ImplementsSymbol(
+        INamedTypeSymbol classSymbol,
+        INamedTypeSymbol interfaceSymbol)
+    {
+        return classSymbol.AllInterfaces.Any(i =>
+            SymbolEqualityComparer.Default.Equals(i, interfaceSymbol));
     }
 
     private static IEnumerable<INamedTypeSymbol> GetAllTypes(INamespaceSymbol @namespace)
@@ -246,14 +315,8 @@ public class FeatureModulesSourceGenerator : IIncrementalGenerator
         sb.AppendLine();
         sb.AppendLine("namespace Infinity.Toolkit.FeatureModules;");
         sb.AppendLine();
-        sb.AppendLine("/// <summary>");
-        sb.AppendLine("/// Generated registry of feature modules discovered at compile-time.");
-        sb.AppendLine("/// </summary>");
         sb.AppendLine("internal static class GeneratedFeatureModuleRegistry");
         sb.AppendLine("{");
-        sb.AppendLine("    /// <summary>");
-        sb.AppendLine("    /// Gets all feature module types discovered at compile-time.");
-        sb.AppendLine("    /// </summary>");
         sb.AppendLine("    internal static System.Type[] GetModuleTypes()");
         sb.AppendLine("    {");
         sb.AppendLine("        return new System.Type[]");
@@ -271,15 +334,67 @@ public class FeatureModulesSourceGenerator : IIncrementalGenerator
         return sb.ToString();
     }
 
+    private static string GenerateMetadataRegistry(ImmutableArray<ModuleInfo> modules)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("// <auto-generated/>");
+        sb.AppendLine("#nullable enable");
+        sb.AppendLine();
+        sb.AppendLine("namespace Infinity.Toolkit.FeatureModules;");
+        sb.AppendLine();
+        sb.AppendLine("internal static class GeneratedFeatureModuleMetadataRegistry");
+        sb.AppendLine("{");
+        sb.AppendLine("    internal static bool TryGetModuleInfo(");
+        sb.AppendLine("        System.Type moduleType,");
+        sb.AppendLine("        out IModuleInfo? moduleInfo)");
+        sb.AppendLine("    {");
+
+        foreach (var module in modules)
+        {
+            sb.AppendLine($"        if (moduleType == typeof({module.FullTypeName}))");
+            sb.AppendLine("        {");
+            sb.Append("            moduleInfo = new FeatureModuleInfo(")
+                .Append($"\"{EscapeString(module.Name!)}\", ")
+                .Append($"\"{EscapeString(module.Version!)}\");")
+                .AppendLine();
+            sb.AppendLine("            return true;");
+            sb.AppendLine("        }");
+        }
+
+        sb.AppendLine("        moduleInfo = null;");
+        sb.AppendLine("        return false;");
+        sb.AppendLine("    }");
+        sb.AppendLine("}");
+
+        return sb.ToString();
+    }
+
+    private static string EscapeString(string value)
+    {
+        return value.Replace("\\", "\\\\")
+            .Replace("\"", "\\\"");
+    }
+
     private sealed class ModuleInfo
     {
-        public ModuleInfo(string fullTypeName, string assemblyName)
+        public ModuleInfo(
+            string fullTypeName,
+            string assemblyName,
+            string? name,
+            string? version)
         {
             FullTypeName = fullTypeName;
             AssemblyName = assemblyName;
+            Name = name;
+            Version = version;
         }
 
         public string FullTypeName { get; }
+
         public string AssemblyName { get; }
+
+        public string? Name { get; }
+
+        public string? Version { get; }
     }
 }
