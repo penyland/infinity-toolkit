@@ -1,4 +1,5 @@
 using Infinity.Toolkit.FeatureModules;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -86,6 +87,42 @@ public class FeatureModuleDiscoveryTests
         modules.ShouldContain(typeof(TestWebFeatureModule));
         modules.ShouldContain(typeof(TestDirectFeatureModule));
         modules.ShouldContain(typeof(ReflectionOnlyFeatureModule));
+    }
+
+    [Test]
+    public void AddFeatureModules_Should_Exclude_Module_By_Type()
+    {
+        var builder = Host.CreateApplicationBuilder();
+
+        builder.AddFeatureModules(options => options.ExcludedModules.Add(typeof(TestFeatureModule)));
+
+        var provider = builder.Services.BuildServiceProvider();
+        var modules = provider.GetServices<IFeatureModuleBase>()
+            .Select(x => x.GetType())
+            .ToArray();
+
+        modules.ShouldNotContain(typeof(TestFeatureModule));
+        modules.ShouldContain(typeof(TestWebFeatureModule));
+    }
+
+    [Test]
+    public void AddFeatureModules_Should_Exclude_Module_By_AppSettings_Module_Name()
+    {
+        var builder = Host.CreateApplicationBuilder();
+        builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["FeatureModules:ExcludedModules:0"] = nameof(TestFeatureModule)
+        });
+
+        builder.AddFeatureModules();
+
+        var provider = builder.Services.BuildServiceProvider();
+        var modules = provider.GetServices<IFeatureModuleBase>()
+            .Select(x => x.GetType())
+            .ToArray();
+
+        modules.ShouldNotContain(typeof(TestFeatureModule));
+        modules.ShouldContain(typeof(TestWebFeatureModule));
     }
 
     [Test]

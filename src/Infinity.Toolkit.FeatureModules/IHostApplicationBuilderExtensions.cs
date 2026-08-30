@@ -58,16 +58,16 @@ public static class IHostApplicationBuilderExtensions
 
         try
         {
-            logger?.LogDebug(new EventId(1000, "Scanning"), "Scanning assemblies for feature modules...");
+            logger?.ScanningAssembliesForFeatureModules();
 
             var discoveredModules = DiscoverModules(options, logger);
             RegisterModules(discoveredModules, builder, logger);
 
-            logger?.LogDebug(new EventId(1003, "ScanningComplete"), "Registering feature modules completed.");
+            logger?.RegisteringFeatureModulesCompleted();
         }
         catch (Exception ex)
         {
-            logger?.LogError(new EventId(5000, "ScanningFailed"), "Failed to register feature modules. {ex}", ex.Message);
+            logger?.FailedToRegisterFeatureModules(ex);
         }
 
         return builder;
@@ -77,28 +77,26 @@ public static class IHostApplicationBuilderExtensions
     /// Discover all modules that references IFeatureModule.
     /// </summary>
     /// <returns>A list of all feature modules in the solution.</returns>
-    private static IEnumerable<TypeInfo> DiscoverModules(FeatureModuleOptions options, ILogger? logger)
+    private static List<TypeInfo> DiscoverModules(FeatureModuleOptions options, ILogger? logger)
     {
         var assemblies = GetCandidateAssemblies();
+        var excludedModules = GetExcludedModules(options, assemblies, logger);
 
         var generatedModules = (TryGetGeneratedModules(assemblies, logger) ?? [])
             .Select(type => type.GetTypeInfo())
             .Where(type => type is { IsAbstract: false, IsInterface: false } &&
                           type.IsAssignableTo(typeof(IFeatureModuleBase)) &&
-                          !ShouldModuleBeExcluded(type, options))
+                          !ShouldModuleBeExcluded(type, excludedModules))
             .ToList();
 
-        logger?.LogDebug(
-            new EventId(1004, "UsingGeneratedModules"),
-            "Discovered {count} modules at compile-time.",
-            generatedModules.Count);
+        logger?.DiscoveredCompileTimeModules(generatedModules.Count);
 
         var reflectionModules = assemblies
             .SelectMany(assembly =>
                 assembly.DefinedTypes
                     .Where(type => type is { IsAbstract: false, IsInterface: false } &&
                                    type.IsAssignableTo(typeof(IFeatureModuleBase)) &&
-                                   !ShouldModuleBeExcluded(type, options)))
+                                   !ShouldModuleBeExcluded(type, excludedModules)))
             .ToList();
 
         var generatedFullNames = generatedModules
@@ -109,10 +107,7 @@ public static class IHostApplicationBuilderExtensions
         var reflectionOnlyCount = reflectionModules
             .Count(type => !generatedFullNames.Contains(type.FullName));
 
-        logger?.LogDebug(
-            new EventId(1007, "ReflectionModulesFound"),
-            "Discovered {count} modules by reflection.",
-            reflectionOnlyCount);
+        logger?.DiscoveredReflectionModules(reflectionOnlyCount);
 
         var discoveredModules = generatedModules
             .Concat(reflectionModules)
@@ -121,9 +116,7 @@ public static class IHostApplicationBuilderExtensions
             .OrderBy(type => type.FullName)
             .ToList();
 
-        logger?.LogInformation(
-            new EventId(1001, "ModulesFound"),
-            "Discovered total {moduleCount} feature modules. {compileTimeModule}/{runtimeModule} (compile time/runtime)",
+        logger?.DiscoveredTotalModules(
             discoveredModules.Count,
             generatedModules.Count,
             reflectionOnlyCount);
@@ -174,15 +167,12 @@ public static class IHostApplicationBuilderExtensions
         }
         catch (Exception ex)
         {
-            logger?.LogDebug(
-                new EventId(1006, "GeneratedRegistryError"),
-                "Failed to load generated module registry: {message}",
-                ex.Message);
+            logger?.FailedToLoadGeneratedModuleRegistry(ex.Message);
             return null;
         }
     }
 
-    private static IReadOnlyCollection<Assembly> GetCandidateAssemblies()
+    private static HashSet<Assembly> GetCandidateAssemblies()
     {
         var assemblies = new HashSet<Assembly>
         {
@@ -222,9 +212,61 @@ public static class IHostApplicationBuilderExtensions
         return assemblies;
     }
 
-    private static bool ShouldModuleBeExcluded(TypeInfo type, FeatureModuleOptions options)
+    private static bool ShouldModuleBeExcluded(TypeInfo type, IReadOnlySet<Type> excludedModules)
     {
-        return options.ExcludedModules.Any(t => t == type.FullName);
+        return excludedModules.Contains(type.AsType());
+    }
+
+    private static HashSet<Type> GetExcludedModules(
+        FeatureModuleOptions options,
+        IEnumerable<Assembly> assemblies,
+        ILogger? logger)
+    {
+        var excludedModules = new HashSet<Type>(options.ExcludedModules);
+
+        foreach (var moduleName in options.ExcludedModuleNames)
+        {
+            if (string.IsNullOrWhiteSpace(moduleName))
+            {
+                continue;
+            }
+
+            var resolvedModule = Type.GetType(moduleName, throwOnError: false, ignoreCase: true);
+            if (resolvedModule != null)
+            {
+                excludedModules.Add(resolvedModule);
+                continue;
+            }
+
+            var matchingTypes = assemblies
+                .SelectMany(assembly => assembly.DefinedTypes)
+                .Where(type => type.IsAssignableTo(typeof(IFeatureModuleBase)) &&
+                               (type.Name.Equals(moduleName, StringComparison.OrdinalIgnoreCase) ||
+                                type.FullName?.Equals(
+                                    moduleName,
+                                    StringComparison.OrdinalIgnoreCase) == true))
+                .Select(type => type.AsType())
+                .Distinct()
+                .ToList();
+
+            if (matchingTypes.Count == 0)
+            {
+                logger?.ConfiguredExcludedModuleNotFound(moduleName);
+                continue;
+            }
+
+            foreach (var matchingType in matchingTypes)
+            {
+                excludedModules.Add(matchingType);
+            }
+
+            if (matchingTypes.Count > 1)
+            {
+                logger?.ConfiguredExcludedModuleAmbiguous(moduleName, matchingTypes.Count);
+            }
+        }
+
+        return excludedModules;
     }
 
     private static bool IsReferencingCurrentAssembly(Library library, string? currentAssemblyName)
@@ -276,16 +318,12 @@ public static class IHostApplicationBuilderExtensions
                     ?? module.ModuleInfo?.Version
                     ?? "1.0";
 
-                logger?.LogInformation(
-                    new EventId(1002, "RegisteringModules"),
-                    "Registering feature module: {module} - v{version}",
-                    moduleName,
-                    moduleVersion);
+                logger?.RegisteringFeatureModule(moduleName, moduleVersion);
                 featureModule.RegisterModule(builder);
             }
             else
             {
-                logger?.LogError(new EventId(1002, "RegisteringModules"), "Module {module} does not implement IFeatureModule or IWebFeatureModule.", module.GetType().FullName);
+                logger?.ModuleDoesNotImplementFeatureModule(module.GetType().FullName);
             }
         }
 
@@ -333,10 +371,7 @@ public static class IHostApplicationBuilderExtensions
         }
         catch (Exception ex)
         {
-            logger?.LogDebug(
-                new EventId(1008, "GeneratedMetadataRegistryError"),
-                "Failed to load generated module metadata registry: {message}",
-                ex.Message);
+            logger?.FailedToLoadGeneratedModuleMetadataRegistry(ex.Message);
             return null;
         }
     }
