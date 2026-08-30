@@ -9,7 +9,7 @@
     <DevelopmentDependency>true</DevelopmentDependency>
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     <VersionPrefix>2.0.0</VersionPrefix>
-    <IsPackable>true</IsPackable>
+    <IsPackable>false</IsPackable>
     <PackageId>Infinity.Toolkit.FeatureModules.SourceGenerator</PackageId>
     <Description>Source generator for compile-time discovery of Infinity Toolkit feature modules.</Description>
     <PackageTags>SourceGenerator;FeatureModules;Roslyn</PackageTags>
