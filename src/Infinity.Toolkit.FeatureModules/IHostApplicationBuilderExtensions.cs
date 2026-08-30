@@ -1,5 +1,4 @@
-﻿using Infinity.Toolkit.LogFormatter;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.DependencyModel;
 
 namespace Infinity.Toolkit.FeatureModules;
@@ -53,7 +52,7 @@ public static class IHostApplicationBuilderExtensions
 #if DEBUG
                 .AddDebug()
 #endif
-                .AddConsole(options => options.FormatterName = "CodeThemeConsoleFormatter").AddConsoleFormatter<CodeThemeConsoleFormatter, CustomOptions>();
+                .AddSimpleConsole(options => options.SingleLine = true);
         });
         var logger = loggerFactory.CreateLogger("Infinity.Toolkit.FeatureModules");
 
@@ -133,8 +132,8 @@ public static class IHostApplicationBuilderExtensions
     }
 
     /// <summary>
-    /// Attempts to retrieve module types from generated registries using reflection.
-    /// Returns null if no registry type is found.
+    /// Attempts to retrieve module types from generated registries using reflection. Returns null
+    /// if no registry type is found.
     /// </summary>
     private static Type[]? TryGetGeneratedModules(
         IEnumerable<Assembly> assemblies,
@@ -234,12 +233,15 @@ public static class IHostApplicationBuilderExtensions
     }
 
     /// <summary>
-    /// Register all classes implementing IFeatureModule while scanning the project to IServiceCollection.
+    /// Register all classes implementing IFeatureModule while scanning the project to
+    /// IServiceCollection.
     /// </summary>
     /// <param name="discoveredModules">List of found feature modules.</param>
     /// <param name="builder">The <see cref="WebApplicationBuilder"/>.</param>
     /// <param name="logger">The <see cref="ILogger"/>.</param>
-    /// <exception cref="InvalidOperationException">Thrown if no modules are found while scanning.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if no modules are found while scanning.
+    /// </exception>
     private static void RegisterModules(IEnumerable<TypeInfo> discoveredModules, IHostApplicationBuilder builder, ILogger? logger)
     {
         ArgumentNullException.ThrowIfNull(discoveredModules, nameof(discoveredModules));

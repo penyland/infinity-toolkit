@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Infinity.Toolkit.LogFormatter\Infinity.Toolkit.LogFormatter.csproj" />
     <ProjectReference Include="..\Infinity.Toolkit.FeatureModules.SourceGenerator\Infinity.Toolkit.FeatureModules.SourceGenerator.csproj" 
                       OutputItemType="Analyzer" 
                       ReferenceOutputAssembly="false" />
