@@ -3,7 +3,9 @@
 /// <summary>
 /// Enables the possibility to exclude feature modules from loading at startup.
 ///
-/// Can be configured by adding the following to appsettings.json. Or by using on of the overloads for AddFeatureModules.
+/// Exclusions can be configured in code using <see cref="ExcludedModules"/> with
+/// concrete <see cref="Type"/> values, or in appsettings.json using
+/// <see cref="ExcludedModuleNames"/>.
 ///
 /// Example:
 ///
@@ -16,7 +18,10 @@
 /// </summary>
 public record FeatureModuleOptions
 {
-    public List<string> ExcludedModules { get; set; } = [];
+    public List<Type> ExcludedModules { get; } = [];
+
+    [ConfigurationKeyName("ExcludedModules")]
+    public List<string> ExcludedModuleNames { get; set; } = [];
 
     public List<Assembly> AdditionalAssemblies { get; } = [];
 }

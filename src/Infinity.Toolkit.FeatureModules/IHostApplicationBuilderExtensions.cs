@@ -80,12 +80,13 @@ public static class IHostApplicationBuilderExtensions
     private static IEnumerable<TypeInfo> DiscoverModules(FeatureModuleOptions options, ILogger? logger)
     {
         var assemblies = GetCandidateAssemblies();
+        var excludedModules = GetExcludedModules(options, assemblies, logger);
 
         var generatedModules = (TryGetGeneratedModules(assemblies, logger) ?? [])
             .Select(type => type.GetTypeInfo())
             .Where(type => type is { IsAbstract: false, IsInterface: false } &&
                           type.IsAssignableTo(typeof(IFeatureModuleBase)) &&
-                          !ShouldModuleBeExcluded(type, options))
+                          !ShouldModuleBeExcluded(type, excludedModules))
             .ToList();
 
         logger?.LogDebug(
@@ -98,7 +99,7 @@ public static class IHostApplicationBuilderExtensions
                 assembly.DefinedTypes
                     .Where(type => type is { IsAbstract: false, IsInterface: false } &&
                                    type.IsAssignableTo(typeof(IFeatureModuleBase)) &&
-                                   !ShouldModuleBeExcluded(type, options)))
+                                   !ShouldModuleBeExcluded(type, excludedModules)))
             .ToList();
 
         var generatedFullNames = generatedModules
@@ -222,9 +223,68 @@ public static class IHostApplicationBuilderExtensions
         return assemblies;
     }
 
-    private static bool ShouldModuleBeExcluded(TypeInfo type, FeatureModuleOptions options)
+    private static bool ShouldModuleBeExcluded(TypeInfo type, IReadOnlySet<Type> excludedModules)
     {
-        return options.ExcludedModules.Any(t => t == type.FullName);
+        return excludedModules.Contains(type.AsType());
+    }
+
+    private static HashSet<Type> GetExcludedModules(
+        FeatureModuleOptions options,
+        IEnumerable<Assembly> assemblies,
+        ILogger? logger)
+    {
+        var excludedModules = new HashSet<Type>(options.ExcludedModules);
+
+        foreach (var moduleName in options.ExcludedModuleNames)
+        {
+            if (string.IsNullOrWhiteSpace(moduleName))
+            {
+                continue;
+            }
+
+            var resolvedModule = Type.GetType(moduleName, throwOnError: false, ignoreCase: true);
+            if (resolvedModule != null)
+            {
+                excludedModules.Add(resolvedModule);
+                continue;
+            }
+
+            var matchingTypes = assemblies
+                .SelectMany(assembly => assembly.DefinedTypes)
+                .Where(type => type.IsAssignableTo(typeof(IFeatureModuleBase)) &&
+                               (type.Name.Equals(moduleName, StringComparison.OrdinalIgnoreCase) ||
+                                type.FullName?.Equals(
+                                    moduleName,
+                                    StringComparison.OrdinalIgnoreCase) == true))
+                .Select(type => type.AsType())
+                .Distinct()
+                .ToList();
+
+            if (matchingTypes.Count == 0)
+            {
+                logger?.LogWarning(
+                    new EventId(1009, "ExcludedModuleNotFound"),
+                    "Configured excluded module '{moduleName}' was not found.",
+                    moduleName);
+                continue;
+            }
+
+            foreach (var matchingType in matchingTypes)
+            {
+                excludedModules.Add(matchingType);
+            }
+
+            if (matchingTypes.Count > 1)
+            {
+                logger?.LogWarning(
+                    new EventId(1010, "ExcludedModuleAmbiguous"),
+                    "Configured excluded module '{moduleName}' matched {matchCount} modules.",
+                    moduleName,
+                    matchingTypes.Count);
+            }
+        }
+
+        return excludedModules;
     }
 
     private static bool IsReferencingCurrentAssembly(Library library, string? currentAssemblyName)
