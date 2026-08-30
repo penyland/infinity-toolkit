@@ -9,6 +9,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Infinity.Toolkit.FeatureModules\Infinity.Toolkit.FeatureModules.csproj" />
+    <ProjectReference Include="..\..\src\Infinity.Toolkit.FeatureModules.SourceGenerator\Infinity.Toolkit.FeatureModules.SourceGenerator.csproj"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\..\src\Infinity.Toolkit\Infinity.Toolkit.csproj" />
   </ItemGroup>
 

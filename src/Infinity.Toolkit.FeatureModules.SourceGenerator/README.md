@@ -1,6 +1,8 @@
-# Infinity.Toolkit.FeatureModules
+# Infinity.Toolkit.FeatureModules.SourceGenerator
 Infinity.Toolkit.FeatureModules is a library that simplifies development of applications where you want to split functionality into different modules. It is especially useful when you are working with vertical slices in a modular monolith or application.
 However though, the library can be used in any type of application. It let's you automatically register dependencies and endpoints in modules which simplifies development when you are working in feature slices.
+
+This source generator is used to discover feature modules at compile-time instead of runtime. This will improve startup time and reduce the amount of reflection used in the application.
 
 ### Quick Start
 To get started with Feature Modules there are two options:
@@ -75,6 +77,25 @@ internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary
 ```
 
 2. Run the application and navigate to the /weatherforecast endpoint. You should see the weather forecast.
+
+### Source generator
+Add the source generator package to the project. This will enable compile-time discovery of feature modules.
+```bash
+dotnet add package Infinity.Toolkit.FeatureModules.SourceGenerator
+```
+
+Now when you run the application, the source generator will discover the feature modules at compile-time and generate a registry that will be used to register the modules in the application.
+
+You can also mark the feature module with the `FeatureModuleAttribute` to specify the name and version of the module. This will be used in the generated registry.
+```csharp
+[FeatureModule("WeatherModule", "1.0.0")]
+```
+
+or 
+
+```csharp
+[WebFeatureModule("WeatherModule")]
+```
 
 ### Feature modules in a class library
 The sample project also refers to a class library with another [feature module](samples/FeatureModulesSample.Module1). When you add the class library to the project, the feature module will be automatically registered and the endpoints will be mapped to the application.

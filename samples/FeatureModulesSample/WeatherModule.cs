@@ -2,11 +2,11 @@
 
 namespace FeatureModulesSample;
 
+[WebFeatureModule("WeatherModule", "1.1.0")]
 internal class WeatherModule : WebFeatureModule
 {
     public override void MapEndpoints(WebApplication builder)
     {
-
         var summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"

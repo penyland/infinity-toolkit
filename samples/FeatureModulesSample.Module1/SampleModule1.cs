@@ -9,10 +9,9 @@ using System.Runtime.InteropServices;
 
 namespace FeatureModulesSample.Module1;
 
+[WebFeatureModule("SampleModule1", "1.0.0")]
 public class SampleModule1 : WebFeatureModule
 {
-    public override IModuleInfo ModuleInfo { get; } = new FeatureModuleInfo("SampleModule1", "1.0.0");
-
     public override void MapEndpoints(WebApplication app)
     {
         var group = app.MapGroup("/info")

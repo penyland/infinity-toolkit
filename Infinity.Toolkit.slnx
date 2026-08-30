@@ -14,6 +14,7 @@
     <Project Path="src/Infinity.Toolkit.Azure/Infinity.Toolkit.Azure.csproj" />
     <Project Path="src/Infinity.Toolkit.EntityFramework/Infinity.Toolkit.EntityFramework.csproj" Id="467bd3bb-ee34-40fb-8fcd-77b30f7840b4" />
     <Project Path="src/Infinity.Toolkit.Experimental/Infinity.Toolkit.Experimental.csproj" />
+    <Project Path="src/Infinity.Toolkit.FeatureModules.SourceGenerator/Infinity.Toolkit.FeatureModules.SourceGenerator.csproj" Id="7f1e91d9-2d58-4a8d-8301-2e3efeebde2f" />
     <Project Path="src/Infinity.Toolkit.FeatureModules/Infinity.Toolkit.FeatureModules.csproj" />
     <Project Path="src/Infinity.Toolkit.IntegrationTests/Infinity.Toolkit.IntegrationTests.csproj" Id="9a934310-d8bf-4571-85d2-77474666f95f" />
     <Project Path="src/Infinity.Toolkit.LogFormatter/Infinity.Toolkit.LogFormatter.csproj" />
