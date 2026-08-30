@@ -104,11 +104,16 @@ public static class IHostApplicationBuilderExtensions
                 x.DefinedTypes
                 .Where(type => type is { IsAbstract: false, IsInterface: false } &&
                                       type.IsAssignableTo(typeof(IFeatureModuleBase)) &&
-                                      !options.ExcludedModules.Any(t => t == type.FullName)))
+                                      !ShouldModuleBeExcluded(type, options)))
             .OrderBy(c => c.FullName);
 
         logger?.LogInformation(new EventId(1001, "ModulesFound"), "Found {moduleCount} feature modules.", typesAssignableTo.Count());
         return typesAssignableTo;
+    }
+
+    private static bool ShouldModuleBeExcluded(TypeInfo type, FeatureModuleOptions options)
+    {
+        return options.ExcludedModules.Any(t => t == type.FullName);
     }
 
     private static bool IsReferencingCurrentAssembly(Library library, string? currentAssemblyName)
