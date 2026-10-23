@@ -5,14 +5,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Infinity.Toolkit.Azure</RootNamespace>
-    <VersionPrefix>1.1.6</VersionPrefix>
+    <VersionPrefix>1.1.7</VersionPrefix>
     <Description>Helpers and utilities for working with Azure services.</Description>
   </PropertyGroup>
   
   <ItemGroup>
+    <PackageReference Include="Azure.Core" Version="1.63.0" />
     <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.5.2" />
     <PackageReference Include="Azure.Identity" Version="1.21.0" />
-    <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.6.0" />
+    <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.6.1" />
     <PackageReference Include="Microsoft.FeatureManagement" Version="4.8.0" />
   </ItemGroup>
 
