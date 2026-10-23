@@ -14,12 +14,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Copyright © $([System.DateTime]::Now.Year) Peter Nylander </Copyright>
   </PropertyGroup>
-    
-  <PropertyGroup>
-    <ContainerRuntimeIdentifier>linux-x64</ContainerRuntimeIdentifier>
-    <EnableSdkContainerSupport>false</EnableSdkContainerSupport>
-  </PropertyGroup>
-
+  
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
@@ -56,7 +51,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.401" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.402" PrivateAssets="All"/>
   </ItemGroup>
   
 </Project>

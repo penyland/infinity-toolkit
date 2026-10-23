@@ -14,8 +14,7 @@ builder.ConfigureAzureAppConfiguration(configureSettings: options =>
     //options.TokenCredential = new DefaultAzureCredential();
     options.TokenCredential = new ChainedTokenCredential(
         new AzureCliCredential(),
-        new VisualStudioCredential()
-        );
+        new VisualStudioCredential());
 }, refreshOptions: refreshOptions =>
 {
     refreshOptions.SetRefreshInterval(TimeSpan.FromSeconds(15));
