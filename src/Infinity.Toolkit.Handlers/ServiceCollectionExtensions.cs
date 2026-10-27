@@ -5,7 +5,7 @@ namespace Infinity.Toolkit.Handlers;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds a request handler to the service collection that doesn't take any parameters and returns a <see cref="Result"/> indicating success or failure.
+    /// Adds a request handler to the service collection that doesn't take any parameters.
     /// </summary>
     /// <typeparam name="TRequest">The request type.</typeparam>
     /// <typeparam name="TRequestHandler">The request handler type.</typeparam>

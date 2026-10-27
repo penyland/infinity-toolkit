@@ -16,6 +16,7 @@
     <Project Path="src/Infinity.Toolkit.Experimental/Infinity.Toolkit.Experimental.csproj" />
     <Project Path="src/Infinity.Toolkit.FeatureModules.SourceGenerator/Infinity.Toolkit.FeatureModules.SourceGenerator.csproj" Id="7f1e91d9-2d58-4a8d-8301-2e3efeebde2f" />
     <Project Path="src/Infinity.Toolkit.FeatureModules/Infinity.Toolkit.FeatureModules.csproj" />
+    <Project Path="src/Infinity.Toolkit.Handlers/Infinity.Toolkit.Handlers.csproj" Id="b61be49a-c67c-4731-9fac-b384a1d0402e" />
     <Project Path="src/Infinity.Toolkit.IntegrationTests/Infinity.Toolkit.IntegrationTests.csproj" Id="9a934310-d8bf-4571-85d2-77474666f95f" />
     <Project Path="src/Infinity.Toolkit.LogFormatter/Infinity.Toolkit.LogFormatter.csproj" />
     <Project Path="src/Infinity.Toolkit.OpenApi/Infinity.Toolkit.OpenApi.csproj" />
