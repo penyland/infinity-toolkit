@@ -21,7 +21,7 @@ public interface IRequestHandler<TRequest, TResponse>
     /// <param name="context">The request context.</param>
     /// <param name="cancellationToken">An optional cancellation token.</param>
     /// <returns>Returns the result of the request.</returns>
-    Task<TResponse> HandleAsync(IHandlerContext<TRequest> context, CancellationToken cancellationToken = default);
+    Task<TResponse> HandleAsync(IRequestHandlerContext<TRequest> context, CancellationToken cancellationToken = default);
 }
 
 public abstract class RequestHandlerBase<TRequest, TResponse> : IRequestHandler<TResponse>, IRequestHandler<TRequest, TResponse>
@@ -30,5 +30,5 @@ public abstract class RequestHandlerBase<TRequest, TResponse> : IRequestHandler<
 {
     public abstract Task<TResponse> HandleAsync(CancellationToken cancellationToken = default);
 
-    public abstract Task<TResponse> HandleAsync(IHandlerContext<TRequest> context, CancellationToken cancellationToken = default);
+    public abstract Task<TResponse> HandleAsync(IRequestHandlerContext<TRequest> context, CancellationToken cancellationToken = default);
 }
