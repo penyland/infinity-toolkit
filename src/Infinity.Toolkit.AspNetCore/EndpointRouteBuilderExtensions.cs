@@ -43,7 +43,7 @@ public static class EndpointRouteBuilderExtensions
         return builder.MapGet(path, async ([AsParameters] TRequest request, [FromServices] IRequestHandler<TRequest, TResponse> requestHandler) =>
         {
             var result = await requestHandler.HandleAsync(
-                new HandlerContext<TRequest>
+                new RequestHandlerContext<TRequest>
                 {
                     Body = BinaryData.FromObjectAsJson(request),
                     Request = request
@@ -99,7 +99,7 @@ public static class EndpointRouteBuilderExtensions
         return builder.MapGet(path, async ([AsParameters] TRequest request, [FromServices] IRequestHandler<TRequest, TResponse> requestHandler) =>
         {
             var result = await requestHandler.HandleAsync(
-                new HandlerContext<TRequest>
+                new RequestHandlerContext<TRequest>
                 {
                     Body = BinaryData.FromObjectAsJson(request),
                     Request = request
@@ -154,7 +154,7 @@ public static class EndpointRouteBuilderExtensions
         return builder.MapGet(path, async ([AsParameters] TRequest request, [FromServices] IRequestHandler<TRequest, Result<TResponse>> requestHandler) =>
         {
             var result = await requestHandler.HandleAsync(
-                new HandlerContext<TRequest>
+                new RequestHandlerContext<TRequest>
                 {
                     Body = BinaryData.FromObjectAsJson(request),
                     Request = request
@@ -225,7 +225,7 @@ public static class EndpointRouteBuilderExtensions
         return builder.MapGet(path, async ([AsParameters] TRequest request, [FromServices] IRequestHandler<TRequest, Result<TResponse>> requestHandler) =>
         {
             var result = await requestHandler.HandleAsync(
-                new HandlerContext<TRequest>
+                new RequestHandlerContext<TRequest>
                 {
                     Body = BinaryData.FromObjectAsJson(request),
                     Request = request
