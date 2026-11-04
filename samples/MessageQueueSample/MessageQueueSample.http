@@ -1,0 +1,11 @@
+@MessageQueueSample_HostAddress = http://localhost:5030
+
+POST {{MessageQueueSample_HostAddress}}/publish-event
+Accept: application/json
+Content-Type: application/json
+
+{
+  "eventType": "TestIntegrationEvent"
+}
+
+###
