@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="10.0.14" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.14" />
     <PackageReference Include="Scrutor" Version="7.0.0" />
     <PackageReference Include="System.Memory.Data" Version="10.0.14" />
   </ItemGroup>
