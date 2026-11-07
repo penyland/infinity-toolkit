@@ -1,15 +1,15 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading.Channels;
 
 namespace Infinity.Toolkit.Handlers;
 
 public static class InMemoryMessageQueueExtensions
 {
-    public static IServiceCollection AddInMemoryMessageQueue(this IServiceCollection services)
+    public static IServiceCollection AddEventBus(this IServiceCollection services)
     {
         services.TryAddSingleton<InMemoryMessageQueue>();
         services.TryAddSingleton<IEventBus, EventBus>();
@@ -17,21 +17,26 @@ public static class InMemoryMessageQueueExtensions
         services.TryAddScoped<IEventPublisher, EventPublisher>();
         return services;
     }
+
+    public static IServiceCollection AddEventHandler<TEvent, THandler>(this IServiceCollection services)
+        where TEvent : class, IEvent
+        where THandler : class, IEventHandler<TEvent>
+    {
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<IEventHandler<TEvent>, THandler>());
+        return services;
+    }
 }
 
 internal class InMemoryMessageQueue
 {
-    private readonly Channel<IEvent> channel = Channel.CreateUnbounded<IEvent>(new UnboundedChannelOptions { SingleReader = true });
+    private readonly Channel<Envelope> channel = Channel.CreateUnbounded<Envelope>(new UnboundedChannelOptions { SingleReader = true });
 
-    public ChannelReader<IEvent> Reader => channel.Reader;
+    public ChannelReader<Envelope> Reader => channel.Reader;
 
-    public ChannelWriter<IEvent> Writer => channel.Writer;
+    public ChannelWriter<Envelope> Writer => channel.Writer;
 }
 
-public interface IEvent
-{
-    string EventType { get; }
-}
+public interface IEvent;
 
 public interface IEventBus
 {
@@ -39,67 +44,46 @@ public interface IEventBus
         where T : IEvent;
 }
 
-internal sealed class EventBus(InMemoryMessageQueue messageQueue) : IEventBus
+internal sealed class EventBus(InMemoryMessageQueue messageQueue, TimeProvider timeProvider) : IEventBus
 {
     public Task PublishAsync<T>(T @event, CancellationToken cancellationToken = default)
         where T : IEvent
     {
         ArgumentNullException.ThrowIfNull(@event);
-        return messageQueue.Writer.WriteAsync(@event, cancellationToken).AsTask();
-    }
-}
-
-internal sealed class EventProcessorJob(InMemoryMessageQueue messageQueue, IServiceScopeFactory serviceScopeFactory, ILogger<EventProcessorJob> logger)
-    : BackgroundService
-{
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        logger.LogInformation("EventProcessorJob started.");
-
-        await foreach (var @event in messageQueue.Reader.ReadAllAsync(stoppingToken))
+        var envelope = new Envelope
         {
-            try
-            {
-                logger.LogTrace("Processing event of type: {EventType}", @event.EventType);
-                await using var scope = serviceScopeFactory.CreateAsyncScope();
-                var eventPublisher = scope.ServiceProvider.GetRequiredService<IEventPublisher>();
-
-                await EventDispatcher.For(@event.GetType())
-                    .DispatchAsync(@event, eventPublisher, stoppingToken);
-            }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-            {
-                break;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Failed to process event {EventType}", @event.EventType);
-            }
-        }
+            Event = @event,
+            EventType = @event.GetType().Name,
+            EnqueuedTimeUtc = timeProvider.GetUtcNow(),
+            MessageId = Guid.CreateVersion7().ToString(),
+            ParentContext = Activity.Current?.Context ?? default,
+        };
+        return messageQueue.Writer.WriteAsync(envelope, cancellationToken).AsTask();
     }
 }
 
 internal interface IEventPublisher
 {
-    Task PublishAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default) where TEvent : IEvent;
+    Task PublishAsync<TEvent>(Envelope envelope, CancellationToken cancellationToken = default)
+        where TEvent : IEvent;
 }
 
 internal sealed class EventPublisher(IServiceProvider serviceProvider, ILogger<EventPublisher> logger) : IEventPublisher
 {
-    public async Task PublishAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default)
+    public async Task PublishAsync<TEvent>(Envelope envelope, CancellationToken cancellationToken = default)
         where TEvent : IEvent
     {
         var handlers = serviceProvider.GetServices<IEventHandler<TEvent>>().ToArray();
         if (handlers.Length == 0)
         {
-            logger.LogWarning("No handlers found for event type {EventType}", typeof(TEvent).Name);
+            logger.LogWarning("No handlers found for event type {EventType}", envelope.EventType);
             return;
         }
 
         var context = new EventHandlerContext<TEvent>()
         {
-            Event = @event,
-            Body = BinaryData.FromObjectAsJson(@event)
+            Event = (TEvent)envelope.Event,
+            Body = BinaryData.FromObjectAsJson(envelope.Event)
         };
 
         foreach (var handler in handlers)
@@ -115,7 +99,7 @@ internal sealed class EventPublisher(IServiceProvider serviceProvider, ILogger<E
             catch (Exception ex)
             {
                 logger.LogError(ex, "Handler {Handler} failed for event {EventType}",
-                    handler.GetType().Name, @event.EventType);
+                    handler.GetType().Name, envelope.EventType);
             }
         }
     }
@@ -127,7 +111,6 @@ public interface IEventHandler<T>
     Task HandleAsync(IEventHandlerContext<T> context, CancellationToken cancellationToken = default);
 }
 
-
 internal abstract class EventDispatcher
 {
     private static readonly ConcurrentDictionary<Type, EventDispatcher> Cache = new();
@@ -136,14 +119,14 @@ internal abstract class EventDispatcher
         Cache.GetOrAdd(eventType, static t =>
             (EventDispatcher)Activator.CreateInstance(typeof(EventDispatcher<>).MakeGenericType(t))!);
 
-    public abstract Task DispatchAsync(IEvent @event, IEventPublisher publisher, CancellationToken ct);
+    public abstract Task DispatchAsync(Envelope envelope, IEventPublisher publisher, CancellationToken cancellationToken);
 }
 
 internal sealed class EventDispatcher<TEvent> : EventDispatcher
     where TEvent : IEvent
 {
-    public override Task DispatchAsync(IEvent @event, IEventPublisher publisher, CancellationToken ct) =>
-        publisher.PublishAsync((TEvent)@event, ct);
+    public override Task DispatchAsync(Envelope envelope, IEventPublisher publisher, CancellationToken cancellationToken) =>
+        publisher.PublishAsync<TEvent>(envelope, cancellationToken);
 }
 
 public interface IEventHandlerContext<TEvent> : IHandlerContext
@@ -155,4 +138,6 @@ public class EventHandlerContext<TEvent> : IEventHandlerContext<TEvent>
 {
     public required TEvent Event { get; init; }
     public required BinaryData Body { get; init; }
+
+    public IDictionary<string, object?> ApplicationProperties { get; init; } = new Dictionary<string, object?>(20);
 }
