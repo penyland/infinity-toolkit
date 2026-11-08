@@ -8,5 +8,5 @@ public interface IHandlerContext
     /// The message body.
     /// </summary>
     [JsonIgnore]
-    BinaryData Body { get; }
+    BinaryData Payload { get; }
 }

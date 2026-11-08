@@ -7,9 +7,9 @@ namespace Infinity.Toolkit.Handlers;
 /// </summary>
 internal record Envelope
 {
-    public IEvent Event { get; init; }
+    public BinaryData Payload { get; internal set; }
 
-    public string EventType { get; init; }
+    public Type Type { get; init; }
 
     public string MessageId { get; internal set; }
 

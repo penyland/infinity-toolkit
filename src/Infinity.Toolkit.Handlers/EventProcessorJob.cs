@@ -15,11 +15,11 @@ internal sealed class EventProcessorJob(InMemoryMessageQueue messageQueue, IServ
         {
             try
             {
-                logger.LogTrace("Processing event of type: {EventType}", envelope.EventType);
+                logger.LogTrace("Processing event of type: {EventType}", envelope.Type);
                 await using var scope = serviceScopeFactory.CreateAsyncScope();
                 var eventPublisher = scope.ServiceProvider.GetRequiredService<IEventPublisher>();
 
-                await EventDispatcher.For(envelope.Event.GetType())
+                await EventDispatcher.For(envelope.Type)
                     .DispatchAsync(envelope, eventPublisher, stoppingToken);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -28,7 +28,7 @@ internal sealed class EventProcessorJob(InMemoryMessageQueue messageQueue, IServ
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Failed to process event {EventType}", envelope.EventType);
+                logger.LogError(ex, "Failed to process event {EventType}", envelope.Type);
             }
         }
     }
