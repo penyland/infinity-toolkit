@@ -27,6 +27,7 @@ public static class InMemoryMessageQueueExtensions
     }
 }
 
+// Separate reader and writer so we can exchange them for other implementations such as writing to a database or message bus. This allows us to swap out the in-memory implementation for a more robust one in production.
 internal class InMemoryMessageQueue
 {
     private readonly Channel<Envelope> channel = Channel.CreateUnbounded<Envelope>(new UnboundedChannelOptions { SingleReader = true });
@@ -52,12 +53,13 @@ internal sealed class EventBus(InMemoryMessageQueue messageQueue, TimeProvider t
         ArgumentNullException.ThrowIfNull(@event);
         var envelope = new Envelope
         {
-            Event = @event,
-            EventType = @event.GetType().Name,
+            Payload = new BinaryData(@event),
+            Type = @event.GetType(),
             EnqueuedTimeUtc = timeProvider.GetUtcNow(),
             MessageId = Guid.CreateVersion7().ToString(),
             ParentContext = Activity.Current?.Context ?? default,
         };
+
         return messageQueue.Writer.WriteAsync(envelope, cancellationToken).AsTask();
     }
 }
@@ -76,14 +78,14 @@ internal sealed class EventPublisher(IServiceProvider serviceProvider, ILogger<E
         var handlers = serviceProvider.GetServices<IEventHandler<TEvent>>().ToArray();
         if (handlers.Length == 0)
         {
-            logger.LogWarning("No handlers found for event type {EventType}", envelope.EventType);
+            logger.LogWarning("No handlers found for event type {EventType}", envelope.Type);
             return;
         }
 
         var context = new EventHandlerContext<TEvent>()
         {
-            Event = (TEvent)envelope.Event,
-            Body = BinaryData.FromObjectAsJson(envelope.Event)
+            Data = envelope.Payload.ToObjectFromJson<TEvent>()!,
+            Payload = envelope.Payload,
         };
 
         foreach (var handler in handlers)
@@ -99,7 +101,7 @@ internal sealed class EventPublisher(IServiceProvider serviceProvider, ILogger<E
             catch (Exception ex)
             {
                 logger.LogError(ex, "Handler {Handler} failed for event {EventType}",
-                    handler.GetType().Name, envelope.EventType);
+                    handler.GetType().Name, envelope.Type);
             }
         }
     }
@@ -131,13 +133,16 @@ internal sealed class EventDispatcher<TEvent> : EventDispatcher
 
 public interface IEventHandlerContext<TEvent> : IHandlerContext
 {
-    TEvent Event { get; }
+    TEvent Data { get; }
+
+    IDictionary<string, object?> ApplicationProperties { get; init; }
 }
 
 public class EventHandlerContext<TEvent> : IEventHandlerContext<TEvent>
 {
-    public required TEvent Event { get; init; }
-    public required BinaryData Body { get; init; }
+    public required TEvent Data { get; init; }
+
+    public required BinaryData Payload { get; init; }
 
     public IDictionary<string, object?> ApplicationProperties { get; init; } = new Dictionary<string, object?>(20);
 }
