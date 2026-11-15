@@ -1,18 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <VersionPrefix>1.2.8</VersionPrefix>
+    <VersionPrefix>1.3.0</VersionPrefix>
     <PackageId>Infinity.Toolkit.LogFormatter</PackageId>
     <Description>A logging formatter that formats log messages with a Visual Studio Code inspired theme and Serilog like formatting.</Description>
     <PackageTags>Logging formatter</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="10.0.14" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.14" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="11.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="11.0.0" />
   </ItemGroup>
   
 </Project>
