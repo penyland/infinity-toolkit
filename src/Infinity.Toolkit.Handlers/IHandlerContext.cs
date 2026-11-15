@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Infinity.Toolkit.Handlers;
 
@@ -8,5 +8,5 @@ public interface IHandlerContext
     /// The message body.
     /// </summary>
     [JsonIgnore]
-    BinaryData Body { get; }
+    BinaryData Payload { get; }
 }

@@ -1,9 +1,9 @@
-﻿namespace Infinity.Toolkit.Handlers;
+namespace Infinity.Toolkit.Handlers;
 
 public class RequestHandlerContext<TContext> : IRequestHandlerContext<TContext>
     where TContext : class
 {
-    public BinaryData Body { get; init; }
+    public BinaryData Payload { get; init; }
 
     public TContext Request { get; init; }
 }
