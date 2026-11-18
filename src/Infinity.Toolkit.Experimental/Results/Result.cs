@@ -1,5 +1,13 @@
 namespace Infinity.Toolkit.Experimental.Results;
 
+public record Success<T>(T Value);
+
+public record PartialFailure<T>(T Value, Error Error);
+
+public record Failure(Error Error);
+
+public union Result2<T>(Success<T>, PartialFailure<T>, Failure);
+
 /// <summary>
 /// Represents the result of an operation that returns a value and indicates success or failure.
 /// </summary>
