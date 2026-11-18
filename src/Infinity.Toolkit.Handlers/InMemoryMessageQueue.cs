@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Reflection;
 using System.Threading.Channels;
 
 namespace Infinity.Toolkit.Handlers;
@@ -92,6 +93,9 @@ internal sealed class EventPublisher(IServiceProvider serviceProvider, ILogger<E
         {
             try
             {
+                var activityContext = envelope.ParentContext;
+                using var activity = EventBusActivitySource.StartActivity($"Invoking {handler.GetType().Name}", ActivityKind.Client, activityContext);
+                activity!.SetTag("messaging.handlertype", handler.GetType().Name);
                 await handler.HandleAsync(context, cancellationToken);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -145,4 +149,24 @@ public class EventHandlerContext<TEvent> : IEventHandlerContext<TEvent>
     public required BinaryData Payload { get; init; }
 
     public IDictionary<string, object?> ApplicationProperties { get; init; } = new Dictionary<string, object?>(20);
+}
+
+internal class EventBusActivitySource
+{
+    internal static readonly ActivitySource ActivitySource = new("Infinity.Toolkit", Assembly.GetExecutingAssembly().GetName().Version?.ToString());
+
+    public static Activity? StartActivity(string operationName, ActivityKind kind, ActivityContext activityContext, TagList? tags = default, IEnumerable<ActivityLink>? links = default)
+    {
+        if (!ActivitySource.HasListeners())
+        {
+            return null;
+        }
+
+        return ActivitySource.StartActivity(
+            operationName,
+            kind,
+            activityContext,
+            tags,
+            links);
+    }
 }
