@@ -135,7 +135,7 @@ internal sealed class EventDispatcher<TEvent> : EventDispatcher
         publisher.PublishAsync<TEvent>(envelope, cancellationToken);
 }
 
-public interface IEventHandlerContext<TEvent> : IHandlerContext
+public interface IEventHandlerContext<TEvent> : IRequestHandlerContext
 {
     TEvent Data { get; }
 

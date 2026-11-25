@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Infinity.Toolkit.Handlers;
 
-public interface IHandlerContext
+public interface IRequestHandlerContext
 {
     /// <summary>
     /// The message body.

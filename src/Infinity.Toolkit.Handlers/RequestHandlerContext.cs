@@ -8,7 +8,7 @@ public class RequestHandlerContext<TContext> : IRequestHandlerContext<TContext>
     public TContext Request { get; init; }
 }
 
-public interface IRequestHandlerContext<TContext> : IHandlerContext
+public interface IRequestHandlerContext<TContext> : IRequestHandlerContext
     where TContext : class
 {
     public static Type Type { get; } = typeof(TContext);
